@@ -3736,7 +3736,7 @@ function rais_theoreme_n1() {
     },
     {
       theoreme: 'trigonometrie',
-      figure: svgTriangleRect({ sides: { AB: '?', BC: 'BC = 10', AC: '' } }),
+      figure: svgTriangleRect({ sides: { AB: '?', BC: 'BC = 10', AC: '' } , angleAt: 'A' }),
       body: "Dans un triangle ABC rectangle en A, je connais l'hypoténuse BC = 10 cm et l'angle \\(\\widehat{B} = 40°\\). Je veux AB. <b>Quel outil utiliser ?</b>",
       a: "Trigonométrie (cosinus)",
       opts: ["Trigonométrie (cosinus)", "Théorème de Pythagore", "Théorème de Thalès"],
@@ -3774,7 +3774,7 @@ function rais_theoreme_n2() {
       sol: "On connaît les 3 longueurs et on veut vérifier si rectangle → <b>réciproque</b>."
     },
     {
-      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } }),
+      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } , angleAt: 'A' }),
       theoreme: 'pythagore_direct',
       body: "Dans un triangle ABC rectangle en A, on connaît AB et AC. On veut calculer BC.",
       a: "Pythagore direct",
@@ -4003,7 +4003,7 @@ function rais_theoreme_n5() {
       sol: "La réciproque de Thalès exige l'égalité des rapports. Ici 0,3 ≠ 0,4 → <b>contraposée</b> : (MN) n'est pas parallèle à (BC)."
     },
     {
-      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } }),
+      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } , angleAt: 'C' }),
       theoreme: 'pythagore_direct',
       body: "Dans un triangle ABC rectangle en C, on connaît l'aire (= AC × BC / 2) et l'hypoténuse AB. Peut-on retrouver AC et BC ?",
       a: "Oui, avec un système d'équations (aire + Pythagore)",
@@ -4115,7 +4115,7 @@ function rais_ordre_n1() {
     },
     {
       theoreme: 'pythagore_direct',
-      figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
+      figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } , angleAt: 'A' }),
       context: "On veut calculer BC dans le triangle rectangle en A avec AC = 6 et l'hypoténuse BC.  On connaît AB = 8.",
       steps: [
         "Le triangle ABC est rectangle en A, donc d'après Pythagore : BC² = AB² + AC².",
@@ -4143,7 +4143,7 @@ function rais_ordre_n2() {
     },
     {
       theoreme: 'pythagore_direct',
-      figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
+      figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } , angleAt: 'A' }),
       context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. On veut BC.",
       steps: [
         "Le triangle ABC est rectangle en A.",
@@ -4592,7 +4592,7 @@ function rais_erreur_n5() {
       explain: "Dans la <b>configuration papillon</b>, la réciproque de Thalès demande une condition supplémentaire : <b>les points doivent être alignés dans le même ordre ou en ordres inverses</b>. Sans préciser l'alignement, la conclusion n'est pas rigoureuse. Il faut étudier les positions de M et N par rapport à A."
     },
     {
-      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } }),
+      figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } , angleAt: 'A' }),
       theoreme: 'pythagore_direct',
       context: "Dans un triangle ABC rectangle en A, AC = 3 m et BC = 5 m (hypoténuse). On veut AB en mètres.",
       steps: [

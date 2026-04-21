@@ -58,27 +58,70 @@ function perpTick(x1, y1, x2, y2, n = 1, color = '#2b5fd6') {
 /* Triangle rectangle en B (angle droit en bas-gauche).
    AB vertical, BC horizontal, AC hypoténuse.
    sides = { AB, BC, AC } — chaque valeur est un texte à afficher le long du côté. */
-function svgTriangleRect({ labels = { A: 'A', B: 'B', C: 'C' }, sides = {}, angleAt = null } = {}) {
+function svgTriangleRect({ labels = { A: 'A', B: 'B', C: 'C' }, sides = {}, angleAt = 'B' } = {}) {
+  // Triangle rectangle dont l'angle droit est placé au sommet 'angleAt' ('A', 'B' ou 'C').
+  // Par défaut 'B' (historique). Les trois sommets sont positionnés pour que l'angle droit
+  // soit visuellement au bon endroit et que le carré d'angle droit soit dessiné correctement.
   const W = 300, H = 220;
   const pad = { l: 50, r: 40, t: 40, b: 40 };
-  const Bx = pad.l, By = H - pad.b;
-  const Ax = Bx,   Ay = pad.t;
-  const Cx = W - pad.r, Cy = By;
-  const sq = 12; // taille carré d'angle droit
+  // Coordonnées des 3 coins du rectangle englobant
+  const xL = pad.l, xR = W - pad.r;
+  const yT = pad.t, yB = H - pad.b;
+  // Sommet de l'angle droit : dans le coin bas-gauche.
+  // Les deux autres sommets sont au-dessus (haut-gauche) et à droite (bas-droite).
+  // On assigne A, B, C aux coins selon angleAt.
+  let Ax, Ay, Bx, By, Cx, Cy, rightCorner;
+  if (angleAt === 'A') {
+    // Angle droit en A → A au coin bas-gauche, B au coin haut, C au coin bas-droit.
+    Ax = xL; Ay = yB; Bx = xL; By = yT; Cx = xR; Cy = yB;
+    rightCorner = { x: Ax, y: Ay };
+  } else if (angleAt === 'C') {
+    // Angle droit en C → C au coin bas-gauche, A au coin haut, B au coin bas-droit.
+    Cx = xL; Cy = yB; Ax = xL; Ay = yT; Bx = xR; By = yB;
+    rightCorner = { x: Cx, y: Cy };
+  } else {
+    // angleAt === 'B' (ou autre) → B au coin bas-gauche, A au coin haut, C au coin bas-droit.
+    Bx = xL; By = yB; Ax = xL; Ay = yT; Cx = xR; Cy = yB;
+    rightCorner = { x: Bx, y: By };
+  }
+  const sq = 12;
+  // Carré d'angle droit : on le dessine à partir du coin bas-gauche, vers le haut puis la droite
+  const angleSq = `<path d="M ${rightCorner.x} ${rightCorner.y - sq} h ${sq} v ${sq}" fill="none" stroke="#333" stroke-width="1.2"/>`;
+  // Position des labels : un peu à l'extérieur de chaque sommet
+  const labelPos = (x, y, cornerX, cornerY) => {
+    const dx = x - cornerX, dy = y - cornerY; // décalage du sommet par rapport au centre
+    // Par défaut : label à gauche si x petit, à droite si x grand, en haut si y petit.
+    let lx = x, ly = y + 4;
+    if (x === xL) lx -= 12;
+    else if (x === xR) lx += 12;
+    if (y === yT) ly = y - 6;
+    else if (y === yB) ly = y + 18;
+    const anchor = x === xL ? 'end' : (x === xR ? 'start' : 'middle');
+    return { x: lx, y: ly, anchor };
+  };
+  const lA = labelPos(Ax, Ay);
+  const lB = labelPos(Bx, By);
+  const lC = labelPos(Cx, Cy);
+  // Positions des longueurs de côté
+  const midSide = (x1, y1, x2, y2, offsetX = 0, offsetY = 0) => ({
+    x: (x1 + x2) / 2 + offsetX,
+    y: (y1 + y2) / 2 + offsetY
+  });
+  const mAB = midSide(Ax, Ay, Bx, By, -10, 4);
+  const mBC = midSide(Bx, By, Cx, Cy, 0, 22);
+  const mAC = midSide(Ax, Ay, Cx, Cy, 12, -6);
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">
     <polygon points="${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}" fill="#eef0ff" stroke="#333" stroke-width="1.6" stroke-linejoin="round"/>
-    <path d="M ${Bx} ${By - sq} h ${sq} v ${sq}" fill="none" stroke="#333" stroke-width="1.2"/>
+    ${angleSq}
     <circle cx="${Ax}" cy="${Ay}" r="3" fill="#333"/>
     <circle cx="${Bx}" cy="${By}" r="3" fill="#333"/>
     <circle cx="${Cx}" cy="${Cy}" r="3" fill="#333"/>
-    <text x="${Ax - 12}" y="${Ay + 4}" font-size="15" font-weight="700" text-anchor="end">${labels.A}</text>
-    <text x="${Bx - 12}" y="${By + 6}" font-size="15" font-weight="700" text-anchor="end">${labels.B}</text>
-    <text x="${Cx + 12}" y="${Cy + 6}" font-size="15" font-weight="700">${labels.C}</text>
-    ${sides.AB ? `<text x="${Ax - 10}" y="${(Ay + By) / 2 + 4}" font-size="13" fill="#2b5fd6" text-anchor="end">${sides.AB}</text>` : ''}
-    ${sides.BC ? `<text x="${(Bx + Cx) / 2}" y="${By + 22}" font-size="13" fill="#2b5fd6" text-anchor="middle">${sides.BC}</text>` : ''}
-    ${sides.AC ? `<text x="${(Ax + Cx) / 2 + 15}" y="${(Ay + Cy) / 2 - 5}" font-size="13" fill="#2b5fd6">${sides.AC}</text>` : ''}
-    ${angleAt === 'A' ? `<path d="M ${Ax} ${Ay + 18} A 18 18 0 0 0 ${Ax + 18} ${Ay}" stroke="#c4342a" fill="none"/>` : ''}
-    ${angleAt === 'C' ? `<path d="M ${Cx - 18} ${Cy} A 18 18 0 0 0 ${Cx} ${Cy - 18}" stroke="#c4342a" fill="none"/>` : ''}
+    <text x="${lA.x}" y="${lA.y}" font-size="15" font-weight="700" text-anchor="${lA.anchor}">${labels.A}</text>
+    <text x="${lB.x}" y="${lB.y}" font-size="15" font-weight="700" text-anchor="${lB.anchor}">${labels.B}</text>
+    <text x="${lC.x}" y="${lC.y}" font-size="15" font-weight="700" text-anchor="${lC.anchor}">${labels.C}</text>
+    ${sides.AB ? `<text x="${mAB.x}" y="${mAB.y}" font-size="13" fill="#2b5fd6" text-anchor="end">${sides.AB}</text>` : ''}
+    ${sides.BC ? `<text x="${mBC.x}" y="${mBC.y}" font-size="13" fill="#2b5fd6" text-anchor="middle">${sides.BC}</text>` : ''}
+    ${sides.AC ? `<text x="${mAC.x}" y="${mAC.y}" font-size="13" fill="#2b5fd6" text-anchor="start">${sides.AC}</text>` : ''}
   </svg>`;
 }
 
