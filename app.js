@@ -3594,9 +3594,10 @@ function _buildQCM(cases, title) {
   const k = cases[Math.floor(Math.random() * cases.length)];
   const shuffled = shuffle(k.opts.map(o => ({ html: o, correct: o === k.a })));
   const correctIdx = shuffled.findIndex(c => c.correct);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
   return {
     theme: 'raisonner', title,
-    body: k.body,
+    body: figHtml + k.body,
     type: 'qcm',
     choices: shuffled.map(c => c.html),
     correctIdx,
@@ -3638,9 +3639,10 @@ function _buildOrder(cases, title) {
     </li>`
   ).join('');
   const header = k.context ? `<div class="order-context">${k.context}</div>` : '';
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
   return {
     theme: 'raisonner', title,
-    body: `${header}<p><b>Remets les étapes de la démonstration dans le bon ordre</b> (glisse les lignes avec ☰ ou clique sur ↑/↓) :</p>
+    body: `${figHtml}${header}<p><b>Remets les étapes de la démonstration dans le bon ordre</b> (glisse les lignes avec ☰ ou clique sur ↑/↓) :</p>
       <ol class="order-list" data-correct="${k.steps.map((_, i) => i).join(',')}">${items}</ol>
       <p class="note" style="margin-top:8px;font-size:0.8rem;">💡 Astuce : sur mobile, maintiens longtemps l'icône ☰ avant de glisser. Sur ordinateur, clic-glisser.</p>`,
     type: 'order',
@@ -3658,6 +3660,7 @@ function rais_ordre_n1() {
   // Niveau Rouge : 3 étapes seulement, Pythagore direct
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: 'AB = 3 cm', BC: 'BC = 4 cm', AC: '?' } }),
       context: "On veut calculer la longueur AC dans le triangle ABC rectangle en B avec AB = 3 cm et BC = 4 cm.",
       steps: [
         "Le triangle ABC est rectangle en B. D'après le théorème de Pythagore : AC² = AB² + BC².",
@@ -3666,6 +3669,7 @@ function rais_ordre_n1() {
       ]
     },
     {
+      figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
       context: "On veut calculer BC dans le triangle rectangle en A avec AC = 6 et l'hypoténuse BC.  On connaît AB = 8.",
       steps: [
         "Le triangle ABC est rectangle en A, donc d'après Pythagore : BC² = AB² + AC².",
@@ -3681,6 +3685,7 @@ function rais_ordre_n2() {
   // Niveau Jaune : 4 étapes, Pythagore + phrase de conclusion obligatoire
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: '5 cm', BC: '12 cm', AC: '13 cm' } }),
       context: "Les trois côtés du triangle ABC mesurent AB = 5 cm, BC = 12 cm, AC = 13 cm. On veut montrer qu'il est rectangle.",
       steps: [
         "Le plus grand côté est AC (13 cm). On calcule AC² = 13² = 169.",
@@ -3690,6 +3695,7 @@ function rais_ordre_n2() {
       ]
     },
     {
+      figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
       context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. On veut BC.",
       steps: [
         "Le triangle ABC est rectangle en A.",
@@ -3706,6 +3712,7 @@ function rais_ordre_n3() {
   // Niveau Vert clair : 5 étapes, Thalès direct
   const cases = [
     {
+      figure: svgThales({ AB: 5, AC: 10, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, les points M et N appartiennent respectivement aux segments [AB] et [AC]. On sait que AM = 3, AB = 5, AN = 6 et (MN) // (BC). On veut calculer AC.",
       steps: [
         "Les droites (BM) et (CN) sont sécantes en A, et (MN) est parallèle à (BC).",
@@ -3716,6 +3723,7 @@ function rais_ordre_n3() {
       ]
     },
     {
+      figure: svgThales({ AB: 10, AC: 12.5, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans le triangle ABC, M ∈ [AB] et N ∈ [AC] avec (MN) // (BC). AM = 4, MB = 6, AN = 5. Calculer NC.",
       steps: [
         "AB = AM + MB = 4 + 6 = 10.",
@@ -3733,6 +3741,7 @@ function rais_ordre_n4() {
   // Niveau Vert foncé : 6 étapes, réciproque de Thalès
   const cases = [
     {
+      figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, M est sur [AB] et N sur [AC]. On sait que AM = 4, AB = 10, AN = 6, AC = 15. On veut prouver que (MN) est parallèle à (BC).",
       steps: [
         "On identifie les points M et N sur les côtés [AB] et [AC] du triangle.",
@@ -3751,6 +3760,7 @@ function rais_ordre_n5() {
   // Niveau Noir : 7 étapes, démonstration mixte (trigo + Pythagore)
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: '?', BC: '10 cm', AC: '' }, angleAt: 'B' }),
       context: "Dans un triangle ABC rectangle en A, on connaît BC = 10 cm et l'angle \\(\\widehat{ABC} = 35°\\). On veut calculer AB.",
       steps: [
         "Le triangle ABC est rectangle en A.",
@@ -3778,9 +3788,10 @@ function _buildTrouveErreur(cases, title) {
   const { choices, correctIdx } = makeQCM(
     k.steps.map((_, i) => ({ html: `Étape ${i+1}`, correct: i === erreurIdx }))
   );
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
   return {
     theme: 'raisonner', title,
-    body: `${k.context ? `<div class="order-context">${k.context}</div>` : ''}
+    body: `${figHtml}${k.context ? `<div class="order-context">${k.context}</div>` : ''}
       <p><b>Voici une démonstration qui contient <em>une seule erreur</em>.</b> Quelle étape est incorrecte ?</p>
       <ol class="demo-list">${stepsHTML}</ol>`,
     type: 'qcm',
@@ -3798,6 +3809,7 @@ function rais_erreur_n1() {
   // Niveau Rouge : erreur de calcul évidente
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: '6 cm', BC: '8 cm', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 6 cm, BC = 8 cm.",
       steps: [
         "D'après Pythagore : AC² = AB² + BC².",
@@ -3808,6 +3820,7 @@ function rais_erreur_n1() {
       explain: "L'erreur est dans le calcul : 36 + 64 = <b>100</b>, pas 90. Donc AC² = 100 et AC = 10 cm."
     },
     {
+      figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '?' }, angleAt: 'A' }),
       context: "Triangle ABC rectangle en A, AB = 3 et AC = 4.",
       steps: [
         "Le triangle est rectangle en A donc BC est l'hypoténuse.",
@@ -3825,6 +3838,7 @@ function rais_erreur_n2() {
   // Niveau Jaune : erreur dans l'application d'un théorème
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: '6', BC: '8', AC: '10' } }),
       context: "On veut montrer que le triangle ABC avec AB = 6, BC = 8, AC = 10 est rectangle.",
       steps: [
         "Le plus grand côté est AC.",
@@ -3836,6 +3850,7 @@ function rais_erreur_n2() {
       explain: "On part des trois longueurs et on veut <b>prouver</b> que le triangle est rectangle. C'est la <b>réciproque</b> du théorème de Pythagore qu'il faut citer, pas le théorème direct."
     },
     {
+      figure: svgThales({ AB: 6, AC: 8, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans le triangle ABC, M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 3, AB = 6, AN = 4. Calcul de AC.",
       steps: [
         "Les droites (AB) et (AC) sont sécantes en A et (MN) // (BC).",
@@ -3854,6 +3869,7 @@ function rais_erreur_n3() {
   // Niveau Vert clair : erreur subtile sur les hypothèses
   const cases = [
     {
+      figure: svgTriangleRect({ sides: { AB: '5', BC: '12', AC: '13' } }),
       context: "ABC est un triangle avec AB = 5, BC = 12, AC = 13.",
       steps: [
         "D'après le théorème de Pythagore : AC² = AB² + BC².",
@@ -3864,6 +3880,7 @@ function rais_erreur_n3() {
       explain: "Le théorème de Pythagore (direct) suppose <em>déjà</em> que le triangle est rectangle. Or ici on ne le sait pas au départ. On doit utiliser la <b>réciproque</b> : c'est en constatant l'égalité qu'on conclut que le triangle est rectangle."
     },
     {
+      figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '5' }, angleAt: 'A' }),
       context: "Dans un triangle ABC rectangle en A, on cherche cos(B̂) avec AB = 3, AC = 4, BC = 5.",
       steps: [
         "Dans le triangle rectangle en A, l'hypoténuse est BC.",
@@ -3881,6 +3898,7 @@ function rais_erreur_n4() {
   // Niveau Vert foncé : erreur logique dans l'enchaînement
   const cases = [
     {
+      figure: svgThales({ AB: 2, AC: 2, AD: 1, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, M ∈ [AB] avec AM/AB = 1/2, N ∈ [AC] avec AN/AC = 1/2. On veut savoir si (MN) // (BC).",
       steps: [
         "On calcule AM/AB et AN/AC.",
@@ -3893,6 +3911,7 @@ function rais_erreur_n4() {
       explain: "On <em>prouve</em> le parallélisme à partir des rapports, c'est donc la <b>réciproque</b> du théorème de Thalès qu'il faut invoquer, pas le théorème direct."
     },
     {
+      figure: svgTriangleRect({ sides: { AB: '6', BC: '7', AC: '9' } }),
       context: "Démonstration que le triangle ABC avec AB=6, BC=7, AC=9 n'est pas rectangle.",
       steps: [
         "Le plus grand côté est AC = 9.",
@@ -3949,9 +3968,10 @@ function _buildVF(cases, title) {
     { html: `✅ Vrai — ${k.vraiFausseRaison || 'mauvaise justification 1'}`, correct: false },
     { html: `❌ Faux — ${k.fauxFausseRaison || 'mauvaise justification 2'}`, correct: false }
   ]);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
   return {
     theme: 'raisonner', title,
-    body: `<div class="order-context"><b>Affirmation :</b> ${k.affirmation}</div>
+    body: `${figHtml}<div class="order-context"><b>Affirmation :</b> ${k.affirmation}</div>
       <p>Est-elle vraie ou fausse ? <b>Choisis la bonne justification.</b></p>`,
     type: 'qcm',
     choices, correctIdx,

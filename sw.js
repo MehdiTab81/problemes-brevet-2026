@@ -8,7 +8,7 @@
    Incrémente CACHE_VERSION quand on déploie une nouvelle version.
 */
 
-const CACHE_VERSION = 'v6-2026-04-21-no-popups';
+const CACHE_VERSION = 'v7-2026-04-21-figures-raisonner';
 const SHELL_CACHE = `autopb3-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `autopb3-runtime-${CACHE_VERSION}`;
 

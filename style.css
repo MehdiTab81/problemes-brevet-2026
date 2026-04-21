@@ -2336,6 +2336,23 @@ body .c4-cell.p2 {
 body.evaluating .welcome-banner,
 body.evaluating .pwa-tip { display: none !important; }
 
+/* Figure géométrique (SVG) dans les énoncés */
+.geo-figure {
+  margin: 4px 0 14px;
+  display: flex;
+  justify-content: center;
+}
+.geo-figure svg {
+  max-width: 100%;
+  height: auto;
+  max-height: 240px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+}
+body[data-theme="dark"] .geo-figure svg {
+  background: #f5f5fa !important; /* fond clair pour que les traits noirs restent lisibles */
+  border: 1px solid #333 !important;
+}
+
 /* Bannière de célébration à la fin d'un exercice Compétences */
 .skill-celebration {
   display: flex;
