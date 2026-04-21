@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#4f46e5" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Problèmes 3ème" />
+<meta name="description" content="Problèmes et situations pour le Brevet 3ème : raisonner, modéliser, rédiger. Fonctionne hors-ligne." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>Mise en situation & problèmes — 3ème</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<!-- MathJax pour afficher les fractions et formules -->
+<script>
+  MathJax = {
+    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+
+<!-- Formulaire détecté par Netlify au build. Invisible et jamais soumis par l'utilisateur,
+     mais nécessaire pour que Netlify accepte les POST fetch('/'). -->
+<form name="rapport-eleve" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="prenom" />
+  <input type="text" name="classe" />
+  <input type="text" name="nb_sessions" />
+  <input type="text" name="pct_global" />
+  <textarea name="rapport"></textarea>
+  <input type="text" name="bot-field" />
+</form>
+
+<header>
+  <h1>Mise en situation & problèmes — 3<sup>ème</sup><span class="header-subtitle"> · Brevet 2026</span></h1>
+  <div id="header-info">
+    <span id="student-badge"></span>
+    <button class="icon-btn" id="btn-a11y" title="Personnaliser l'affichage (taille du texte, police, confort de lecture)" aria-label="Personnaliser l'affichage">Aa</button>
+    <button class="icon-btn" id="btn-theme" title="Basculer mode clair / sombre" aria-label="Mode sombre">🌙</button>
+  </div>
+</header>
+
+<!-- Modale Accessibilité -->
+<div id="a11y-modal" class="a11y-modal" hidden>
+  <div class="a11y-modal-content">
+    <div class="a11y-modal-head">
+      <h2>✨ Personnaliser l'affichage</h2>
+      <button class="icon-btn" id="btn-a11y-close" aria-label="Fermer">✕</button>
+    </div>
+    <p class="note" style="margin-top:-4px;">Adapte le site à <strong>tes besoins et ton confort</strong> : taille du texte, police, lecture à voix haute, etc. Tous ces réglages sont <strong>cumulables</strong> et sauvegardés sur ton appareil.</p>
+
+    <div class="a11y-section">
+      <h3>📖 Lecture & typographie</h3>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-font-lexend" />
+        <span><strong>Police Lexend</strong> — police conçue pour une lecture plus confortable</span>
+      </label>
+      <label class="a11y-row">
+        <span>Taille du texte</span>
+        <select id="a11y-size">
+          <option value="normal" selected>Normale</option>
+          <option value="large">Grande (+15 %)</option>
+          <option value="xlarge">Très grande (+30 %)</option>
+        </select>
+      </label>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-spacing" />
+        <span><strong>Interligne aéré</strong> — plus d'espace entre les lignes</span>
+      </label>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-bg-cream" />
+        <span><strong>Fond crème</strong> — plus doux pour les yeux en lecture longue</span>
+      </label>
+    </div>
+
+    <div class="a11y-section">
+      <h3>🎯 Concentration</h3>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-hide-timer" />
+        <span><strong>Masquer le chronomètre</strong> pendant la séance</span>
+      </label>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-reduce-motion" />
+        <span><strong>Réduire les animations</strong> — moins de transitions</span>
+      </label>
+    </div>
+
+    <div class="a11y-section">
+      <h3>🔊 Lecture à voix haute</h3>
+      <label class="a11y-switch">
+        <input type="checkbox" id="a11y-speak" />
+        <span>Afficher le bouton <strong>🔊 Lire la question</strong> sur chaque question</span>
+      </label>
+      <p class="note" style="margin:4px 0 0 0;font-size:0.8rem;">Utilise la synthèse vocale de ton appareil. Les formules mathématiques sont lues en français simple.</p>
+    </div>
+
+    <div class="a11y-actions">
+      <button class="ghost" id="btn-a11y-reset">Tout réinitialiser</button>
+      <button class="primary" id="btn-a11y-apply">Appliquer</button>
+    </div>
+  </div>
+</div>
+
+<main id="app">
+
+  <!-- ÉCRAN ACCUEIL -->
+  <section id="screen-home" class="screen active">
+    <div class="menu-tabs">
+      <button class="tab-btn active" data-target="tab-skills">🧠 Compétences</button>
+      <button class="tab-btn" data-target="tab-revision">📚 Fiches & outils</button>
+    </div>
+
+    <!-- Onglet : compétences (Raisonner, Représenter, Modéliser, Communiquer, Rédaction) -->
+    <div id="tab-skills" class="tab-panel active">
+      <h2>🧠 Compétences</h2>
+      <p class="lead">Le Brevet évalue <strong>5 grandes compétences</strong> : raisonner, représenter, modéliser, communiquer, rédiger. Ici, <strong>on met en pratique</strong> à travers des situations et des problèmes.<br>Chaque exercice existe en <strong>5 niveaux</strong> — choisis celui qui te convient ou laisse-toi guider.</p>
+
+      <div class="skill-legend">
+        <div class="skill-level-badge n1">🔴 Découverte</div>
+        <div class="skill-level-badge n2">🟡 Apprentissage</div>
+        <div class="skill-level-badge n3">🟢 Confirmé</div>
+        <div class="skill-level-badge n4">💚 Maîtrise</div>
+        <div class="skill-level-badge n5">⚫ Expert</div>
+      </div>
+
+      <div id="skills-cards"></div>
+      <div id="skill-detail" style="display:none;"></div>
+    </div>
+
+    <!-- Onglet : fiches de révision -->
+    <div id="tab-revision" class="tab-panel">
+      <h2>Fiches de révision</h2>
+      <p class="lead">Cours, savoir-faire et erreurs à éviter, classés par compétence. Aucune évaluation ici — à consulter librement.</p>
+      <div id="revision-content"></div>
+    </div>
+  </section>
+
+  <!-- Calculatrice flottante (accessible sur écran test avec exos Compétences) -->
+  <button id="btn-calc-toggle" class="calc-toggle" title="Calculatrice" aria-label="Calculatrice" hidden>🧮</button>
+  <div id="calc-widget" class="calc-widget" hidden>
+    <div class="calc-header">
+      <span class="calc-title">🧮 Calculatrice</span>
+      <button class="icon-btn calc-close" id="btn-calc-close" aria-label="Fermer">✕</button>
+    </div>
+    <input type="text" id="calc-display" class="calc-display" readonly value="0" />
+    <div class="calc-keys">
+      <button class="calc-key calc-fn" data-k="AC">AC</button>
+      <button class="calc-key calc-fn" data-k="BS">←</button>
+      <button class="calc-key calc-fn" data-k="(">(</button>
+      <button class="calc-key calc-fn" data-k=")">)</button>
+      <button class="calc-key calc-fn" data-k="sqrt">√</button>
+      <button class="calc-key calc-fn" data-k="sq">x²</button>
+      <button class="calc-key" data-k="7">7</button>
+      <button class="calc-key" data-k="8">8</button>
+      <button class="calc-key" data-k="9">9</button>
+      <button class="calc-key calc-op" data-k="/">÷</button>
+      <button class="calc-key" data-k="4">4</button>
+      <button class="calc-key" data-k="5">5</button>
+      <button class="calc-key" data-k="6">6</button>
+      <button class="calc-key calc-op" data-k="*">×</button>
+      <button class="calc-key" data-k="1">1</button>
+      <button class="calc-key" data-k="2">2</button>
+      <button class="calc-key" data-k="3">3</button>
+      <button class="calc-key calc-op" data-k="-">−</button>
+      <button class="calc-key" data-k="0">0</button>
+      <button class="calc-key" data-k=".">,</button>
+      <button class="calc-key calc-op" data-k="+">+</button>
+      <button class="calc-key calc-eq" data-k="=">=</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN TEST -->
+  <section id="screen-test" class="screen">
+    <div class="test-header">
+      <div id="timer" class="timer">20:00</div>
+      <div id="progress" class="progress">Question 1/12</div>
+      <button id="btn-finish" class="ghost">Valider</button>
+    </div>
+
+    <div id="question-container"></div>
+
+    <nav class="test-nav">
+      <button id="btn-prev" class="ghost">← Précédent</button>
+      <div id="qdots"></div>
+      <button id="btn-next" class="ghost">Suivant →</button>
+    </nav>
+  </section>
+
+  <!-- ÉCRAN DUEL (partie en cours) -->
+  <section id="screen-duel" class="screen">
+    <div class="duel-header">
+      <button id="btn-quit-duel" class="ghost small">← Quitter</button>
+      <div class="duel-question-progress">
+        <span id="duel-qnum">Question 1/7</span>
+        <div class="duel-pbar"><div id="duel-pbar-fill" class="duel-pbar-fill"></div></div>
+      </div>
+      <div id="duel-timer" class="duel-timer" style="display:none;">15</div>
+    </div>
+
+    <div class="duel-scoreboard">
+      <div class="duel-player-card" id="duel-p1-card">
+        <div class="duel-avatar-mini" id="duel-mini-1"></div>
+        <div class="duel-pc-body">
+          <div class="duel-pc-name" id="duel-pc-name-1">—</div>
+          <div class="duel-pc-score" id="duel-pc-score-1">0</div>
+        </div>
+      </div>
+      <div class="duel-vs-mini">VS</div>
+      <div class="duel-player-card" id="duel-p2-card">
+        <div class="duel-avatar-mini" id="duel-mini-2"></div>
+        <div class="duel-pc-body">
+          <div class="duel-pc-name" id="duel-pc-name-2">—</div>
+          <div class="duel-pc-score" id="duel-pc-score-2">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="duel-turn-banner" class="duel-turn-banner"></div>
+
+    <div id="duel-question-container" class="duel-question-container"></div>
+  </section>
+
+  <!-- ÉCRAN RÉSULTATS DUEL -->
+  <section id="screen-duel-results" class="screen">
+    <div id="duel-results-content"></div>
+  </section>
+
+  <!-- ÉCRAN RÉSULTATS -->
+  <section id="screen-results" class="screen">
+    <h2>Résultats</h2>
+    <div id="score-box"></div>
+    <div id="results-list"></div>
+    <div class="actions">
+      <button id="btn-retry-wrong" class="primary">S'entraîner sur les erreurs</button>
+      <button id="btn-new-test" class="ghost">Nouvelle série (valeurs différentes)</button>
+      <button id="btn-home" class="ghost">Accueil</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <small>Mise en situation et problèmes — 3ème. Raisonner, représenter, modéliser, communiquer, rédiger. Préparation Brevet partie 2.</small>
+</footer>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
