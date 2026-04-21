@@ -5572,8 +5572,9 @@ function _comm_qcm({ title, body, goodHtml, distractors, solution, help }) {
 }
 
 function comm_conclure_n1() {
-  // 🔴 Découverte — conclusion simple Pythagore
+  // 🔴 Découverte — phrases de conclusion sur TOUS les thèmes du programme
   const cases = [
+    // === GÉOMÉTRIE : Pythagore ===
     {
       figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '?' } }),
       theoreme: 'pythagore_direct',
@@ -5583,29 +5584,161 @@ function comm_conclure_n1() {
         "Donc \\(AC = 25\\) cm.",
         "Donc \\(AC^2 = 5\\) cm.",
         "Donc \\(AC = 25^2\\) cm."
-      ]
+      ],
+      sol: "Après avoir trouvé un carré, il faut <b>prendre la racine carrée</b> pour obtenir la longueur."
     },
     {
+      theoreme: 'pythagore_direct',
       contexte: "On a trouvé \\(BC^2 = 100\\) avec BC en cm.",
       good: "Donc \\(BC = 10\\) cm (on prend la racine carrée).",
       wrongs: [
         "Donc \\(BC = 100\\) cm.",
         "Donc \\(BC^2 = 100\\), donc BC = 100 cm.",
         "Donc \\(BC = 1\\,000\\) cm."
-      ]
+      ],
+      sol: "\\(\\sqrt{100} = 10\\). Attention à ne pas confondre \\(\\ell\\) et \\(\\ell^2\\)."
+    },
+    // === GÉOMÉTRIE : somme des angles ===
+    {
+      theoreme: 'sommes_angles',
+      contexte: "Dans un triangle ABC, on a \\(\\widehat{A} = 70°\\) et \\(\\widehat{B} = 60°\\).",
+      good: "Donc \\(\\widehat{C} = 180° - 70° - 60° = 50°\\).",
+      wrongs: [
+        "Donc \\(\\widehat{C} = 70° + 60° = 130°\\).",
+        "Donc \\(\\widehat{C} = 360° - 70° - 60° = 230°\\).",
+        "Donc \\(\\widehat{C} = 90°\\) (car c'est un triangle)."
+      ],
+      sol: "La somme des angles d'un triangle vaut <b>180°</b> (pas 360°). Donc \\(\\widehat{C} = 180° - \\widehat{A} - \\widehat{B}\\)."
+    },
+    // === GÉOMÉTRIE : cercle ===
+    {
+      figure: svgCercle({ rayon: 3, marquerRayon: true }),
+      theoreme: 'cercle',
+      contexte: "Un cercle a pour rayon 3 cm. On veut son <b>périmètre</b> en fonction de π.",
+      good: "Donc le périmètre vaut \\(P = 2\\pi \\times 3 = 6\\pi\\) cm.",
+      wrongs: [
+        "Donc le périmètre vaut \\(P = \\pi \\times 3^2 = 9\\pi\\) cm.",
+        "Donc le périmètre vaut \\(P = 3\\pi\\) cm.",
+        "Donc le périmètre vaut \\(P = 3²\\) cm."
+      ],
+      sol: "Périmètre d'un cercle : <b>P = 2πr</b>. Ici \\(P = 2\\pi \\times 3 = 6\\pi\\) cm. (πr² serait l'aire.)"
+    },
+    // === AIRE vs PÉRIMÈTRE ===
+    {
+      figure: svgRectangle({ L: 8, l: 5, labelL: '8 cm', labelLarg: '5 cm' }),
+      theoreme: 'aire_vs_perimetre',
+      contexte: "On calcule <b>l'aire</b> d'un rectangle de longueur 8 cm et largeur 5 cm.",
+      good: "Donc l'aire vaut \\(A = 8 \\times 5 = 40\\) cm².",
+      wrongs: [
+        "Donc l'aire vaut 40 cm.",
+        "Donc l'aire vaut \\(8 + 5 = 13\\) cm².",
+        "Donc l'aire vaut \\(2 \\times (8 + 5) = 26\\) cm²."
+      ],
+      sol: "Aire = L × ℓ. L'unité est <b>cm²</b> (pas cm). Le périmètre serait 2×(L+ℓ) = 26 cm."
+    },
+    // === NUMÉRIQUE : fractions ===
+    {
+      theoreme: 'fractions_somme',
+      contexte: "On veut calculer \\(\\frac{1}{4} + \\frac{1}{2}\\).",
+      good: "On met au même dénominateur : \\(\\frac{1}{4} + \\frac{2}{4} = \\frac{3}{4}\\).",
+      wrongs: [
+        "On obtient \\(\\frac{1+1}{4+2} = \\frac{2}{6} = \\frac{1}{3}\\).",
+        "On obtient \\(\\frac{2}{6}\\).",
+        "Le résultat est \\(\\frac{1}{6}\\)."
+      ],
+      sol: "On <b>n'additionne jamais les dénominateurs</b>. Dénominateur commun 4, puis \\(\\frac{1 + 2}{4} = \\frac{3}{4}\\)."
+    },
+    // === NUMÉRIQUE : puissances et signes ===
+    {
+      theoreme: 'puissances_signe',
+      contexte: "On calcule \\((-3)^2\\).",
+      good: "\\((-3)^2 = (-3) \\times (-3) = +9\\).",
+      wrongs: [
+        "\\((-3)^2 = -9\\) car il y a un signe moins.",
+        "\\((-3)^2 = -6\\).",
+        "\\((-3)^2 = 6\\)."
+      ],
+      sol: "Règle des signes : <b>moins × moins = plus</b>. Donc \\((-3)^2 = +9\\)."
+    },
+    // === GÉOMÉTRIE : conversion d'aire ===
+    {
+      theoreme: 'conversions_aire',
+      contexte: "On veut convertir \\(5\\text{ m}^2\\) en cm².",
+      good: "\\(5 \\text{ m}^2 = 5 \\times 10\\,000 = 50\\,000 \\text{ cm}^2\\).",
+      wrongs: [
+        "\\(5 \\text{ m}^2 = 5 \\times 100 = 500 \\text{ cm}^2\\).",
+        "\\(5 \\text{ m}^2 = 500 \\text{ cm}^2\\).",
+        "\\(5 \\text{ m}^2 = 50 \\text{ cm}\\)."
+      ],
+      sol: "1 m² = 10 000 cm² (facteur ×100 par cran, au carré). Donc 5 m² = <b>50 000 cm²</b>."
+    },
+    // === PROPORTIONNALITÉ / pourcentage ===
+    {
+      contexte: "Un pull coûtait 40 €. Il est soldé à −25 %.",
+      good: "Le prix soldé est \\(40 \\times 0{,}75 = 30\\) € (on applique le coefficient 0,75).",
+      wrongs: [
+        "Le prix soldé est \\(40 - 25 = 15\\) € (on enlève 25).",
+        "Le prix soldé est \\(40 \\times 25 = 1\\,000\\) €.",
+        "Le prix soldé est \\(40 \\times 0{,}25 = 10\\) € (25 % de 40)."
+      ],
+      sol: "Baisse de 25 % ↔ <b>coefficient 0,75</b>. Donc nouveau prix = 40 × 0,75 = <b>30 €</b>."
+    },
+    // === STATISTIQUES ===
+    {
+      contexte: "Les notes de 5 élèves sont : 10, 12, 14, 14, 20. Médiane ?",
+      good: "La série est triée. Il y a 5 valeurs, la médiane est la 3<sup>e</sup> : \\(\\text{médiane} = 14\\).",
+      wrongs: [
+        "La médiane est la moyenne des valeurs : (10+12+14+14+20)/5 = 14.",
+        "La médiane est la valeur la plus fréquente, donc 14.",
+        "La médiane est \\(\\frac{10+20}{2} = 15\\) (moyenne des extrêmes)."
+      ],
+      sol: "La <b>médiane</b> d'une série ordonnée de n valeurs est la valeur du milieu (rang (n+1)/2 si n impair). Ici 5 valeurs, valeur centrale = 14."
+    },
+    // === PROBABILITÉS ===
+    {
+      contexte: "Dans un sac, il y a 3 boules rouges et 7 boules bleues. On tire une boule au hasard.",
+      good: "La probabilité de tirer une boule rouge est \\(\\frac{3}{10}\\).",
+      wrongs: [
+        "La probabilité de tirer une boule rouge est \\(\\frac{3}{7}\\).",
+        "La probabilité de tirer une boule rouge est \\(\\frac{7}{10}\\).",
+        "La probabilité de tirer une boule rouge est \\(\\frac{1}{3}\\)."
+      ],
+      sol: "Proba = <b>cas favorables / cas possibles</b>. Ici : 3 rouges / 10 boules au total = <b>3/10</b>."
+    },
+    // === ALGÈBRE : équation ===
+    {
+      contexte: "On résout l'équation \\(3x + 5 = 20\\).",
+      good: "On obtient \\(3x = 15\\), donc \\(x = 5\\).",
+      wrongs: [
+        "On obtient \\(3x = 25\\), donc \\(x = \\frac{25}{3}\\).",
+        "On obtient \\(x = 20 - 5 - 3 = 12\\).",
+        "On obtient \\(x = 20 \\div 3 - 5 \\approx 1{,}67\\)."
+      ],
+      sol: "On soustrait 5 des deux côtés : \\(3x = 15\\). Puis on divise par 3 : \\(x = 5\\). Vérification : \\(3×5+5 = 20\\) ✓."
+    },
+    // === CALCUL LITTÉRAL : développement ===
+    {
+      contexte: "On développe \\(3(x + 4)\\).",
+      good: "\\(3(x + 4) = 3 \\times x + 3 \\times 4 = 3x + 12\\).",
+      wrongs: [
+        "\\(3(x + 4) = 3x + 4\\).",
+        "\\(3(x + 4) = 3 + x + 4 = x + 7\\).",
+        "\\(3(x + 4) = 3x \\times 12\\)."
+      ],
+      sol: "<b>Distributivité</b> : \\(k(a + b) = ka + kb\\). Ici : \\(3x + 12\\) (3 multiplie <b>les deux</b> termes)."
     }
   ];
   const k = pick(cases);
   return _comm_qcm({
     title: 'Niveau 🔴 — Phrase de conclusion',
-    body: `${k.contexte}<br>Quelle est la conclusion correcte ?`,
+    body: (k.figure ? `<div class="geo-figure">${k.figure}</div>` : '') + `${k.contexte}<br>Quelle est la conclusion correcte ?`,
     goodHtml: k.good,
     distractors: k.wrongs,
-    solution: `Après avoir trouvé un carré, il faut <b>prendre la racine carrée</b> pour obtenir la longueur.`,
-    help: {
-      cours: "En géométrie, quand on calcule un carré d'une longueur \\(\\ell^2 = k\\), la longueur vaut \\(\\ell = \\sqrt{k}\\) (et pas \\(k\\) !).",
-      savoirFaire: "Ne jamais confondre \\(\\ell^2\\) et \\(\\ell\\). Toujours écrire la phrase de conclusion en clair.",
-      erreurs: ["Oublier la racine carrée.", "Laisser \\(\\ell^2\\) au lieu de \\(\\ell\\).", "Oublier l'unité."]
+    solution: k.sol || "Une conclusion correcte <b>répond à la question posée</b>, <b>avec la bonne unité</b> et <b>sans erreur de calcul</b>.",
+    help: (k.theoreme && makeHelp(k.theoreme, 1)) || {
+      cours: "<b>Conclure</b> = écrire la phrase finale qui répond à la question de l'énoncé. Elle doit être précise (la bonne unité, la bonne valeur) et cohérente avec les calculs faits juste avant.",
+      savoirFaire: "Je relis ma question, je vérifie que ma conclusion y répond directement, avec la bonne unité.",
+      erreurs: ["Oublier l'unité.", "Donner un calcul intermédiaire au lieu du résultat final.", "Se tromper sur la grandeur (aire au lieu de périmètre, etc.)."]
     }
   });
 }
