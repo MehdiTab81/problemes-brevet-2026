@@ -3806,8 +3806,9 @@ function _buildTrouveErreur(cases, title) {
 }
 
 function rais_erreur_n1() {
-  // Niveau Rouge : erreur de calcul évidente
+  // Niveau Rouge : erreurs de calcul et de méthode les plus fréquentes en 3ème
   const cases = [
+    // --- PYTHAGORE : erreurs de calcul ---
     {
       figure: svgTriangleRect({ sides: { AB: '6 cm', BC: '8 cm', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 6 cm, BC = 8 cm.",
@@ -3817,7 +3818,7 @@ function rais_erreur_n1() {
         "AC = √90 ≈ 9,49 cm."
       ],
       erreurIdx: 1,
-      explain: "L'erreur est dans le calcul : 36 + 64 = <b>100</b>, pas 90. Donc AC² = 100 et AC = 10 cm."
+      explain: "Erreur d'addition : 36 + 64 = <b>100</b>, pas 90. Donc AC² = 100 et AC = 10 cm."
     },
     {
       figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '?' }, angleAt: 'A' }),
@@ -3828,7 +3829,173 @@ function rais_erreur_n1() {
         "BC² = 3 + 4 = 7 et BC = √7 cm."
       ],
       erreurIdx: 2,
-      explain: "Il manque les <b>carrés</b> dans l'étape 3 : BC² = 3² + 4² = 9 + 16 = 25, donc BC = 5 cm."
+      explain: "Erreur classique : on a oublié les <b>carrés</b>. BC² = 3² + 4² = 9 + 16 = 25, donc BC = 5 cm."
+    },
+    {
+      figure: svgTriangleRect({ sides: { AB: '5 cm', BC: '12 cm', AC: '?' } }),
+      context: "Triangle ABC rectangle en B, AB = 5 cm, BC = 12 cm.",
+      steps: [
+        "D'après Pythagore : AC² = AB² + BC².",
+        "AC² = 5² + 12² = 25 + 144 = 169.",
+        "AC² = 169 cm."
+      ],
+      erreurIdx: 2,
+      explain: "On a oublié la <b>racine carrée</b> à la fin ! AC² = 169 veut dire AC = √169 = 13 cm. Très fréquent : ne pas confondre le carré d'une longueur avec la longueur elle-même."
+    },
+    {
+      figure: svgTriangleRect({ sides: { AB: '8 cm', BC: '?', AC: '10 cm' }, angleAt: 'B' }),
+      context: "Triangle ABC rectangle en B, AB = 8 cm, AC = 10 cm (hypoténuse). On cherche BC.",
+      steps: [
+        "L'hypoténuse est AC. D'après Pythagore : AC² = AB² + BC².",
+        "BC² = AC² + AB² = 100 + 64 = 164.",
+        "BC = √164 ≈ 12,8 cm."
+      ],
+      erreurIdx: 1,
+      explain: "Erreur de signe : on <b>additionne</b> les carrés des côtés de l'angle droit, mais quand on cherche un côté non-hypoténuse, il faut <b>soustraire</b>. BC² = AC² − AB² = 100 − 64 = 36, donc BC = 6 cm."
+    },
+    {
+      figure: svgTriangleRect({ sides: { AB: '9 cm', BC: '12 cm', AC: '?' } }),
+      context: "Triangle ABC rectangle en B, AB = 9 cm, BC = 12 cm.",
+      steps: [
+        "D'après Pythagore : AC² = AB² + BC².",
+        "AC² = 9² + 12² = 81 + 144 = 225.",
+        "AC = 225 cm."
+      ],
+      erreurIdx: 2,
+      explain: "Encore l'oubli de la <b>racine</b> : 225 est la valeur de AC², pas de AC. AC = √225 = 15 cm."
+    },
+    // --- PYTHAGORE : mauvaise identification de l'hypoténuse ---
+    {
+      figure: svgTriangleRect({ sides: { AB: '5', BC: '13', AC: '12' }, angleAt: 'B' }),
+      context: "Triangle ABC rectangle en B, AB = 5, BC = 13, AC = 12.",
+      steps: [
+        "L'hypoténuse est le plus grand côté : BC = 13.",
+        "D'après Pythagore : AB² + AC² = BC².",
+        "On vérifie : 5² + 12² = 25 + 144 = 169 et 13² = 169.",
+        "Le triangle est donc rectangle en B."
+      ],
+      erreurIdx: 3,
+      explain: "L'égalité de Pythagore est bien vérifiée, mais pour conclure qu'un triangle est rectangle <b>à partir des longueurs</b>, il faut utiliser la <b>réciproque</b> du théorème de Pythagore, pas le théorème direct. Et le triangle serait rectangle en A (sommet opposé à l'hypoténuse BC), pas en B."
+    },
+    // --- CALCUL DE CARRÉ ---
+    {
+      figure: svgTriangleRect({ sides: { AB: '7', BC: '24', AC: '?' } }),
+      context: "Triangle ABC rectangle en B, AB = 7 cm, BC = 24 cm.",
+      steps: [
+        "D'après Pythagore : AC² = AB² + BC².",
+        "AC² = 7² + 24² = 14 + 48 = 62.",
+        "AC = √62 ≈ 7,87 cm."
+      ],
+      erreurIdx: 1,
+      explain: "Erreur sur les carrés : <b>7² = 49</b> (pas 14) et <b>24² = 576</b> (pas 48). On confond avec × 2. Le bon calcul : 49 + 576 = 625, donc AC = 25 cm."
+    },
+    // --- TRIGONOMÉTRIE : formules ---
+    {
+      figure: svgTriangleRect({ sides: { AB: '4', BC: '3', AC: '5' }, angleAt: 'A' }),
+      context: "Dans ABC rectangle en A : AB = 4, AC = 3, BC = 5. On cherche cos(ABC).",
+      steps: [
+        "L'hypoténuse du triangle est BC = 5.",
+        "Le côté adjacent à l'angle B est AC (le côté opposé à l'angle A).",
+        "cos(ABC) = adjacent / hypoténuse = AC / BC = 3/5."
+      ],
+      erreurIdx: 1,
+      explain: "Le côté <b>adjacent</b> à l'angle B, c'est le côté qui <b>touche</b> B (hors de l'hypoténuse). C'est donc <b>AB = 4</b>, pas AC. Le bon cosinus est cos(ABC) = AB/BC = 4/5."
+    },
+    {
+      figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '5' }, angleAt: 'A' }),
+      context: "Dans ABC rectangle en A : AB = 3, AC = 4, BC = 5. On cherche sin(ABC).",
+      steps: [
+        "L'hypoténuse est BC.",
+        "Le côté opposé à l'angle B est AC.",
+        "sin(ABC) = opposé / adjacent = AC / AB = 4/3."
+      ],
+      erreurIdx: 2,
+      explain: "Erreur de formule : <b>sinus = opposé / hypoténuse</b> (pas / adjacent). On a confondu avec la tangente. Le bon sinus : sin(ABC) = AC/BC = 4/5."
+    },
+    // --- THÉORÈME DE THALÈS : mise en équation ---
+    {
+      figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
+      context: "Dans le triangle ABC : M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 4, AB = 10, AN = 6. Calculer AC.",
+      steps: [
+        "D'après le théorème de Thalès : AM / AB = AN / AC.",
+        "Donc 4 / 10 = AC / 6.",
+        "AC = 6 × 4 / 10 = 2,4 cm."
+      ],
+      erreurIdx: 1,
+      explain: "On a <b>inversé</b> le rapport : la règle de Thalès écrite à l'étape 1 est AM/AB = AN/<b>AC</b>. Il faut donc écrire 4/10 = 6/AC (l'inconnue AC au dénominateur, en face de AB). On obtient AC = 10 × 6 / 4 = 15 cm."
+    },
+    // --- ANGLES ET TRIANGLES ---
+    {
+      context: "Dans un triangle ABC, on sait que l'angle Â = 60° et l'angle B̂ = 40°. On cherche l'angle Ĉ.",
+      steps: [
+        "La somme des angles d'un triangle vaut 360°.",
+        "Donc Ĉ = 360 − 60 − 40 = 260°.",
+        "L'angle Ĉ mesure 260°."
+      ],
+      erreurIdx: 0,
+      explain: "La somme des angles d'un triangle est <b>180°</b>, pas 360° (ça c'est pour un quadrilatère). Ici : Ĉ = 180 − 60 − 40 = 80°."
+    },
+    {
+      context: "Un triangle a deux côtés qui mesurent 7 cm et 10 cm, et un angle droit entre eux. Quel est le périmètre ?",
+      steps: [
+        "Les deux côtés de l'angle droit sont 7 cm et 10 cm.",
+        "L'hypoténuse est h tel que h² = 7² + 10² = 49 + 100 = 149, donc h = √149 ≈ 12,2 cm.",
+        "Le périmètre est la somme des aires : 7 × 10 + 12,2 = 82,2 cm."
+      ],
+      erreurIdx: 2,
+      explain: "Confusion <b>aire / périmètre</b>. Le <b>périmètre</b> = somme des <b>longueurs</b> des 3 côtés. P = 7 + 10 + 12,2 ≈ 29,2 cm. « 7 × 10 » c'est l'aire du rectangle, pas le périmètre."
+    },
+    // --- CALCULS NUMÉRIQUES ---
+    {
+      context: "Calcul de la longueur AB d'un cercle de rayon 3 cm.",
+      steps: [
+        "Le périmètre d'un cercle vaut P = π × D où D est le diamètre.",
+        "Le diamètre vaut D = 2 × 3 = 6 cm.",
+        "P = π × 6 = 6π ≈ 18,85 cm.",
+        "Donc AB mesure 18,85 cm."
+      ],
+      erreurIdx: 3,
+      explain: "La longueur <b>AB</b> n'est pas précisée dans l'énoncé ! Si A et B sont deux points du cercle, il faut savoir lesquels. Si AB est un <b>diamètre</b>, alors AB = 6 cm. Si AB est la <b>circonférence</b> complète, alors AB ≈ 18,85 cm. La question est ambiguë mais en général on cherche le périmètre (circonférence)."
+    },
+    // --- UNITÉS ---
+    {
+      context: "Calculer l'aire d'un rectangle de 5 m de long et 3 m de large.",
+      steps: [
+        "L'aire vaut A = longueur × largeur.",
+        "A = 5 × 3 = 15.",
+        "L'aire mesure 15 m."
+      ],
+      erreurIdx: 2,
+      explain: "L'<b>unité d'aire</b> est m<b>²</b> (mètres carrés), pas m (mètres linéaires). L'aire mesure 15 m². Très fréquent : oublier le « carré » à l'unité."
+    },
+    {
+      context: "Un terrain mesure 150 m². Combien cela fait-il en km² ?",
+      steps: [
+        "1 km = 1 000 m, donc 1 km² = 1 000 m².",
+        "150 m² = 150 / 1 000 = 0,15 km²."
+      ],
+      erreurIdx: 0,
+      explain: "Pour les <b>aires</b>, les facteurs de conversion sont <b>au carré</b> : 1 km = 1 000 m implique 1 km² = 1 000² m² = 1 000 000 m² (un million). Donc 150 m² = 150 / 1 000 000 = 0,000 150 km²."
+    },
+    // --- FRACTIONS ---
+    {
+      context: "Calcul : 1/2 + 1/3.",
+      steps: [
+        "On additionne les numérateurs et les dénominateurs.",
+        "1/2 + 1/3 = (1+1)/(2+3) = 2/5."
+      ],
+      erreurIdx: 0,
+      explain: "Erreur TRÈS fréquente : on n'<b>ajoute pas</b> les dénominateurs ! Il faut d'abord un <b>dénominateur commun</b>. 1/2 + 1/3 = 3/6 + 2/6 = 5/6."
+    },
+    // --- PUISSANCES ---
+    {
+      context: "Calcul : (−3)².",
+      steps: [
+        "Un carré est toujours positif.",
+        "(−3)² = −3 × 3 = −9."
+      ],
+      erreurIdx: 1,
+      explain: "Piège : (−3)² = (−3) × (−3) = <b>+9</b> (signe moins × signe moins = plus). L'étape 1 dit la bonne règle mais l'étape 2 la contredit. Attention aux parenthèses : −3² est différent de (−3)²."
     }
   ];
   return _buildTrouveErreur(cases, 'Niveau 🔴 — Trouver l\'erreur');
