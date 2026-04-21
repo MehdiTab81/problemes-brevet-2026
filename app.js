@@ -4049,6 +4049,488 @@ function rais_vf_n5() {
   return _buildVF(cases, 'Niveau ⚫ — Vrai / Faux justifié');
 }
 
+/* ==========================================================================
+   REPRÉSENTER — Lecture graphique (5 niveaux)
+   ========================================================================== */
+
+/* Helper : QCM clé en main pour représenter */
+function _repr_qcm({ title, body, goodHtml, distractors, solution, help }) {
+  const all = [{ html: goodHtml, correct: true }]
+    .concat(distractors.map(h => ({ html: h, correct: false })));
+  const { choices, correctIdx } = makeQCM(all);
+  return { theme: 'representer', title, body, type: 'qcm', choices, correctIdx, solution, help };
+}
+
+function repr_lecture_n1() {
+  // 🔴 Découverte — lire une image sur une droite simple d'une courbe donnée en tableau
+  const cases = [
+    { x: 2, fx: 5, context: 'La courbe de f passe par le point \\(A(2\\,;\\,5)\\).' },
+    { x: 3, fx: 7, context: 'On lit sur le graphique que la courbe passe par \\(B(3\\,;\\,7)\\).' },
+    { x: 1, fx: 4, context: 'La courbe de f passe par le point \\((1\\,;\\,4)\\).' }
+  ];
+  const k = pick(cases);
+  return _repr_qcm({
+    title: 'Niveau 🔴 — Lire une image',
+    body: `${k.context}<br>Quelle est la valeur de \\(f(${k.x})\\) ?`,
+    goodHtml: `\\(f(${k.x}) = ${k.fx}\\)`,
+    distractors: [
+      `\\(f(${k.x}) = ${k.x}\\)`,
+      `\\(f(${k.fx}) = ${k.x}\\)`,
+      `\\(f(${k.x}) = ${k.fx + 1}\\)`
+    ],
+    solution: `Lire l'image, c'est lire l'ordonnée du point dont l'abscisse est ${k.x} : \\(f(${k.x}) = ${k.fx}\\).`,
+    help: {
+      cours: "<b>Image</b> d'un nombre \\(a\\) : c'est l'ordonnée du point de la courbe d'abscisse \\(a\\), notée \\(f(a)\\).",
+      savoirFaire: "Trouver \\(a\\) sur l'axe des abscisses, monter jusqu'à la courbe, lire l'ordonnée.",
+      erreurs: ["Lire l'antécédent au lieu de l'image.", "Confondre axes x et y.", "Inverser les coordonnées."]
+    }
+  });
+}
+
+function repr_lecture_n2() {
+  // 🟡 Apprentissage — antécédent simple
+  const cases = [
+    { y: 3, x: 1, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' },
+    { y: 5, x: 2, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' },
+    { y: 9, x: 4, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' }
+  ];
+  const k = pick(cases);
+  return _repr_qcm({
+    title: 'Niveau 🟡 — Trouver un antécédent',
+    body: `${k.context}<br>Quel est l'antécédent de <b>${k.y}</b> par \\(f\\) ?`,
+    goodHtml: `\\(${k.x}\\)`,
+    distractors: [`\\(${k.y}\\)`, `\\(${k.y - 1}\\)`, `\\(${k.x + 1}\\)`],
+    solution: `On cherche \\(x\\) tel que \\(f(x) = ${k.y}\\). D'après le tableau : \\(x = ${k.x}\\).`,
+    help: {
+      cours: "<b>Antécédent</b> d'un nombre \\(b\\) par \\(f\\) : c'est un nombre \\(x\\) tel que \\(f(x) = b\\). Géométriquement, on part de \\(b\\) sur l'axe des ordonnées, on va jusqu'à la courbe, on redescend sur l'axe des abscisses.",
+      savoirFaire: "Lire en ordonnée, chercher la correspondance sur la courbe, descendre sur l'axe des x.",
+      erreurs: ["Lire l'image au lieu de l'antécédent.", "Oublier qu'un nombre peut avoir plusieurs antécédents.", "Confondre avec \\(f(b)\\)."]
+    }
+  });
+}
+
+function repr_lecture_n3() {
+  // 🟢 Confirmé — droite : image / antécédent pour fonction affine
+  const a = pick([2, -1, 3, -2]);
+  const b = pick([1, 0, -2, 3]);
+  const x0 = pick([1, 2, 3, -1]);
+  const y0 = a * x0 + b;
+  return _repr_qcm({
+    title: 'Niveau 🟢 — Fonction affine et lecture',
+    body: `On considère la fonction affine \\(f(x) = ${a}x ${b >= 0 ? '+ ' + b : '- ' + (-b)}\\).<br>Quelle est la valeur de \\(f(${x0})\\) ?`,
+    goodHtml: `\\(${y0}\\)`,
+    distractors: [`\\(${y0 + 1}\\)`, `\\(${a + b}\\)`, `\\(${-y0}\\)`],
+    solution: `On remplace \\(x\\) par ${x0} : \\(f(${x0}) = ${a} \\times ${x0} ${b >= 0 ? '+ ' + b : '- ' + (-b)} = ${a*x0} ${b >= 0 ? '+ ' + b : '- ' + (-b)} = ${y0}\\).`,
+    help: {
+      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\) : \\(a\\) est le coefficient directeur, \\(b\\) l'ordonnée à l'origine.",
+      savoirFaire: "Substituer la valeur, attention aux signes et à la règle des signes.",
+      erreurs: ["Oublier d'ajouter \\(b\\).", "Se tromper de signe.", "Inverser \\(a\\) et \\(b\\)."]
+    }
+  });
+}
+
+function repr_lecture_n4() {
+  // 💚 Maîtrise — lire le coefficient directeur
+  const pts = pick([
+    { p1: [0, 1], p2: [2, 5], a: 2, b: 1 },
+    { p1: [0, 3], p2: [4, 7], a: 1, b: 3 },
+    { p1: [0, 5], p2: [1, 2], a: -3, b: 5 },
+    { p1: [0, -1], p2: [3, 5], a: 2, b: -1 }
+  ]);
+  return _repr_qcm({
+    title: 'Niveau 💚 — Coefficient directeur',
+    body: `Une droite \\((d)\\) passe par les points \\(A(${pts.p1[0]}\\,;\\,${pts.p1[1]})\\) et \\(B(${pts.p2[0]}\\,;\\,${pts.p2[1]})\\).<br>Quel est le coefficient directeur de \\((d)\\) ?`,
+    goodHtml: `\\(${pts.a}\\)`,
+    distractors: [`\\(${pts.b}\\)`, `\\(${-pts.a}\\)`, `\\(\\dfrac{1}{${pts.a}}\\)`],
+    solution: `Formule : \\(a = \\dfrac{y_B - y_A}{x_B - x_A} = \\dfrac{${pts.p2[1]} - ${pts.p1[1]}}{${pts.p2[0]} - ${pts.p1[0]}} = ${pts.a}\\).`,
+    help: {
+      cours: "Coefficient directeur d'une droite passant par \\(A(x_A;y_A)\\) et \\(B(x_B;y_B)\\) : \\(a = \\dfrac{y_B - y_A}{x_B - x_A}\\).",
+      savoirFaire: "Calculer la différence des ordonnées / différence des abscisses.",
+      erreurs: ["Inverser numérateur et dénominateur.", "Oublier le signe.", "Confondre avec \\(b\\) (ordonnée à l'origine)."]
+    }
+  });
+}
+
+function repr_lecture_n5() {
+  // ⚫ Expert — équation de droite à partir de deux points
+  const pts = pick([
+    { p1: [1, 4], p2: [3, 10], eq: 'y = 3x + 1', wrongs: ['y = 3x + 4', 'y = 2x + 2', 'y = x + 3'] },
+    { p1: [0, 2], p2: [4, -6], eq: 'y = -2x + 2', wrongs: ['y = 2x + 2', 'y = -2x - 2', 'y = -x + 2'] },
+    { p1: [0, 5], p2: [2, 5], eq: 'y = 5', wrongs: ['x = 5', 'y = x + 5', 'y = 2x + 5'] },
+    { p1: [1, 3], p2: [2, 5], eq: 'y = 2x + 1', wrongs: ['y = 2x + 3', 'y = x + 2', 'y = 3x + 2'] }
+  ]);
+  return _repr_qcm({
+    title: 'Niveau ⚫ — Équation d\'une droite',
+    body: `Une droite passe par les points \\(A(${pts.p1[0]}\\,;\\,${pts.p1[1]})\\) et \\(B(${pts.p2[0]}\\,;\\,${pts.p2[1]})\\).<br>Quelle est son équation ?`,
+    goodHtml: `\\(${pts.eq}\\)`,
+    distractors: pts.wrongs.map(w => `\\(${w}\\)`),
+    solution: `Calculer le coefficient directeur \\(a\\), puis l'ordonnée à l'origine \\(b\\) en utilisant l'un des points : \\(b = y_A - a \\times x_A\\).`,
+    help: {
+      cours: "Pour l'équation \\(y = ax + b\\) d'une droite : 1) calculer \\(a = \\dfrac{\\Delta y}{\\Delta x}\\) ; 2) utiliser un point pour trouver \\(b\\).",
+      savoirFaire: "Calculer \\(a\\), puis \\(b = y - ax\\) avec un point.",
+      erreurs: ["Inverser \\(a\\) et \\(b\\).", "Mauvais signe.", "Droite horizontale : \\(y = k\\), pas \\(x = k\\)."]
+    }
+  });
+}
+
+/* ==========================================================================
+   MODÉLISER — Mise en équation (5 niveaux)
+   ========================================================================== */
+
+function _model_qcm({ title, body, goodHtml, distractors, solution, help }) {
+  const all = [{ html: goodHtml, correct: true }]
+    .concat(distractors.map(h => ({ html: h, correct: false })));
+  const { choices, correctIdx } = makeQCM(all);
+  return { theme: 'modeliser', title, body, type: 'qcm', choices, correctIdx, solution, help };
+}
+
+function model_eq_n1() {
+  // 🔴 Découverte — mise en équation la plus simple
+  const cases = [
+    { s: "La somme d'un nombre \\(x\\) et de 7 vaut 15.", eq: 'x + 7 = 15', wr: ['x - 7 = 15', '7x = 15', 'x × 7 = 15'] },
+    { s: "Le double d'un nombre \\(x\\) vaut 20.", eq: '2x = 20', wr: ['x + 2 = 20', 'x - 2 = 20', 'x/2 = 20'] },
+    { s: "Un nombre \\(x\\) diminué de 5 vaut 12.", eq: 'x - 5 = 12', wr: ['5 - x = 12', 'x + 5 = 12', '5x = 12'] }
+  ];
+  const k = pick(cases);
+  return _model_qcm({
+    title: 'Niveau 🔴 — Traduire une phrase',
+    body: `Traduire cette phrase par une équation :<br><i>${k.s}</i>`,
+    goodHtml: `\\(${k.eq}\\)`,
+    distractors: k.wr.map(w => `\\(${w}\\)`),
+    solution: `Mettre en équation = traduire la phrase mot à mot en symboles.`,
+    help: {
+      cours: "Mots-clés : <b>somme</b> → +, <b>différence</b> → −, <b>double</b> → ×2, <b>moitié / tiers</b> → /2, /3, <b>vaut / est égal à</b> → =.",
+      savoirFaire: "Identifier l'inconnue, puis traduire chaque mot en symbole.",
+      erreurs: ["Confondre ajouter et multiplier.", "Inverser la soustraction.", "Oublier le signe =."]
+    }
+  });
+}
+
+function model_eq_n2() {
+  // 🟡 Apprentissage — équation du 1er degré avec 2 opérations
+  const cases = [
+    { s: "Trois fois un nombre, diminué de 4, vaut 11.", eq: '3x - 4 = 11', wr: ['3x + 4 = 11', 'x - 4 = 11', '3(x - 4) = 11'] },
+    { s: "Le triple d'un nombre augmenté de 2 vaut 17.", eq: '3x + 2 = 17', wr: ['3(x + 2) = 17', 'x + 2 = 17', '3x - 2 = 17'] },
+    { s: "La moitié d'un nombre augmentée de 3 vaut 8.", eq: 'x/2 + 3 = 8', wr: ['(x + 3)/2 = 8', 'x/2 - 3 = 8', 'x + 3 = 8/2'] }
+  ];
+  const k = pick(cases);
+  return _model_qcm({
+    title: 'Niveau 🟡 — Traduction en deux étapes',
+    body: `Traduire par une équation :<br><i>${k.s}</i>`,
+    goodHtml: `\\(${k.eq}\\)`,
+    distractors: k.wr.map(w => `\\(${w}\\)`),
+    solution: `Lire la phrase dans l'ordre et respecter les parenthèses quand on applique une opération à un groupe complet.`,
+    help: {
+      cours: "Attention : « le double de (x + 3) » = 2(x + 3), mais « le double de x, augmenté de 3 » = 2x + 3.",
+      savoirFaire: "Se demander si l'opération s'applique à x seul ou à une expression entière.",
+      erreurs: ["Oublier les parenthèses.", "Inverser ordre des opérations.", "Confondre « diminué de » et « moins »."]
+    }
+  });
+}
+
+function model_eq_n3() {
+  // 🟢 Confirmé — problème de périmètre / âge / achat
+  const cases = [
+    { s: "Un rectangle a un périmètre de 30 cm. Sa longueur \\(L\\) mesure 3 cm de plus que sa largeur \\(\\ell\\). Donner l'équation vérifiée par \\(\\ell\\).", eq: '2\\ell + 2(\\ell + 3) = 30', wr: ['\\ell(\\ell + 3) = 30', '2\\ell + 3 = 30', '\\ell + (\\ell + 3) = 30'] },
+    { s: "Le prix d'un pull est de 25 €. Un client achète 2 pulls et une écharpe à \\(x\\) €. Il paie 63 € au total. Donner l'équation.", eq: '2 \\times 25 + x = 63', wr: ['25 + 2x = 63', '25x + 2 = 63', '(25 + 2)x = 63'] },
+    { s: "Marie a \\(x\\) ans. Son frère a 5 ans de plus qu'elle. La somme de leurs âges vaut 27 ans. Donner l'équation.", eq: 'x + (x + 5) = 27', wr: ['x + 5 = 27', '2x + 5 = 27/2', 'x(x + 5) = 27'] }
+  ];
+  const k = pick(cases);
+  return _model_qcm({
+    title: 'Niveau 🟢 — Problème concret',
+    body: k.s,
+    goodHtml: `\\(${k.eq}\\)`,
+    distractors: k.wr.map(w => `\\(${w}\\)`),
+    solution: `Identifier l'inconnue, exprimer toutes les quantités en fonction d'elle, utiliser la condition donnée (total, somme, périmètre…).`,
+    help: {
+      cours: "<b>Modélisation</b> : 1) choisir une inconnue ; 2) traduire chaque grandeur avec cette inconnue ; 3) utiliser la condition (= somme, =total, = périmètre…).",
+      savoirFaire: "Relire la phrase et vérifier que chaque élément a été utilisé.",
+      erreurs: ["Oublier une grandeur (ex. 2 pulls au lieu d'1).", "Mal traduire « de plus que » (+ et non ×).", "Multiplier au lieu d'additionner."]
+    }
+  });
+}
+
+function model_eq_n4() {
+  // 💚 Maîtrise — problème avec inconnue et équation du 1er degré + contextes variés
+  const cases = [
+    { s: "Dans un parking, il y a \\(x\\) motos et \\(x + 14\\) voitures. On compte au total 46 véhicules. Donner l'équation.", eq: 'x + (x + 14) = 46', wr: ['x(x + 14) = 46', '2x + 14 = 46/2', 'x + 14 = 46'] },
+    { s: "Une librairie vend un livre à 12 € et un magazine à 4 €. Un client achète \\(x\\) livres et \\(x + 2\\) magazines pour 52 €. Donner l'équation.", eq: '12x + 4(x + 2) = 52', wr: ['12x + 4x + 2 = 52', '(12 + 4)x + 2 = 52', '12(x + 2) + 4x = 52'] },
+    { s: "Un parent a 36 ans, son enfant \\(x\\) ans. Dans 10 ans, le parent aura 3 fois l'âge de l'enfant. Donner l'équation vérifiée par \\(x\\).", eq: '36 + 10 = 3(x + 10)', wr: ['36 + 10 = 3x + 10', '3(36 + 10) = x + 10', '36 = 3x'] }
+  ];
+  const k = pick(cases);
+  return _model_qcm({
+    title: 'Niveau 💚 — Modélisation avancée',
+    body: k.s,
+    goodHtml: `\\(${k.eq}\\)`,
+    distractors: k.wr.map(w => `\\(${w}\\)`),
+    solution: `Bien identifier ce qui se passe « à l'instant actuel » et « dans X années » / « coût × quantité »…`,
+    help: {
+      cours: "Pour les problèmes d'âges : attention à décaler <b>tous</b> les âges. Pour les problèmes d'achats : prix unitaire × quantité, <b>un terme par type d'article</b>.",
+      savoirFaire: "Lister les quantités avant de rédiger l'équation.",
+      erreurs: ["Oublier de décaler un âge.", "Oublier une parenthèse.", "Confondre coût et quantité."]
+    }
+  });
+}
+
+function model_eq_n5() {
+  // ⚫ Expert — système ou comparaison de deux offres
+  const cases = [
+    { s: "L'offre A : 8 € puis 0,5 €/km. L'offre B : 2 €/km sans forfait. Pour quel kilométrage \\(x\\) les offres sont-elles égales ? Écrire l'équation.", eq: '8 + 0{,}5x = 2x', wr: ['8 + 0{,}5x = 2 + x', '8x + 0{,}5 = 2x', '0{,}5x = 2x - 8'] },
+    { s: "Julie et Tom comptent leurs billes : Julie en a 3 fois plus que Tom. Ensemble ils en ont 48. Donner l'équation vérifiée par \\(x\\) (nombre de billes de Tom).", eq: '3x + x = 48', wr: ['3 + x = 48', '3x = x + 48', 'x/3 + x = 48'] },
+    { s: "Un tarif A vaut 20 € + 3 €/h. Un tarif B vaut 5 €/h. À partir de combien d'heures \\(x\\) l'offre A devient avantageuse ? Écrire l'inéquation correspondante.", eq: '20 + 3x < 5x', wr: ['20 + 3x > 5x', '20 + 3x = 5x', '3x < 5x - 20'] }
+  ];
+  const k = pick(cases);
+  return _model_qcm({
+    title: 'Niveau ⚫ — Comparer deux situations',
+    body: k.s,
+    goodHtml: `\\(${k.eq}\\)`,
+    distractors: k.wr.map(w => `\\(${w}\\)`),
+    solution: `Identifier clairement les deux expressions en fonction de x, puis les comparer (égalité, inégalité).`,
+    help: {
+      cours: "Pour <b>comparer deux offres</b> : écrire chaque prix total en fonction de x, puis poser l'égalité (ou l'inégalité).",
+      savoirFaire: "Forfait = constante + (prix unitaire × quantité).",
+      erreurs: ["Confondre forfait et prix unitaire.", "Oublier le forfait.", "Mauvais sens de l'inégalité."]
+    }
+  });
+}
+
+/* ==========================================================================
+   COMMUNIQUER — Conclure correctement (5 niveaux)
+   ========================================================================== */
+
+function _comm_qcm({ title, body, goodHtml, distractors, solution, help }) {
+  const all = [{ html: goodHtml, correct: true }]
+    .concat(distractors.map(h => ({ html: h, correct: false })));
+  const { choices, correctIdx } = makeQCM(all);
+  return { theme: 'communiquer', title, body, type: 'qcm', choices, correctIdx, solution, help };
+}
+
+function comm_conclure_n1() {
+  // 🔴 Découverte — conclusion simple Pythagore
+  const cases = [
+    {
+      contexte: "Dans le triangle ABC rectangle en B, on a calculé \\(AC^2 = 25\\).",
+      good: "Donc \\(AC = \\sqrt{25} = 5\\) cm.",
+      wrongs: [
+        "Donc \\(AC = 25\\) cm.",
+        "Donc \\(AC^2 = 5\\) cm.",
+        "Donc \\(AC = 25^2\\) cm."
+      ]
+    },
+    {
+      contexte: "On a trouvé \\(BC^2 = 100\\) avec BC en cm.",
+      good: "Donc \\(BC = 10\\) cm (on prend la racine carrée).",
+      wrongs: [
+        "Donc \\(BC = 100\\) cm.",
+        "Donc \\(BC^2 = 100\\), donc BC = 100 cm.",
+        "Donc \\(BC = 1\\,000\\) cm."
+      ]
+    }
+  ];
+  const k = pick(cases);
+  return _comm_qcm({
+    title: 'Niveau 🔴 — Phrase de conclusion',
+    body: `${k.contexte}<br>Quelle est la conclusion correcte ?`,
+    goodHtml: k.good,
+    distractors: k.wrongs,
+    solution: `Après avoir trouvé un carré, il faut <b>prendre la racine carrée</b> pour obtenir la longueur.`,
+    help: {
+      cours: "En géométrie, quand on calcule un carré d'une longueur \\(\\ell^2 = k\\), la longueur vaut \\(\\ell = \\sqrt{k}\\) (et pas \\(k\\) !).",
+      savoirFaire: "Ne jamais confondre \\(\\ell^2\\) et \\(\\ell\\). Toujours écrire la phrase de conclusion en clair.",
+      erreurs: ["Oublier la racine carrée.", "Laisser \\(\\ell^2\\) au lieu de \\(\\ell\\).", "Oublier l'unité."]
+    }
+  });
+}
+
+function comm_conclure_n2() {
+  // 🟡 Apprentissage — conclusion Thalès / proportionnalité
+  const cases = [
+    {
+      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\) et que (BC) // (DE).",
+      good: "D'après le théorème de Thalès, on a \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC} = \\dfrac{DE}{BC}\\).",
+      wrongs: [
+        "Donc (AB) est parallèle à (DE).",
+        "Donc les triangles sont égaux.",
+        "Donc AD = AE."
+      ]
+    },
+    {
+      contexte: "On a calculé x et trouvé \\(x = 6\\) dans un problème de Thalès sur des longueurs en cm.",
+      good: "Donc la longueur cherchée vaut 6 cm.",
+      wrongs: [
+        "Donc \\(x = 6\\) m.",
+        "Donc \\(x = 6\\), sans unité c'est la réponse.",
+        "La longueur vaut 6, on ne peut pas conclure sans justification supplémentaire."
+      ]
+    }
+  ];
+  const k = pick(cases);
+  return _comm_qcm({
+    title: 'Niveau 🟡 — Conclusion avec unité',
+    body: `${k.contexte}<br>Quelle est la conclusion correcte ?`,
+    goodHtml: k.good,
+    distractors: k.wrongs,
+    solution: `Une conclusion doit : (1) rappeler le théorème, (2) donner la valeur avec la <b>bonne unité</b>.`,
+    help: {
+      cours: "Une phrase de conclusion complète mentionne : le <b>résultat</b>, l'<b>unité</b>, et renvoie si besoin au <b>théorème</b> utilisé.",
+      savoirFaire: "Relire : ai-je mis l'unité ? ai-je répondu à la question ?",
+      erreurs: ["Oublier l'unité.", "Mettre la mauvaise unité.", "Ne pas répondre à la question posée."]
+    }
+  });
+}
+
+function comm_conclure_n3() {
+  // 🟢 Confirmé — conclusion réciproque Thalès / Pythagore
+  const cases = [
+    {
+      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\), les points A, D, B et A, E, C étant alignés dans cet ordre.",
+      good: "D'après la réciproque du théorème de Thalès, les droites (DE) et (BC) sont parallèles.",
+      wrongs: [
+        "D'après le théorème de Thalès, on peut calculer DE.",
+        "Donc DE = BC.",
+        "Donc les triangles ADE et ABC sont égaux."
+      ]
+    },
+    {
+      contexte: "On a vérifié que \\(AB^2 + AC^2 = BC^2\\) dans un triangle ABC.",
+      good: "D'après la réciproque du théorème de Pythagore, le triangle ABC est rectangle en A.",
+      wrongs: [
+        "D'après le théorème de Pythagore, le triangle ABC est rectangle en A.",
+        "Donc le triangle ABC est isocèle en A.",
+        "Donc AB = AC."
+      ]
+    }
+  ];
+  const k = pick(cases);
+  return _comm_qcm({
+    title: 'Niveau 🟢 — Réciproque : bonne conclusion',
+    body: `${k.contexte}<br>Quelle est la conclusion correcte ?`,
+    goodHtml: k.good,
+    distractors: k.wrongs,
+    solution: `La <b>réciproque</b> permet de démontrer une propriété ; le théorème direct permet de <b>déduire une égalité</b>. Il faut aussi préciser le <b>sommet</b> de l'angle droit ou les droites concernées.`,
+    help: {
+      cours: "Direct : hypothèse \"triangle rectangle\" / \"droites parallèles\" → conclusion \"égalité\". Réciproque : hypothèse \"égalité\" → conclusion \"triangle rectangle\" / \"droites parallèles\".",
+      savoirFaire: "Se demander : qu'est-ce que je veux montrer ? Choisir entre direct et réciproque.",
+      erreurs: ["Dire « théorème » au lieu de « réciproque ».", "Oublier de préciser le sommet ou la droite.", "Confondre les deux théorèmes."]
+    }
+  });
+}
+
+function comm_conclure_n4() {
+  // 💚 Maîtrise — contraposée / négation
+  const cases = [
+    {
+      contexte: "On a vérifié que \\(AB^2 + AC^2 \\ne BC^2\\) dans un triangle ABC.",
+      good: "D'après la contraposée du théorème de Pythagore, le triangle ABC n'est pas rectangle en A.",
+      wrongs: [
+        "D'après Pythagore, le triangle est rectangle.",
+        "Le triangle est isocèle.",
+        "On ne peut rien conclure."
+      ]
+    },
+    {
+      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} \\ne \\dfrac{AE}{AC}\\), avec A, D, B alignés et A, E, C alignés.",
+      good: "D'après la contraposée de la réciproque de Thalès, les droites (DE) et (BC) ne sont pas parallèles.",
+      wrongs: [
+        "D'après Thalès, les droites sont parallèles.",
+        "Les droites (DE) et (BC) sont sécantes en A.",
+        "On ne peut rien conclure."
+      ]
+    }
+  ];
+  const k = pick(cases);
+  return _comm_qcm({
+    title: 'Niveau 💚 — Conclusion par contraposée',
+    body: `${k.contexte}<br>Quelle est la conclusion correcte ?`,
+    goodHtml: k.good,
+    distractors: k.wrongs,
+    solution: `La <b>contraposée</b> d'une implication \"si A alors B\" est \"si non B alors non A\".`,
+    help: {
+      cours: "La contraposée est logiquement équivalente à l'implication. Elle permet de <b>démontrer une négation</b>.",
+      savoirFaire: "Si la conclusion attendue est une négation (« n'est pas », « ne sont pas »), penser à la contraposée.",
+      erreurs: ["Utiliser le théorème direct pour conclure une négation.", "Oublier « n'est pas ».", "Affirmer quelque chose d'autre (isocèle…)."]
+    }
+  });
+}
+
+function comm_conclure_n5() {
+  // ⚫ Expert — conclusion complète rédigée
+  const cases = [
+    {
+      contexte: "Problème : « Montrer que le triangle ABC de côtés AB = 6, AC = 8, BC = 10 est rectangle. »<br>On a calculé \\(AB^2 + AC^2 = 100\\) et \\(BC^2 = 100\\).",
+      good: "On constate que \\(AB^2 + AC^2 = BC^2\\). D'après la réciproque du théorème de Pythagore, le triangle ABC est rectangle en A.",
+      wrongs: [
+        "Comme \\(AB^2 + AC^2 = BC^2\\), alors ABC est rectangle.",
+        "D'après Pythagore, \\(AB^2 + AC^2 = BC^2\\), donc ABC est rectangle.",
+        "Le triangle est rectangle car les trois côtés sont proportionnels."
+      ]
+    },
+    {
+      contexte: "Problème : « Calculer une longueur. » On travaille dans un triangle rectangle en A avec AB = 5 et AC = 12.<br>On a posé \\(BC^2 = 5^2 + 12^2 = 25 + 144 = 169\\).",
+      good: "D'après le théorème de Pythagore, \\(BC^2 = AB^2 + AC^2 = 169\\), donc \\(BC = \\sqrt{169} = 13\\) cm.",
+      wrongs: [
+        "Donc BC = 169 cm.",
+        "Donc \\(BC = 25 + 144\\) cm.",
+        "Donc BC² = 13, donc BC = 169 cm."
+      ]
+    }
+  ];
+  const k = pick(cases);
+  return _comm_qcm({
+    title: 'Niveau ⚫ — Rédaction complète',
+    body: `${k.contexte}<br>Quelle est la meilleure rédaction pour conclure ?`,
+    goodHtml: k.good,
+    distractors: k.wrongs,
+    solution: `Une rédaction complète mentionne : le <b>théorème cité</b>, l'<b>égalité obtenue</b>, le <b>calcul de la longueur</b> (racine carrée si besoin) et l'<b>unité</b>.`,
+    help: {
+      cours: "Rédaction-type Pythagore : (1) triangle rectangle → théorème ; (2) égalité des carrés ; (3) calcul ; (4) racine et unité ; (5) conclusion sur la figure.",
+      savoirFaire: "Se relire : théorème cité ? calcul juste ? racine prise ? unité présente ? conclusion claire ?",
+      erreurs: ["Oublier la racine carrée.", "Mélanger \\(BC\\) et \\(BC^2\\).", "Oublier l'unité.", "Mauvais théorème (Pythagore au lieu de la réciproque)."]
+    }
+  });
+}
+
+/* ==========================================================================
+   RÉDACTION — Texte à compléter : raccourci vers la modale existante.
+   On génère un "exercice" factice qui redirige vers openRedaction() au lancement.
+   ========================================================================== */
+const REDACTION_LEVELS = {
+  1: { key: 'pythagore_direct', label: 'Pythagore direct — calculer une longueur' },
+  2: { key: 'pythagore_reciproque_vrai', label: 'Réciproque de Pythagore — cas vrai' },
+  3: { key: 'thales_direct', label: 'Thalès direct — calculer une longueur' },
+  4: { key: 'thales_reciproque_vrai', label: 'Réciproque de Thalès — cas vrai' },
+  5: { key: 'trigo_cote', label: 'Trigonométrie — calculer un côté' }
+};
+
+function _red_placeholder(level) {
+  const l = REDACTION_LEVELS[level];
+  return {
+    theme: 'redaction',
+    title: `Rédaction — ${l.label}`,
+    body: `Clique sur « ✍️ Rédiger » pour ouvrir l'exercice glisser-déposer.`,
+    type: 'qcm',
+    choices: [
+      `<button class="primary fc-redaction-btn" data-redaction="${l.key}" style="margin-top:8px;">✍️ Ouvrir l'exercice de rédaction</button>`,
+      `Passer (me noter 0)`,
+      `Je ne sais pas`
+    ],
+    correctIdx: 0,
+    solution: `Utilise la rédaction glisser-déposer pour placer les étiquettes dans le bon ordre.`,
+    help: {
+      cours: "Une démonstration se rédige par étapes : <b>hypothèses</b> → <b>théorème</b> → <b>calcul</b> → <b>conclusion</b>.",
+      savoirFaire: "Repère les mots-clés : « rectangle », « parallèle »… pour savoir quel théorème utiliser.",
+      erreurs: ["Oublier l'étape du théorème.", "Sauter le calcul intermédiaire.", "Ne pas conclure clairement."]
+    }
+  };
+}
+
+function red_complete_n1() { return _red_placeholder(1); }
+function red_complete_n2() { return _red_placeholder(2); }
+function red_complete_n3() { return _red_placeholder(3); }
+function red_complete_n4() { return _red_placeholder(4); }
+function red_complete_n5() { return _red_placeholder(5); }
+
+
 /* Export pour SKILL_FORMAT_GENERATORS */
 Object.assign(SKILL_FORMAT_GENERATORS, {
   'raisonner.ordre.1': rais_ordre_n1,
@@ -4065,7 +4547,31 @@ Object.assign(SKILL_FORMAT_GENERATORS, {
   'raisonner.vf.2': rais_vf_n2,
   'raisonner.vf.3': rais_vf_n3,
   'raisonner.vf.4': rais_vf_n4,
-  'raisonner.vf.5': rais_vf_n5
+  'raisonner.vf.5': rais_vf_n5,
+  // Représenter — Lecture graphique
+  'representer.lecture.1': repr_lecture_n1,
+  'representer.lecture.2': repr_lecture_n2,
+  'representer.lecture.3': repr_lecture_n3,
+  'representer.lecture.4': repr_lecture_n4,
+  'representer.lecture.5': repr_lecture_n5,
+  // Modéliser — Mise en équation
+  'modeliser.mise_eq.1': model_eq_n1,
+  'modeliser.mise_eq.2': model_eq_n2,
+  'modeliser.mise_eq.3': model_eq_n3,
+  'modeliser.mise_eq.4': model_eq_n4,
+  'modeliser.mise_eq.5': model_eq_n5,
+  // Communiquer — Conclure correctement
+  'communiquer.conclure.1': comm_conclure_n1,
+  'communiquer.conclure.2': comm_conclure_n2,
+  'communiquer.conclure.3': comm_conclure_n3,
+  'communiquer.conclure.4': comm_conclure_n4,
+  'communiquer.conclure.5': comm_conclure_n5,
+  // Rédaction — renvoi vers modale glisser-déposer
+  'redaction.complete.1': red_complete_n1,
+  'redaction.complete.2': red_complete_n2,
+  'redaction.complete.3': red_complete_n3,
+  'redaction.complete.4': red_complete_n4,
+  'redaction.complete.5': red_complete_n5
 });
 
 
@@ -4112,6 +4618,13 @@ function initSkillsTab() {
     if (lvlCard && !lvlCard.classList.contains('locked')) {
       const { skill, format, level } = lvlCard.dataset;
       startSkillExercise(skill, format, parseInt(level));
+    }
+    // Bouton "✍️ Ouvrir l'exercice de rédaction" dans l'écran test
+    const redBtn = e.target.closest('.fc-redaction-btn');
+    if (redBtn && redBtn.dataset.redaction) {
+      e.preventDefault();
+      e.stopPropagation();
+      openRedaction(redBtn.dataset.redaction);
     }
   });
   // Quand on clique l'onglet, rafraîchir
