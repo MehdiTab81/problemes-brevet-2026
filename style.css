@@ -2379,9 +2379,6 @@ body.evaluating .pwa-tip { display: none !important; }
   0%, 100% { transform: translateY(0) rotate(-3deg); }
   50%      { transform: translateY(-5px) rotate(3deg); }
 }
-/* Si les deux popups sont affichés, empiler verticalement (welcome au-dessus, pwa-tip en dessous) */
-.welcome-banner ~ .pwa-tip,
-body:has(.welcome-banner) .pwa-tip { top: auto; bottom: 16px; }
 
 /* ==========================================================================
    Footer

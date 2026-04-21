@@ -4832,6 +4832,19 @@ function showPWAInstallTip() {
   if (localStorage.getItem(PWA_TIP_DISMISSED_KEY)) return;
   if (isStandaloneMode()) return;
   if (document.querySelector('.pwa-tip')) return;
+  // Si la bannière de bienvenue est affichée, on attend qu'elle soit fermée
+  // (sinon on empile deux popups en bas qui gênent la navigation).
+  const welcome = document.querySelector('.welcome-banner');
+  if (welcome) {
+    const observer = new MutationObserver(() => {
+      if (!document.querySelector('.welcome-banner')) {
+        observer.disconnect();
+        setTimeout(showPWAInstallTip, 600);
+      }
+    });
+    observer.observe(document.body, { childList: true });
+    return;
+  }
 
   const tip = document.createElement('div');
   tip.className = 'pwa-tip';
