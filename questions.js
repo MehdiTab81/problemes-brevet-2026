@@ -4378,3 +4378,109 @@ function buildSeries(selectedThemes) {
 
   return shuffle(selected.map(g => g()));
 }
+
+/* ==========================================================================
+   HELPERS SVG complémentaires (cercle, arbre pondéré, triangle quelconque)
+   Utilisés par les exercices Raisonner / Modéliser / Communiquer.
+   ========================================================================== */
+
+/* Cercle avec rayon et/ou diamètre annotés. */
+function svgCercle({ rayon = 3, marquerRayon = true, marquerDiametre = false, marquerPerimetre = false } = {}) {
+  const W = 260, H = 220, cx = W/2, cy = H/2, R = 70;
+  const xA = cx, yA = cy;             // centre
+  const xB = cx + R, yB = cy;         // un point du cercle à droite
+  const xC = cx - R, yC = cy;         // point diamétralement opposé
+  let content = `
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="#eef0ff" stroke="#2b5fd6" stroke-width="2"/>
+    <circle cx="${xA}" cy="${yA}" r="3" fill="#333"/>
+    <text x="${xA - 10}" y="${yA - 6}" font-size="13" font-weight="700" text-anchor="end">O</text>`;
+  if (marquerRayon) {
+    content += `
+      <line x1="${xA}" y1="${yA}" x2="${xB}" y2="${yB}" stroke="#c4342a" stroke-width="2"/>
+      <circle cx="${xB}" cy="${yB}" r="3" fill="#333"/>
+      <text x="${xB + 10}" y="${yB + 4}" font-size="13" font-weight="700">A</text>
+      <text x="${(xA + xB)/2}" y="${yA - 6}" font-size="12" fill="#c4342a" text-anchor="middle">r = ${rayon}</text>`;
+  }
+  if (marquerDiametre) {
+    content += `
+      <line x1="${xC}" y1="${yC}" x2="${xB}" y2="${yB}" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="${cx}" y="${cy + 16}" font-size="12" fill="#8b5cf6" text-anchor="middle">D = 2r = ${2*rayon}</text>`;
+  }
+  if (marquerPerimetre) {
+    content += `
+      <text x="${cx}" y="${cy - R - 10}" font-size="12" fill="#2b5fd6" text-anchor="middle" font-weight="700">P = 2πr</text>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">${content}</svg>`;
+}
+
+/* Arbre pondéré à 2 niveaux (pour probabilités conditionnelles).
+   branches = [{label, proba, enfants: [{label, proba}]}]
+*/
+function svgArbrePondere(branches) {
+  const W = 420, H = 220;
+  const x0 = 40, xMid = 180, xEnd = 340;
+  const nB = branches.length;
+  const yStart = 30;
+  const yStep = (H - 60) / (nB * 2);
+  let content = `<circle cx="${x0}" cy="${H/2}" r="4" fill="#333"/>`;
+  let yCursor = yStart;
+  branches.forEach((br, i) => {
+    const yB = yCursor + yStep;
+    yCursor += yStep * 2;
+    // Branche principale
+    content += `
+      <line x1="${x0}" y1="${H/2}" x2="${xMid}" y2="${yB}" stroke="#2b5fd6" stroke-width="1.6"/>
+      <text x="${(x0 + xMid)/2}" y="${((H/2) + yB)/2 - 4}" font-size="11" fill="#2b5fd6" text-anchor="middle" font-weight="700">${br.proba}</text>
+      <circle cx="${xMid}" cy="${yB}" r="3" fill="#333"/>
+      <text x="${xMid + 8}" y="${yB + 4}" font-size="12" font-weight="700" fill="#333">${br.label}</text>`;
+    // Enfants
+    const childStep = 28;
+    const childY0 = yB - childStep/2 * (br.enfants.length - 1);
+    br.enfants.forEach((c, j) => {
+      const yC = childY0 + j * childStep;
+      content += `
+        <line x1="${xMid + 25}" y1="${yB}" x2="${xEnd}" y2="${yC}" stroke="#666" stroke-width="1.2"/>
+        <text x="${(xMid + xEnd)/2}" y="${(yB + yC)/2 - 3}" font-size="10" fill="#666" text-anchor="middle">${c.proba}</text>
+        <circle cx="${xEnd}" cy="${yC}" r="2.5" fill="#333"/>
+        <text x="${xEnd + 6}" y="${yC + 4}" font-size="11" fill="#333">${c.label}</text>`;
+    });
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">${content}</svg>`;
+}
+
+/* Triangle quelconque avec angles annotés (utile pour somme des angles, triangles semblables). */
+function svgTriangleQuelconque({ labels = { A:'A', B:'B', C:'C' }, angles = {}, sides = {} } = {}) {
+  const W = 300, H = 220;
+  const Ax = 150, Ay = 30;
+  const Bx = 40,  By = H - 30;
+  const Cx = W - 40, Cy = H - 50;
+  let content = `
+    <polygon points="${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}" fill="#eef0ff" stroke="#333" stroke-width="1.6" stroke-linejoin="round"/>
+    <circle cx="${Ax}" cy="${Ay}" r="3" fill="#333"/>
+    <circle cx="${Bx}" cy="${By}" r="3" fill="#333"/>
+    <circle cx="${Cx}" cy="${Cy}" r="3" fill="#333"/>
+    <text x="${Ax}" y="${Ay - 8}" font-size="15" font-weight="700" text-anchor="middle">${labels.A}</text>
+    <text x="${Bx - 10}" y="${By + 16}" font-size="15" font-weight="700" text-anchor="end">${labels.B}</text>
+    <text x="${Cx + 10}" y="${Cy + 16}" font-size="15" font-weight="700">${labels.C}</text>`;
+  if (angles.A) content += `<text x="${Ax}" y="${Ay + 24}" font-size="12" fill="#c4342a" text-anchor="middle">${angles.A}</text>`;
+  if (angles.B) content += `<text x="${Bx + 22}" y="${By - 10}" font-size="12" fill="#c4342a">${angles.B}</text>`;
+  if (angles.C) content += `<text x="${Cx - 22}" y="${Cy - 10}" font-size="12" fill="#c4342a" text-anchor="end">${angles.C}</text>`;
+  if (sides.AB) content += `<text x="${(Ax + Bx)/2 - 12}" y="${(Ay + By)/2}" font-size="12" fill="#2b5fd6" text-anchor="end">${sides.AB}</text>`;
+  if (sides.BC) content += `<text x="${(Bx + Cx)/2}" y="${(By + Cy)/2 + 20}" font-size="12" fill="#2b5fd6" text-anchor="middle">${sides.BC}</text>`;
+  if (sides.AC) content += `<text x="${(Ax + Cx)/2 + 12}" y="${(Ay + Cy)/2}" font-size="12" fill="#2b5fd6">${sides.AC}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">${content}</svg>`;
+}
+
+/* Rectangle avec longueur / largeur (pour aire / périmètre). */
+function svgRectangle({ L = 8, l = 5, labelL = '', labelLarg = '' } = {}) {
+  const W = 280, H = 180;
+  const maxW = 200, maxH = 120;
+  const k = Math.min(maxW / L, maxH / l);
+  const w = L * k, h = l * k;
+  const x0 = (W - w) / 2, y0 = (H - h) / 2 + 10;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">
+    <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#eef0ff" stroke="#333" stroke-width="1.6"/>
+    <text x="${x0 + w/2}" y="${y0 + h + 18}" font-size="12" text-anchor="middle" fill="#2b5fd6" font-weight="700">${labelL || L}</text>
+    <text x="${x0 - 8}" y="${y0 + h/2 + 4}" font-size="12" text-anchor="end" fill="#2b5fd6" font-weight="700">${labelLarg || l}</text>
+  </svg>`;
+}
