@@ -5982,14 +5982,12 @@ function initCalc() {
   refresh();
 }
 
-/* Quand on revient à l'accueil, masquer la calculatrice */
-const _origShowScreen_forCalc = (typeof showScreen === 'function') ? showScreen : null;
-
-/* Hook : afficher/cacher la calculatrice selon l'écran */
+/* Hook : afficher/cacher la calculatrice selon l'écran.
+   La calculatrice doit apparaître SEULEMENT pendant un exercice Compétences (screen-test
+   avec _skillContext) et disparaître dès qu'on change d'écran (résultats, accueil, duel…). */
 function maybeToggleCalc(screenId) {
   const btn = document.getElementById('btn-calc-toggle');
   if (!btn) return;
-  // La calculatrice est visible UNIQUEMENT pendant un exercice Compétences
   if (screenId === 'screen-test' && state && state._skillContext) {
     btn.hidden = false;
   } else {
@@ -5998,6 +5996,32 @@ function maybeToggleCalc(screenId) {
     if (w) w.hidden = true;
   }
 }
+
+/* On intercepte showScreen pour déclencher maybeToggleCalc à chaque changement d'écran.
+   Patché APRÈS la déclaration d'origine dans la même portée globale. */
+(function patchShowScreenForCalc() {
+  if (typeof showScreen !== 'function') return;
+  const orig = showScreen;
+  showScreen = function(id) {
+    const result = orig.apply(this, arguments);
+    try { maybeToggleCalc(id); } catch (e) {}
+    return result;
+  };
+})();
+
+/* De même, quand on change d'onglet, on cache la calculatrice (on n'est plus dans un exo) */
+document.addEventListener('click', (e) => {
+  const tabBtn = e.target.closest('.tab-btn');
+  if (tabBtn) {
+    // Attendre que le changement d'onglet soit effectif, puis cacher
+    setTimeout(() => {
+      const btn = document.getElementById('btn-calc-toggle');
+      if (btn) btn.hidden = true;
+      const w = document.getElementById('calc-widget');
+      if (w) w.hidden = true;
+    }, 50);
+  }
+});
 
 /* Hook finishTest pour enregistrer la progression Compétences */
 const _origFinishTest = (typeof finishTest === 'function') ? finishTest : null;
