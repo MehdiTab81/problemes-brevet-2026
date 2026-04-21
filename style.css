@@ -910,21 +910,22 @@ body[data-theme="dark"] .a11y-row select {
 /* Bandeau astuce "Installer l'app" (PWA) */
 .pwa-tip {
   position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--card-bg, white);
+  top: 74px;
+  right: 16px;
+  left: auto;
+  transform: none;
+  background: var(--card-bg, var(--bg-elev));
   border: 2px solid var(--accent);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   z-index: 9998;
-  max-width: 520px;
-  width: calc(100% - 24px);
-  font-size: 0.9rem;
+  max-width: 320px;
+  width: auto;
+  font-size: 0.82rem;
   animation: slideUp 300ms ease-out;
 }
 .pwa-tip-icon {
@@ -2314,26 +2315,73 @@ body .c4-cell.p2 {
    ========================================================================== */
 .welcome-banner {
   position: fixed;
-  bottom: 16px;
-  left: 16px;
+  top: 74px;
   right: 16px;
-  max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 320px;
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: 14px 18px;
+  padding: 12px 14px;
   display: flex;
-  gap: 14px;
-  align-items: center;
-  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   z-index: 80;
   animation: fadeIn 250ms var(--ease);
 }
-.welcome-content { flex: 1; min-width: 220px; font-size: 0.92rem; }
-.welcome-actions { display: flex; gap: 8px; }
+.welcome-content { flex: 1; font-size: 0.85rem; line-height: 1.35; }
+.welcome-actions { display: flex; gap: 8px; align-self: flex-end; }
+/* Masquer les popups pendant qu'un test est en cours */
+body.evaluating .welcome-banner,
+body.evaluating .pwa-tip { display: none !important; }
+
+/* Bannière de célébration à la fin d'un exercice Compétences */
+.skill-celebration {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  color: white;
+  padding: 18px 22px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  animation: celebPop 500ms cubic-bezier(.2,.9,.3,1.4);
+  box-shadow: 0 8px 22px rgba(139, 92, 246, 0.35);
+}
+.skill-celebration.meh {
+  background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.3);
+}
+.celeb-emoji {
+  font-size: 2.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+  animation: celebBounce 1.4s ease-in-out infinite;
+}
+.celeb-text { flex: 1; }
+.celeb-head { font-size: 1.4rem; font-weight: 800; letter-spacing: 0.01em; }
+.celeb-sub { font-size: 0.95rem; opacity: 0.95; margin-top: 2px; }
+.skill-unlock {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+@keyframes celebPop {
+  from { transform: scale(0.8) translateY(10px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes celebBounce {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-5px) rotate(3deg); }
+}
+/* Si les deux popups sont affichés, empiler verticalement (welcome au-dessus, pwa-tip en dessous) */
+.welcome-banner ~ .pwa-tip,
+body:has(.welcome-banner) .pwa-tip { top: auto; bottom: 16px; }
 
 /* ==========================================================================
    Footer

@@ -1364,13 +1364,27 @@ function isAnswerCorrect(q, a) {
 /* ---------- Fin du test → résultats ---------- */
 function finishTest() {
   // Enregistrement de la progression Compétences (avant reset)
+  let skillResult = null; // mémorise le contexte pour afficher un message de progression
   if (state._skillContext) {
     const { skillId, formatId, level } = state._skillContext;
+    const before = getSkillStats(skillId, formatId, level).correct;
+    let corrects = 0;
     state.series.forEach((q, i) => {
       const ans = state.answers[i];
       const isCorrect = isAnswerCorrect(q, ans);
+      if (isCorrect) corrects++;
       recordSkillAttempt(skillId, formatId, level, isCorrect);
     });
+    const after = getSkillStats(skillId, formatId, level).correct;
+    const nextLevel = Math.min(5, level + 1);
+    const nextUnlockedBefore = before >= 3;
+    const nextUnlockedAfter = after >= 3;
+    skillResult = {
+      skillId, formatId, level, corrects, total: state.series.length,
+      justUnlockedNext: !nextUnlockedBefore && nextUnlockedAfter,
+      nextLevel,
+      attemptsBefore: before
+    };
     state._skillContext = null;
   }
   clearInterval(state.timer);
@@ -1387,7 +1401,32 @@ function finishTest() {
   const student = getStudent();
   // En mode éval officielle : on affiche la note /6 en grand
   const showNote6 = state.mode === 'eval' && !state.parcours;
+  // Bannière de célébration si on vient de finir un exercice Compétence
+  let skillBanner = '';
+  if (skillResult) {
+    const { corrects, total, justUnlockedNext, nextLevel, level } = skillResult;
+    const r = corrects / total;
+    let head = '', msg = '', emoji = '🎉';
+    if (r === 1)       { head = 'Parfait !';         emoji = '🏆'; msg = 'Sans faute, bravo !'; }
+    else if (r >= 0.8) { head = 'Excellent !';       emoji = '⭐'; msg = 'Tu maîtrises bien ce niveau.'; }
+    else if (r >= 0.6) { head = 'Très bien !';       emoji = '👏'; msg = 'Continue comme ça.'; }
+    else if (r >= 0.4) { head = 'Bon début !';       emoji = '💪'; msg = 'Essaye encore pour progresser.'; }
+    else               { head = 'Courage !';         emoji = '🌱'; msg = 'Relis la correction et retente.'; }
+    const unlockMsg = justUnlockedNext && level < 5
+      ? `<div class="skill-unlock">🔓 Bravo ! Tu viens de débloquer le niveau <strong>${nextLevel}</strong> !</div>`
+      : '';
+    skillBanner = `
+      <div class="skill-celebration ${r >= 0.6 ? 'ok' : 'meh'}">
+        <div class="celeb-emoji">${emoji}</div>
+        <div class="celeb-text">
+          <div class="celeb-head">${head}</div>
+          <div class="celeb-sub">${msg} (${corrects} / ${total} justes)</div>
+          ${unlockMsg}
+        </div>
+      </div>`;
+  }
   $('#score-box').innerHTML = `
+    ${skillBanner}
     <div class="big">${score} / ${state.series.length}</div>
     <div class="sub">${pct} % de réussite
     ${withHelp > 0 ? `· ${withHelp} question(s) avec aide` : ''}
@@ -1408,6 +1447,10 @@ function finishTest() {
       userAns = a.inputAnswer ? `<code>${a.inputAnswer}</code>` : '<em>non répondue</em>';
       const expectedShown = Array.isArray(q.expected) ? q.expected[0] : String(q.expected);
       goodAns = `<code>${expectedShown}${q.inputSuffix ? ' ' + q.inputSuffix : ''}</code>`;
+    } else if (q.type === 'order') {
+      // Question d'ordonnancement : on ne réaffiche pas 5 étapes dans le récap, juste juste/faux
+      userAns = a.orderArr ? `<em>ordre proposé par l'élève</em>` : '<em>non répondue</em>';
+      goodAns = `<em>ordre attendu : voir la correction</em>`;
     } else {
       userAns = a.selectedIdx !== null
         ? `<strong>${String.fromCharCode(65 + a.selectedIdx)}.</strong> ${q.choices[a.selectedIdx]}`
@@ -4610,6 +4653,8 @@ function startSkillExercise(skillId, formatId, level) {
   state.startedAt = Date.now();
   state.remaining = 0;
   state._skillContext = { skillId, formatId, level };
+  // Masque les popups welcome/PWA pendant l'exercice
+  document.body.classList.add('evaluating');
   startTimer();
   showScreen('screen-test');
   renderQuestion();
