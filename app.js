@@ -3434,6 +3434,276 @@ function renderFormatBlock(skillId, format) {
 }
 
 /* ==========================================================================
+   AIDE CONTEXTUELLE PAR THÉORÈME (utilisée dans les exercices Raisonner)
+   Chaque entrée : énoncé formel + rédaction-type + exemple complet + erreurs.
+   La fonction makeHelp(key, level) renvoie une aide {cours, savoirFaire, erreurs}
+   plus ou moins détaillée selon le niveau (🔴=complète, ⚫=sommaire).
+   ========================================================================== */
+const THEOREMES = {
+  pythagore_direct: {
+    nom: 'Théorème de Pythagore (direct)',
+    quand: "On sait qu'un triangle est <b>rectangle</b> et on veut calculer un côté.",
+    enonce: "Si ABC est rectangle en A, alors <b>BC² = AB² + AC²</b> (BC est l'hypoténuse, face à l'angle droit).",
+    redaction: [
+      "1) <em>Dans le triangle ABC rectangle en A,</em>",
+      "2) <em>d'après le théorème de Pythagore :</em> <b>BC² = AB² + AC²</b>",
+      "3) <em>donc BC² = ...² + ...² = ...</em>",
+      "4) <em>donc BC = √... = ... cm.</em>"
+    ],
+    exemple: "Si AB = 3 cm et AC = 4 cm dans un triangle rectangle en A : BC² = 3² + 4² = 9 + 16 = 25, donc BC = √25 = <b>5 cm</b>.",
+    erreurs: [
+      "Oublier la racine carrée à la fin (donner BC² comme longueur).",
+      "Additionner les longueurs au lieu des carrés (3+4=7 au lieu de 9+16=25).",
+      "Confondre hypoténuse et autre côté (l'hypoténuse est toujours face à l'angle droit)."
+    ]
+  },
+  pythagore_reciproque: {
+    nom: 'Réciproque du théorème de Pythagore',
+    quand: "On connaît les <b>3 longueurs</b> et on veut <b>prouver</b> qu'un triangle est rectangle.",
+    enonce: "Si BC² = AB² + AC², alors ABC est <b>rectangle en A</b> (A = sommet opposé au plus grand côté BC).",
+    redaction: [
+      "1) <em>Le plus grand côté est BC. On calcule BC² et AB² + AC².</em>",
+      "2) <em>On trouve BC² = ... et AB² + AC² = ...</em>",
+      "3) <em>BC² = AB² + AC², donc d'après la <b>réciproque</b> du théorème de Pythagore,</em>",
+      "4) <em>le triangle ABC est rectangle en A.</em>"
+    ],
+    exemple: "Si AB = 5, AC = 12, BC = 13 : BC² = 169 et AB² + AC² = 25 + 144 = 169. Égalité vérifiée ⇒ ABC est <b>rectangle en A</b>.",
+    erreurs: [
+      "Dire « d'après Pythagore » au lieu de « d'après la réciproque de Pythagore ».",
+      "Oublier de désigner le sommet de l'angle droit (en face du plus grand côté).",
+      "Conclure rectangle si AB²+BC² = AC² au lieu de vérifier l'égalité avec le PLUS GRAND côté au carré."
+    ]
+  },
+  pythagore_contraposee: {
+    nom: 'Contraposée du théorème de Pythagore',
+    quand: "On connaît les <b>3 longueurs</b> et on veut <b>prouver qu'un triangle n'est PAS rectangle</b>.",
+    enonce: "Si BC² ≠ AB² + AC² (où BC est le plus grand côté), alors ABC n'est <b>pas rectangle en A</b>.",
+    redaction: [
+      "1) <em>On calcule BC² (plus grand côté au carré) et AB² + AC².</em>",
+      "2) <em>On trouve BC² = ... et AB² + AC² = ... : les deux sont différents.</em>",
+      "3) <em>D'après la <b>contraposée</b> du théorème de Pythagore, ABC n'est pas rectangle en A.</em>"
+    ],
+    exemple: "Si AB = 6, AC = 7, BC = 9 : BC² = 81, AB² + AC² = 36 + 49 = 85. Différents ⇒ ABC <b>n'est pas rectangle</b>.",
+    erreurs: [
+      "Dire « d'après Pythagore » au lieu de « d'après la contraposée ».",
+      "Conclure « rectangle quelque part » : non, ce raisonnement exclut seulement l'angle droit au sommet opposé au plus grand côté."
+    ]
+  },
+  thales_direct: {
+    nom: 'Théorème de Thalès (direct)',
+    quand: "Une droite <b>parallèle</b> à un côté coupe les deux autres côtés. On veut une longueur.",
+    enonce: "Si (DE) // (BC) avec D ∈ [AB] et E ∈ [AC], alors <b>AD/AB = AE/AC = DE/BC</b>.",
+    redaction: [
+      "1) <em>Les droites (BD) et (CE) sont sécantes en A, et (DE) est parallèle à (BC).</em>",
+      "2) <em>D'après le théorème de Thalès : AD/AB = AE/AC = DE/BC.</em>",
+      "3) <em>On remplace les valeurs connues et on résout par produit en croix.</em>",
+      "4) <em>Conclusion : la longueur cherchée vaut ... cm.</em>"
+    ],
+    exemple: "Si AD = 3, AB = 5, AE = 6 et (DE) // (BC) : 3/5 = 6/AC, donc AC = 5×6/3 = <b>10 cm</b>.",
+    erreurs: [
+      "Écrire AD/DB au lieu de AD/AB (on prend <b>toujours le sommet A</b> au dénominateur).",
+      "Oublier de préciser le parallélisme avant d'appliquer Thalès.",
+      "Mélanger numérateur et dénominateur dans la règle."
+    ]
+  },
+  thales_reciproque: {
+    nom: 'Réciproque du théorème de Thalès',
+    quand: "On veut <b>prouver que deux droites sont parallèles</b>, à partir de rapports de longueurs.",
+    enonce: "Si A, D, B et A, E, C sont alignés dans le même ordre et AD/AB = AE/AC, alors (DE) // (BC).",
+    redaction: [
+      "1) <em>Les points A, D, B sont alignés dans cet ordre, idem pour A, E, C.</em>",
+      "2) <em>On calcule AD/AB et AE/AC.</em>",
+      "3) <em>On trouve les deux rapports égaux (par exemple 2/5 = 2/5).</em>",
+      "4) <em>D'après la <b>réciproque</b> du théorème de Thalès, les droites (DE) et (BC) sont parallèles.</em>"
+    ],
+    exemple: "Si AD = 4, AB = 10, AE = 6, AC = 15 : AD/AB = 4/10 = 2/5 et AE/AC = 6/15 = 2/5. Égalité ⇒ <b>(DE) // (BC)</b>.",
+    erreurs: [
+      "Oublier de vérifier l'alignement dans le même ordre (indispensable).",
+      "Dire « d'après Thalès » au lieu de « d'après la réciproque ».",
+      "Confondre AD/AB avec AD/DB."
+    ]
+  },
+  thales_contraposee: {
+    nom: 'Contraposée du théorème de Thalès',
+    quand: "On veut <b>prouver que deux droites ne sont PAS parallèles</b>.",
+    enonce: "Si AD/AB ≠ AE/AC (avec les points alignés dans le même ordre), alors (DE) n'est pas parallèle à (BC).",
+    redaction: [
+      "1) <em>On calcule les rapports AD/AB et AE/AC.</em>",
+      "2) <em>Les deux rapports sont différents.</em>",
+      "3) <em>D'après la <b>contraposée</b> du théorème de Thalès, les droites (DE) et (BC) ne sont pas parallèles.</em>"
+    ],
+    exemple: "Si AD/AB = 2/5 et AE/AC = 1/3 : les deux sont différents ⇒ (DE) <b>n'est pas parallèle</b> à (BC).",
+    erreurs: [
+      "Dire « d'après Thalès » au lieu de « d'après la contraposée ».",
+      "Oublier que Thalès suppose un ordre d'alignement."
+    ]
+  },
+  trigonometrie: {
+    nom: 'Trigonométrie dans le triangle rectangle',
+    quand: "On a un triangle <b>rectangle</b>, un <b>angle aigu</b> et on veut un côté ou un angle.",
+    enonce: "Pour un angle aigu \\(\\alpha\\) d'un triangle rectangle :<br>" +
+      "• <b>cos(α) = adjacent / hypoténuse</b><br>" +
+      "• <b>sin(α) = opposé / hypoténuse</b><br>" +
+      "• <b>tan(α) = opposé / adjacent</b><br>" +
+      "Astuce « SOH-CAH-TOA ».",
+    redaction: [
+      "1) <em>Dans le triangle rectangle en ..., l'hypoténuse est ...</em>",
+      "2) <em>Pour l'angle α, le côté adjacent est ..., l'opposé est ...</em>",
+      "3) <em>On utilise la formule adaptée : cos / sin / tan = ... / ...</em>",
+      "4) <em>On isole l'inconnue et on conclut avec l'unité.</em>"
+    ],
+    exemple: "Triangle rectangle en A, \\(\\widehat{B} = 35°\\), BC = 10. On cherche AB (adjacent à B) : cos(35°) = AB/10, donc AB = 10 × cos(35°) ≈ <b>8,19 cm</b>.",
+    erreurs: [
+      "Confondre le côté adjacent et le côté opposé.",
+      "Confondre hypoténuse avec un autre côté (l'hypoténuse est face à l'angle droit, jamais attachée à l'angle étudié).",
+      "Utiliser la formule dans un triangle non rectangle."
+    ]
+  },
+  sommes_angles: {
+    nom: 'Somme des angles d\'un triangle',
+    quand: "On connaît deux angles d'un triangle et on veut le troisième.",
+    enonce: "La somme des trois angles d'un triangle vaut toujours <b>180°</b>.",
+    redaction: [
+      "1) <em>Dans le triangle ABC, Â + B̂ + Ĉ = 180°.</em>",
+      "2) <em>Donc Ĉ = 180° − Â − B̂.</em>",
+      "3) <em>On remplace par les valeurs connues et on conclut.</em>"
+    ],
+    exemple: "Si Â = 60° et B̂ = 70°, alors Ĉ = 180 − 60 − 70 = <b>50°</b>.",
+    erreurs: [
+      "Utiliser 360° au lieu de 180° (c'est la somme pour un quadrilatère).",
+      "Oublier qu'un triangle équilatéral a 3 angles de 60°.",
+      "Additionner Â + B̂ sans soustraire de 180."
+    ]
+  },
+  aire_vs_perimetre: {
+    nom: 'Aire ≠ périmètre',
+    quand: "Il faut bien distinguer ces deux grandeurs.",
+    enonce: "• <b>Périmètre</b> = somme des longueurs du contour (unité : m, cm…).<br>" +
+      "• <b>Aire</b> = mesure de la surface intérieure (unité : m², cm²…).",
+    redaction: [
+      "1) <em>Je repère si on me demande le contour (périmètre) ou la surface (aire).</em>",
+      "2) <em>J'applique la bonne formule (P = 2(L+l) pour un rectangle, A = L×l).</em>",
+      "3) <em>Je n'oublie pas le carré de l'unité pour une aire.</em>"
+    ],
+    exemple: "Rectangle 5 m × 3 m : périmètre = 2×(5+3) = 16 m ; aire = 5×3 = <b>15 m²</b>.",
+    erreurs: [
+      "Donner une aire en m (unité linéaire) au lieu de m² (unité carrée).",
+      "Additionner les côtés au lieu de les multiplier pour une aire.",
+      "Confondre « aire » et « périmètre » dans l'énoncé."
+    ]
+  },
+  conversions_aire: {
+    nom: 'Conversions d\'aire',
+    quand: "Convertir entre différentes unités d'aire (m², cm², km²…).",
+    enonce: "Entre deux unités d'aire consécutives, le facteur est <b>× 100</b> (ou ÷100), pas ×10. " +
+      "Car 1 m = 10 dm ⇒ 1 m² = 10² dm² = 100 dm².",
+    redaction: [
+      "1) <em>Je place le nombre dans un tableau de conversion d'aire (2 cases par unité).</em>",
+      "2) <em>Je convertis en sachant que chaque cran vaut ×100.</em>",
+      "3) <em>Je vérifie le sens (plus grande unité ⇒ nombre plus petit).</em>"
+    ],
+    exemple: "150 m² en km² : 1 km² = 1 000 000 m², donc 150 m² = 150 / 1 000 000 = <b>0,000 15 km²</b>.",
+    erreurs: [
+      "Utiliser ×10 au lieu de ×100.",
+      "Inverser le sens (diviser au lieu de multiplier).",
+      "Confondre m et m² dans les conversions."
+    ]
+  },
+  fractions_somme: {
+    nom: 'Addition de fractions',
+    quand: "On additionne ou soustrait deux fractions.",
+    enonce: "Il faut <b>un dénominateur commun</b> avant de faire la somme. " +
+      "<b>On n'additionne JAMAIS les dénominateurs</b>.",
+    redaction: [
+      "1) <em>Je trouve un dénominateur commun (multiple commun).</em>",
+      "2) <em>Je mets chaque fraction au même dénominateur.</em>",
+      "3) <em>J'additionne les numérateurs (dénominateur inchangé).</em>",
+      "4) <em>Je simplifie si possible.</em>"
+    ],
+    exemple: "1/2 + 1/3 : on met au même dénominateur 6 → 3/6 + 2/6 = <b>5/6</b>.",
+    erreurs: [
+      "Additionner les dénominateurs (1/2 + 1/3 = 2/5 : FAUX).",
+      "Additionner numérateurs sans réduire les fractions au même dénominateur.",
+      "Oublier de simplifier à la fin."
+    ]
+  },
+  puissances_signe: {
+    nom: 'Puissances et signes',
+    quand: "Calcul de (−a)ⁿ ou d'expressions avec des parenthèses.",
+    enonce: "• <b>(−a)²</b> = (−a) × (−a) = <b>+a²</b> (signe moins × signe moins = plus).<br>" +
+      "• <b>−a²</b> = <b>−(a²)</b> (on met d'abord au carré puis on change le signe).",
+    redaction: [
+      "1) <em>Je regarde s'il y a des parenthèses autour du signe moins.</em>",
+      "2) <em>Je développe prudemment : (−3)² = (−3)×(−3) = +9.</em>"
+    ],
+    exemple: "(−3)² = 9 (résultat positif). Mais −3² = −9 (résultat négatif).",
+    erreurs: [
+      "Confondre (−3)² et −3² (parenthèses capitales).",
+      "Donner (−3)² = −9 (oubli de la règle des signes)."
+    ]
+  },
+  cercle: {
+    nom: 'Cercle : périmètre et aire',
+    quand: "Calculs de longueur ou surface sur un cercle / disque.",
+    enonce: "• <b>Périmètre (circonférence)</b> : <b>P = 2π r = π D</b> (r rayon, D diamètre).<br>" +
+      "• <b>Aire du disque</b> : <b>A = π r²</b>.",
+    redaction: [
+      "1) <em>Je repère le rayon r du cercle.</em>",
+      "2) <em>J'applique la bonne formule (périmètre ou aire selon la question).</em>",
+      "3) <em>Je donne le résultat en fonction de π ou en décimal (selon la consigne).</em>"
+    ],
+    exemple: "Rayon 3 cm : P = 2π × 3 = 6π ≈ 18,85 cm ; A = π × 3² = 9π ≈ 28,27 cm².",
+    erreurs: [
+      "Utiliser πr² pour le périmètre (c'est l'aire).",
+      "Utiliser 2πr pour l'aire (c'est le périmètre).",
+      "Confondre rayon et diamètre."
+    ]
+  }
+};
+
+/* Construit une aide {cours, savoirFaire, erreurs} adaptée au niveau 1..5 */
+function makeHelp(theoremeKey, level) {
+  const t = THEOREMES[theoremeKey];
+  if (!t) return null;
+  if (level <= 1) {
+    // 🔴 Niveau complet : énoncé + rédaction + exemple
+    return {
+      cours: `<b>${t.nom}</b><br><em>Quand l'utiliser :</em> ${t.quand}<br><em>Énoncé :</em> ${t.enonce}`,
+      savoirFaire: `<b>Rédaction-type :</b><ol style="margin:6px 0;padding-left:18px;">${t.redaction.map(r => `<li>${r}</li>`).join('')}</ol><em>Exemple :</em> ${t.exemple}`,
+      erreurs: t.erreurs
+    };
+  } else if (level <= 2) {
+    // 🟡 Complet mais un peu plus court (on garde tout)
+    return {
+      cours: `<b>${t.nom}</b><br>${t.enonce}<br><em>${t.quand}</em>`,
+      savoirFaire: `<b>Rédaction :</b> ${t.redaction.join(' → ')}<br><em>Ex :</em> ${t.exemple}`,
+      erreurs: t.erreurs
+    };
+  } else if (level <= 3) {
+    // 🟢 Énoncé + 1er point de rédaction
+    return {
+      cours: `<b>${t.nom}</b> — ${t.enonce}`,
+      savoirFaire: `<em>Piste :</em> ${t.redaction[0]}. <em>Ex :</em> ${t.exemple}`,
+      erreurs: t.erreurs.slice(0, 2)
+    };
+  } else if (level <= 4) {
+    // 💚 Juste un rappel + piège à éviter
+    return {
+      cours: `<b>${t.nom}</b> : ${t.enonce}`,
+      savoirFaire: `Attention à la <b>rigueur</b> de la rédaction.`,
+      erreurs: t.erreurs.slice(0, 1)
+    };
+  } else {
+    // ⚫ Expert : à peine un mot-clé
+    return {
+      cours: `Indice : <b>${t.nom}</b>.`,
+      savoirFaire: "À toi de rédiger rigoureusement.",
+      erreurs: []
+    };
+  }
+}
+
+/* ==========================================================================
    RAISONNER — Format A : Choisir le bon théorème (5 niveaux)
    ========================================================================== */
 
@@ -3441,22 +3711,49 @@ function rais_theoreme_n1() {
   // Niveau Rouge : énoncé ultra guidé, 3 choix, 1 seul théorème cible
   const cases = [
     {
+      theoreme: 'pythagore_direct',
+      figure: svgTriangleRect({ sides: { AB: 'AB = 3', BC: 'BC = 4', AC: '?' } }),
       body: "Dans un triangle ABC rectangle en B, je connais AB = 3 cm et BC = 4 cm. Je veux calculer l'hypoténuse AC. <b>Quel théorème utiliser ?</b>",
       a: "Théorème de Pythagore (direct)",
       opts: ["Théorème de Pythagore (direct)", "Réciproque de Pythagore", "Théorème de Thalès"],
       sol: "On connaît 2 côtés d'un triangle rectangle, on cherche le 3ème → <b>Pythagore direct</b> : \\(AC^2 = AB^2 + BC^2\\)."
     },
     {
+      theoreme: 'pythagore_reciproque',
       body: "Dans un triangle, je connais les <b>trois longueurs</b> et je veux savoir si le triangle est rectangle. <b>Quel théorème ?</b>",
       a: "Réciproque de Pythagore",
       opts: ["Réciproque de Pythagore", "Théorème de Pythagore (direct)", "Théorème de Thalès"],
       sol: "Je veux PROUVER que le triangle est rectangle à partir des 3 longueurs → <b>réciproque de Pythagore</b>."
     },
     {
+      theoreme: 'thales_direct',
+      figure: svgThales({ AB: 5, AC: 7, AD: 3, labels: { A:'A', B:'B', C:'C', D:'D', E:'E' } }),
       body: "Dans un triangle ABC, je sais que (DE) est parallèle à (BC) avec D sur [AB] et E sur [AC]. Je veux calculer AE. <b>Quel théorème ?</b>",
       a: "Théorème de Thalès (direct)",
       opts: ["Théorème de Thalès (direct)", "Réciproque de Thalès", "Théorème de Pythagore"],
       sol: "Configuration Thalès (droite parallèle) et je cherche une longueur → <b>Thalès direct</b>."
+    },
+    {
+      theoreme: 'trigonometrie',
+      figure: svgTriangleRect({ sides: { AB: '?', BC: 'BC = 10', AC: '' } }),
+      body: "Dans un triangle ABC rectangle en A, je connais l'hypoténuse BC = 10 cm et l'angle \\(\\widehat{B} = 40°\\). Je veux AB. <b>Quel outil utiliser ?</b>",
+      a: "Trigonométrie (cosinus)",
+      opts: ["Trigonométrie (cosinus)", "Théorème de Pythagore", "Théorème de Thalès"],
+      sol: "Un angle aigu connu + une longueur + un triangle rectangle → <b>trigonométrie</b>. AB est adjacent à B, BC est l'hypoténuse → cos."
+    },
+    {
+      theoreme: 'sommes_angles',
+      body: "Dans un triangle ABC, je connais Â = 70° et B̂ = 50°. Je veux Ĉ. <b>Quelle propriété utiliser ?</b>",
+      a: "Somme des angles d'un triangle (180°)",
+      opts: ["Somme des angles d'un triangle (180°)", "Théorème de Pythagore", "Théorème de Thalès"],
+      sol: "Je connais 2 angles et je cherche le 3ème → <b>somme des angles = 180°</b>. Ĉ = 180 − 70 − 50 = 60°."
+    },
+    {
+      theoreme: 'cercle',
+      body: "Je connais le rayon d'un cercle (3 cm) et je veux calculer sa circonférence (périmètre). <b>Quelle formule ?</b>",
+      a: "P = 2πr",
+      opts: ["P = 2πr", "A = πr²", "P = πr²"],
+      sol: "Périmètre d'un cercle = <b>2πr</b>. Ici : 2π × 3 = 6π ≈ 18,85 cm."
     }
   ];
   return _buildQCM(cases, 'Niveau 🔴 — Choisir le bon théorème');
@@ -3466,28 +3763,53 @@ function rais_theoreme_n2() {
   // Niveau Jaune : 4 choix, direct/réciproque, Pythagore ou Thalès
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       body: "On connaît les 3 côtés d'un triangle : 6 cm, 8 cm, 10 cm. On veut savoir s'il est rectangle.",
       a: "Réciproque de Pythagore",
       opts: ["Réciproque de Pythagore", "Pythagore direct", "Thalès direct", "Réciproque de Thalès"],
       sol: "On connaît les 3 longueurs et on veut vérifier si rectangle → <b>réciproque</b>."
     },
     {
+      theoreme: 'pythagore_direct',
       body: "Dans un triangle ABC rectangle en A, on connaît AB et AC. On veut calculer BC.",
       a: "Pythagore direct",
       opts: ["Pythagore direct", "Réciproque de Pythagore", "Trigonométrie", "Thalès"],
       sol: "Triangle rectangle connu, calcul d'un côté manquant → <b>Pythagore direct</b>. BC est l'hypoténuse (face à l'angle droit en A)."
     },
     {
+      theoreme: 'thales_reciproque',
       body: "Dans un triangle ABC, on a deux sécantes et on connaît 4 longueurs : AM, AB, AN, AC. On veut savoir si (MN) est parallèle à (BC).",
       a: "Réciproque de Thalès",
       opts: ["Réciproque de Thalès", "Thalès direct", "Pythagore", "Réciproque de Pythagore"],
       sol: "On veut PROUVER le parallélisme → on vérifie \\(\\dfrac{AM}{AB} = \\dfrac{AN}{AC}\\) → <b>réciproque de Thalès</b>."
     },
     {
+      theoreme: 'trigonometrie',
       body: "Dans un triangle rectangle, on connaît l'hypoténuse et un angle aigu. On veut un côté.",
       a: "Trigonométrie (cos, sin ou tan)",
       opts: ["Trigonométrie (cos, sin ou tan)", "Pythagore", "Thalès", "Réciproque de Pythagore"],
       sol: "Angle aigu et hypoténuse connus → <b>trigonométrie</b>. Le choix entre cos, sin, tan dépend du côté cherché (adjacent, opposé)."
+    },
+    {
+      theoreme: 'pythagore_contraposee',
+      body: "On a un triangle avec AB = 6, BC = 7, AC = 9. On veut prouver qu'il n'est pas rectangle.",
+      a: "Contraposée de Pythagore",
+      opts: ["Contraposée de Pythagore", "Réciproque de Pythagore", "Pythagore direct", "Thalès direct"],
+      sol: "On calcule : 9² = 81 mais 6² + 7² = 85. L'égalité est fausse → <b>contraposée de Pythagore</b> : le triangle n'est pas rectangle en A (opposé à BC = 9 ? non, à AC = 9 si on reprend les notations)."
+    },
+    {
+      theoreme: 'thales_direct',
+      body: "Dans un triangle ABC, M est sur [AB], N sur [AC] et (MN) // (BC). On connaît AM = 2, AB = 5, BC = 10. On veut MN.",
+      a: "Thalès direct",
+      opts: ["Thalès direct", "Réciproque de Thalès", "Contraposée de Thalès", "Pythagore"],
+      sol: "Parallélisme donné + calcul de longueur → <b>Thalès direct</b> : AM/AB = MN/BC, donc 2/5 = MN/10, donc MN = 4."
+    },
+    {
+      theoreme: 'aire_vs_perimetre',
+      body: "On veut la <b>surface</b> d'un jardin rectangulaire de 12 m de long et 8 m de large.",
+      a: "Aire = L × l",
+      opts: ["Aire = L × l", "Périmètre = 2(L + l)", "Diagonale par Pythagore", "Périmètre = L + l"],
+      sol: "« Surface » = <b>aire</b>. Formule : A = L × l = 12 × 8 = 96 <b>m²</b>."
     }
   ];
   return _buildQCM(cases, 'Niveau 🟡 — Choisir le bon théorème');
@@ -3497,28 +3819,56 @@ function rais_theoreme_n3() {
   // Niveau Vert clair : 4 choix avec distracteurs subtils
   const cases = [
     {
+      theoreme: 'thales_direct',
       body: "Dans un triangle ABC, (MN) // (BC). On connaît AM, MB, AN. On veut calculer NC.",
       a: "Théorème de Thalès (direct)",
       opts: ["Théorème de Thalès (direct)", "Réciproque de Thalès", "Droite des milieux", "Triangles semblables"],
       sol: "Parallélisme donné, on cherche une longueur → <b>Thalès direct</b>. \\(\\dfrac{AM}{AB} = \\dfrac{AN}{AC}\\). On connaît AM, MB (donc AB), AN → on calcule AC puis NC."
     },
     {
+      theoreme: 'pythagore_reciproque',
       body: "On a un triangle ABC avec AB = 7, AC = 24, BC = 25. On veut savoir s'il est rectangle et <b>où</b>.",
       a: "Réciproque de Pythagore (en A)",
       opts: ["Réciproque de Pythagore (en A)", "Réciproque de Pythagore (en B)", "Pythagore direct en A", "Contraposée de Pythagore"],
       sol: "Le plus grand côté est BC = 25 (l'éventuelle hypoténuse). Si rectangle, ce sera en A (sommet opposé à BC). On vérifie \\(7^2 + 24^2 = 49+576 = 625 = 25^2\\). ✓ <b>Rectangle en A par réciproque</b>."
     },
     {
+      theoreme: 'trigonometrie',
       body: "On a un triangle rectangle en B. On connaît AB = 6 et \\(\\widehat{A} = 40°\\). On veut BC.",
       a: "Tangente de l'angle A",
       opts: ["Tangente de l'angle A", "Cosinus de l'angle A", "Sinus de l'angle A", "Pythagore direct"],
       sol: "BC est opposé à l'angle A, AB est adjacent à l'angle A → <b>\\(\\tan(\\widehat{A}) = \\dfrac{\\text{opp}}{\\text{adj}} = \\dfrac{BC}{AB}\\)</b>."
     },
     {
+      theoreme: 'thales_contraposee',
       body: "On a 2 droites sécantes en A et 4 points M, B, N, C alignés sur ces droites. Les rapports \\(\\dfrac{AM}{AB}\\) et \\(\\dfrac{AN}{AC}\\) sont différents. Que peut-on conclure ?",
       a: "(MN) n'est pas parallèle à (BC) (contraposée de Thalès)",
       opts: ["(MN) n'est pas parallèle à (BC) (contraposée de Thalès)", "(MN) est parallèle à (BC)", "Le triangle est rectangle", "On ne peut rien conclure"],
       sol: "Si les 2 rapports étaient égaux → parallèle (réciproque). Ici ils diffèrent → <b>contraposée</b> : non parallèle."
+    },
+    {
+      theoreme: 'conversions_aire',
+      body: "On a une aire de 3 500 cm² à convertir en m².",
+      a: "Diviser par 10 000 (facteur ×100 entre cm² et dm², ×100 entre dm² et m²)",
+      opts: [
+        "Diviser par 10 000 (facteur ×100 entre cm² et dm², ×100 entre dm² et m²)",
+        "Diviser par 100",
+        "Diviser par 1000",
+        "Multiplier par 10 000"
+      ],
+      sol: "Pour les aires, chaque cran du tableau vaut <b>×100</b>. 1 m² = 100 dm² = 10 000 cm². Donc 3 500 cm² = 3 500 / 10 000 = <b>0,35 m²</b>."
+    },
+    {
+      theoreme: 'cercle',
+      body: "On veut <b>l'aire</b> d'un disque de rayon 5 cm.",
+      a: "A = π × 5² = 25π ≈ 78,5 cm²",
+      opts: [
+        "A = π × 5² = 25π ≈ 78,5 cm²",
+        "A = 2π × 5 = 10π ≈ 31,4 cm",
+        "A = π × 10 = 10π ≈ 31,4 cm²",
+        "A = 5² = 25 cm²"
+      ],
+      sol: "Aire d'un disque = <b>π r²</b>. Ici : π × 25 = 25π ≈ 78,5 cm². (2π r est le périmètre, pas l'aire.)"
     }
   ];
   return _buildQCM(cases, 'Niveau 🟢 — Choisir le bon théorème');
@@ -3528,22 +3878,49 @@ function rais_theoreme_n4() {
   // Niveau Vert foncé : situations où plusieurs théorèmes possibles, ordre des étapes
   const cases = [
     {
+      theoreme: 'trigonometrie',
       body: "Dans un triangle ABC rectangle en A, on connaît BC = 10 et \\(\\widehat{B} = 35°\\). On veut AC <b>en 2 étapes</b>. Le plan le plus efficace est :",
       a: "Utiliser le sinus de B uniquement",
       opts: ["Utiliser le sinus de B uniquement", "Utiliser Pythagore après avoir trouvé AB", "Utiliser cos puis Pythagore", "Utiliser uniquement la tangente"],
       sol: "AC est le côté opposé à l'angle B, BC est l'hypoténuse → \\(\\sin(\\widehat{B}) = \\dfrac{AC}{BC}\\) donc \\(AC = 10 \\sin(35°)\\). <b>Une seule étape avec le sinus</b>."
     },
     {
+      theoreme: 'thales_direct',
       body: "Configuration papillon : deux droites se croisent en A, avec M et B sur l'une, N et C sur l'autre (de part et d'autre de A). On connaît AM, AN, MN. Pour calculer BC, je dois :",
       a: "Vérifier d'abord si (MN) // (BC), puis appliquer Thalès",
       opts: ["Vérifier d'abord si (MN) // (BC), puis appliquer Thalès", "Appliquer directement Thalès sans vérifier", "Utiliser Pythagore", "Utiliser la trigonométrie"],
       sol: "Thalès exige le parallélisme. Dans la configuration papillon, on applique Thalès <b>si et seulement si</b> (MN) // (BC) — il faut le vérifier ou que l'énoncé le donne."
     },
     {
+      theoreme: 'pythagore_direct',
       body: "Dans un triangle ABC, je connais AB, BC et je sais que l'angle en B est aigu. Je veux calculer AC. Je peux utiliser :",
       a: "Le théorème de Pythagore seulement si ABC est rectangle",
       opts: ["Le théorème de Pythagore seulement si ABC est rectangle", "Le théorème de Pythagore toujours", "Le théorème de Thalès", "Rien, il manque une information"],
       sol: "Pythagore ne s'applique <b>que dans un triangle rectangle</b>. Avec un angle aigu quelconque, il faut d'autres outils (trigonométrie dans un triangle non rectangle = hors programme 3ème). Réponse : Pythagore si et seulement si rectangle."
+    },
+    {
+      theoreme: 'trigonometrie',
+      body: "Triangle rectangle en A, AB = 4, AC = 3. Pour trouver la mesure de l'angle B, le plus simple est :",
+      a: "Utiliser tan(B) = AC / AB puis arctan",
+      opts: [
+        "Utiliser tan(B) = AC / AB puis arctan",
+        "Utiliser Pythagore pour trouver BC puis cos(B)",
+        "Utiliser sin(B) = AB / BC après avoir calculé BC",
+        "Utiliser la somme des angles"
+      ],
+      sol: "On connaît les deux côtés de l'angle droit : opposé (AC) et adjacent (AB) à l'angle B. <b>tan(B) = opp/adj = 3/4</b>, puis B = arctan(3/4) ≈ 36,87°."
+    },
+    {
+      theoreme: 'thales_reciproque',
+      body: "Configuration papillon : on sait que A, M, B alignés dans cet ordre et A, N, C dans l'ordre inverse. Pour prouver (MN) // (BC), je dois :",
+      a: "Vérifier AM/AB = AN/AC, le sens inverse n'est pas un obstacle",
+      opts: [
+        "Vérifier AM/AB = AN/AC, le sens inverse n'est pas un obstacle",
+        "Utiliser uniquement Pythagore",
+        "C'est impossible si les sens sont inverses",
+        "Ce n'est pas la réciproque mais le théorème direct"
+      ],
+      sol: "Dans la configuration papillon, la réciproque de Thalès fonctionne <b>si l'alignement est dans le même ordre ou dans des ordres inverses</b>. L'important est que les 3 points sont alignés et le rapport est correct."
     }
   ];
   return _buildQCM(cases, 'Niveau 💚 — Choisir le bon théorème');
@@ -3553,6 +3930,7 @@ function rais_theoreme_n5() {
   // Niveau Noire : pièges logiques subtils
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       body: "Affirmation : « Si les 3 côtés d'un triangle mesurent 5, 12, 13, alors il est rectangle. » <b>Quel est le bon raisonnement ?</b>",
       a: "Réciproque de Pythagore car 5²+12² = 13² (25+144=169)",
       opts: [
@@ -3564,6 +3942,7 @@ function rais_theoreme_n5() {
       sol: "On <b>suppose</b> que le triangle est décrit par 3 longueurs et on veut <b>conclure</b> qu'il est rectangle → <b>réciproque</b> (et non direct, qui suppose déjà rectangle)."
     },
     {
+      theoreme: 'pythagore_contraposee',
       body: "Dans un triangle ABC, je sais que \\(AB^2 + BC^2 \\neq AC^2\\). Quelle conclusion ?",
       a: "ABC n'est pas rectangle en B (contraposée de Pythagore)",
       opts: [
@@ -3584,9 +3963,43 @@ function rais_theoreme_n5() {
         "Aucune conclusion possible"
       ],
       sol: "Trois rapports de côtés égaux → <b>triangles semblables</b>. Le rapport 2/3 signifie que MNP est <b>3/2 fois plus grand</b> que ABC."
+    },
+    {
+      theoreme: 'thales_contraposee',
+      body: "Dans un triangle ABC, M ∈ [AB] et N ∈ [AC]. On a AM/AB = 0,3 et AN/AC = 0,4. Que peut-on conclure pour (MN) et (BC) ?",
+      a: "Les droites ne sont pas parallèles (contraposée de Thalès)",
+      opts: [
+        "Les droites ne sont pas parallèles (contraposée de Thalès)",
+        "Les droites sont parallèles",
+        "On ne peut rien dire",
+        "Les droites sont perpendiculaires"
+      ],
+      sol: "La réciproque de Thalès exige l'égalité des rapports. Ici 0,3 ≠ 0,4 → <b>contraposée</b> : (MN) n'est pas parallèle à (BC)."
+    },
+    {
+      theoreme: 'pythagore_direct',
+      body: "Dans un triangle ABC rectangle en C, on connaît l'aire (= AC × BC / 2) et l'hypoténuse AB. Peut-on retrouver AC et BC ?",
+      a: "Oui, avec un système d'équations (aire + Pythagore)",
+      opts: [
+        "Oui, avec un système d'équations (aire + Pythagore)",
+        "Oui, Pythagore seul suffit",
+        "Oui, l'aire seule suffit",
+        "Non, il manque une information"
+      ],
+      sol: "Deux inconnues AC et BC. Équation 1 : AC × BC = 2 × aire. Équation 2 (Pythagore) : AC² + BC² = AB². Deux équations, deux inconnues → <b>solvable</b>."
     }
   ];
   return _buildQCM(cases, 'Niveau ⚫ — Choisir le bon théorème');
+}
+
+/* Extrait le niveau 1..5 depuis le titre (🔴=1, 🟡=2, 🟢=3, 💚=4, ⚫=5). */
+function _levelFromTitle(title) {
+  if (title.includes('🔴')) return 1;
+  if (title.includes('🟡')) return 2;
+  if (title.includes('🟢')) return 3;
+  if (title.includes('💚')) return 4;
+  if (title.includes('⚫')) return 5;
+  return 1;
 }
 
 /* Construit un objet question QCM standard à partir d'un tableau de cas */
@@ -3595,6 +4008,12 @@ function _buildQCM(cases, title) {
   const shuffled = shuffle(k.opts.map(o => ({ html: o, correct: o === k.a })));
   const correctIdx = shuffled.findIndex(c => c.correct);
   const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  const level = _levelFromTitle(title);
+  const help = (k.theoreme && makeHelp(k.theoreme, level)) || {
+    cours: "<b>Raisonner</b> = choisir le bon outil pour chaque situation. <b>Direct</b> : je pars d'une propriété (rectangle, parallèle) pour calculer. <b>Réciproque</b> : je prouve la propriété à partir des longueurs. <b>Contraposée</b> : je prouve le contraire.",
+    savoirFaire: "Demande-toi : <em>Qu'est-ce que je sais déjà ? Qu'est-ce que je veux montrer ?</em>",
+    erreurs: ["Confondre direct et réciproque.", "Utiliser Pythagore sans triangle rectangle.", "Appliquer Thalès sans parallélisme."]
+  };
   return {
     theme: 'raisonner', title,
     body: figHtml + k.body,
@@ -3602,11 +4021,7 @@ function _buildQCM(cases, title) {
     choices: shuffled.map(c => c.html),
     correctIdx,
     solution: k.sol,
-    help: {
-      cours: "<b>Raisonner</b> = choisir le bon outil pour chaque situation. Pour chaque théorème, retenir : <ol><li><b>Direct</b> = on part d'une propriété vraie (rectangle, parallèle) pour calculer.</li><li><b>Réciproque</b> = on prouve la propriété à partir des longueurs/rapports.</li><li><b>Contraposée</b> = on prouve le contraire de l'hypothèse à partir du contraire de la conclusion.</li></ol>",
-      savoirFaire: "Demande-toi toujours : <em>Qu'est-ce que je sais déjà ? Qu'est-ce que je veux montrer ou calculer ?</em>",
-      erreurs: ["Confondre direct et réciproque.", "Utiliser Pythagore sans s'assurer que le triangle est rectangle.", "Appliquer Thalès sans parallélisme."]
-    }
+    help
   };
 }
 
@@ -3640,19 +4055,21 @@ function _buildOrder(cases, title) {
   ).join('');
   const header = k.context ? `<div class="order-context">${k.context}</div>` : '';
   const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  const level = _levelFromTitle(title);
+  const help = (k.theoreme && makeHelp(k.theoreme, level)) || {
+    cours: "Une démonstration suit un ordre logique : <ol><li>Énoncer ce qu'on sait.</li><li>Citer le théorème utilisé.</li><li>Appliquer la formule.</li><li>Calculer.</li><li>Conclure clairement.</li></ol>",
+    savoirFaire: "Cherche d'abord l'étape qui introduit les données, puis la citation du théorème, puis les calculs, puis la conclusion.",
+    erreurs: ["Placer la conclusion avant les calculs.", "Oublier de citer le théorème.", "Mélanger calcul et énoncé."]
+  };
   return {
     theme: 'raisonner', title,
     body: `${figHtml}${header}<p><b>Remets les étapes de la démonstration dans le bon ordre</b> (glisse les lignes avec ☰ ou clique sur ↑/↓) :</p>
       <ol class="order-list" data-correct="${k.steps.map((_, i) => i).join(',')}">${items}</ol>
       <p class="note" style="margin-top:8px;font-size:0.8rem;">💡 Astuce : sur mobile, maintiens longtemps l'icône ☰ avant de glisser. Sur ordinateur, clic-glisser.</p>`,
     type: 'order',
-    expected: k.steps.map((_, i) => i),  // ordre correct = 0, 1, 2, ... n-1
+    expected: k.steps.map((_, i) => i),
     solution: k.solution || `Ordre correct : <ol>${k.steps.map(s => `<li>${s}</li>`).join('')}</ol>`,
-    help: {
-      cours: k.cours || "Une démonstration suit un ordre logique : <ol><li>Énoncer ce qu'on sait (hypothèses).</li><li>Citer le théorème utilisé.</li><li>Appliquer la formule.</li><li>Calculer.</li><li>Conclure avec une phrase claire.</li></ol>",
-      savoirFaire: "Chercher toujours l'étape qui introduit les données (première), puis la citation du théorème, puis les calculs, puis la conclusion.",
-      erreurs: ["Placer la conclusion avant les calculs.", "Oublier de citer le théorème.", "Mélanger le calcul et l'énoncé des données."]
-    }
+    help
   };
 }
 
@@ -3660,6 +4077,7 @@ function rais_ordre_n1() {
   // Niveau Rouge : 3 étapes seulement, Pythagore direct
   const cases = [
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: 'AB = 3 cm', BC: 'BC = 4 cm', AC: '?' } }),
       context: "On veut calculer la longueur AC dans le triangle ABC rectangle en B avec AB = 3 cm et BC = 4 cm.",
       steps: [
@@ -3669,6 +4087,7 @@ function rais_ordre_n1() {
       ]
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
       context: "On veut calculer BC dans le triangle rectangle en A avec AC = 6 et l'hypoténuse BC.  On connaît AB = 8.",
       steps: [
@@ -3789,6 +4208,12 @@ function _buildTrouveErreur(cases, title) {
     k.steps.map((_, i) => ({ html: `Étape ${i+1}`, correct: i === erreurIdx }))
   );
   const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  const level = _levelFromTitle(title);
+  const help = (k.theoreme && makeHelp(k.theoreme, level)) || {
+    cours: "Vérifier une démonstration = lire ligne par ligne et se demander : <em>cette étape découle-t-elle logiquement des précédentes ?</em>",
+    savoirFaire: "Repère les calculs, les signes, les citations de théorèmes et les phrases de conclusion.",
+    erreurs: ["Ne lire que le résultat final.", "Oublier de vérifier chaque calcul.", "Faire confiance aveuglément à la première étape."]
+  };
   return {
     theme: 'raisonner', title,
     body: `${figHtml}${k.context ? `<div class="order-context">${k.context}</div>` : ''}
@@ -3797,11 +4222,7 @@ function _buildTrouveErreur(cases, title) {
     type: 'qcm',
     choices, correctIdx,
     solution: `L'erreur est à l'<b>étape ${erreurIdx + 1}</b>. ${k.explain}`,
-    help: {
-      cours: "Vérifier une démonstration = lire ligne par ligne et se demander : <em>cette étape découle-t-elle logiquement des précédentes ?</em>",
-      savoirFaire: "Repère les calculs, les signes, les citations de théorèmes, et les phrases de conclusion.",
-      erreurs: ["Ne lire que le résultat final.", "Oublier de vérifier chaque calcul.", "Faire confiance à la première étape sans la tester."]
-    }
+    help
   };
 }
 
@@ -4136,6 +4557,12 @@ function _buildVF(cases, title) {
     { html: `❌ Faux — ${k.fauxFausseRaison || 'mauvaise justification 2'}`, correct: false }
   ]);
   const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  const level = _levelFromTitle(title);
+  const help = (k.theoreme && makeHelp(k.theoreme, level)) || {
+    cours: "<b>Vrai / Faux justifié</b> : un simple « vrai » ou « faux » ne suffit pas. Il faut une <b>raison</b> : énoncé d'un théorème, contre-exemple, calcul précis.",
+    savoirFaire: "Pour prouver qu'une affirmation est <b>fausse</b>, un <b>contre-exemple</b> suffit. Pour la prouver <b>vraie</b>, il faut un raisonnement général.",
+    erreurs: ["Bonne conclusion mais mauvaise justification.", "Confondre « il existe » et « pour tout ».", "Prouver une affirmation générale avec un seul cas particulier."]
+  };
   return {
     theme: 'raisonner', title,
     body: `${figHtml}<div class="order-context"><b>Affirmation :</b> ${k.affirmation}</div>
@@ -4143,11 +4570,7 @@ function _buildVF(cases, title) {
     type: 'qcm',
     choices, correctIdx,
     solution: `${k.estVrai ? '✅ Vrai' : '❌ Faux'}. ${k.estVrai ? k.vraiRaison : k.fauxRaison}`,
-    help: {
-      cours: "<b>Vrai/Faux justifié</b> : un simple <em>vrai</em> ou <em>faux</em> sans justification ne suffit pas. Il faut <b>donner une raison</b> : énoncé d'un théorème, contre-exemple, calcul…",
-      savoirFaire: "Pour prouver qu'une affirmation est fausse, il suffit d'un <b>contre-exemple</b>. Pour la prouver vraie, il faut un raisonnement général.",
-      erreurs: ["Donner la bonne conclusion avec une mauvaise justification.", "Confondre 'il existe' et 'pour tout'.", "Utiliser un cas particulier pour prouver une affirmation générale."]
-    }
+    help
   };
 }
 
