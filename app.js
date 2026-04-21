@@ -6345,6 +6345,288 @@ const _origFinishTest = (typeof finishTest === 'function') ? finishTest : null;
 
 
 /* ---------- Init ---------- */
+/* ==========================================================================
+   S'ÉVALUER — Sujets type Brevet (Partie 2 seule, /14)
+   Décomposition auto du score par compétence (Raisonner, Représenter, Modéliser, Calculer, Communiquer).
+   ========================================================================== */
+const BREVET_PROGRESS_KEY = 'autopb3.brevet.progress';
+let brevetState = null; // { sujet, exIdx, reponses: { questionId: { type, value } } }
+
+function loadBrevetProgress() {
+  try { return JSON.parse(localStorage.getItem(BREVET_PROGRESS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveBrevetProgress(p) { localStorage.setItem(BREVET_PROGRESS_KEY, JSON.stringify(p)); }
+
+function renderBrevetList() {
+  const container = document.getElementById('brevet-sujets-list');
+  if (!container) return;
+  const detail = document.getElementById('brevet-sujet-detail');
+  detail.style.display = 'none';
+  container.style.display = '';
+  const progress = loadBrevetProgress();
+  container.innerHTML = `
+    <div class="brevet-intro">
+      <p><strong>Format Brevet :</strong> ces sujets correspondent à la <em>Partie 2</em> du DNB (raisonnement et résolution de problèmes), notée sur <strong>14 points</strong>, durée <strong>1 h 40</strong>, <strong>calculatrice autorisée</strong>. La Partie 1 (Automatismes, 6 points, sans calculatrice) est travaillée dans un autre site.</p>
+    </div>
+    <div class="brevet-sujets-grid">
+      ${BREVET_SUJETS.map(s => {
+        const prog = progress[s.id];
+        const fait = prog ? `<div class="brevet-card-stats">Dernière note : <strong>${prog.total}/14</strong> (${prog.date || ''})</div>` : `<div class="brevet-card-stats brevet-card-notdone">⏸ Pas encore essayé</div>`;
+        return `<div class="brevet-sujet-card" data-sujet="${s.id}">
+          <div class="brevet-card-head">
+            <h3>${s.titre}</h3>
+            <div class="brevet-card-sub">${s.sousTitre || ''}</div>
+          </div>
+          <div class="brevet-card-meta">
+            <span>⏱ ${s.duree}</span>
+            <span>📝 ${s.exercices.length} exercices</span>
+            <span>🎯 /${s.total} points</span>
+          </div>
+          ${fait}
+          <button class="primary brevet-start-btn" data-sujet="${s.id}">Commencer l'évaluation →</button>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="brevet-legende">
+      <strong>Compétences évaluées :</strong>
+      ${Object.entries(COMPETENCE_META).map(([k, m]) => `<span class="brevet-compet-badge" style="background:${m.color};">${m.short}</span>`).join('')}
+    </div>
+  `;
+  renderMath(container);
+}
+
+function startBrevetSujet(sujetId) {
+  const sujet = BREVET_SUJETS.find(s => s.id === sujetId);
+  if (!sujet) return;
+  brevetState = {
+    sujet,
+    exIdx: 0,
+    reponses: {}
+  };
+  renderBrevetSujet();
+}
+
+function renderBrevetSujet() {
+  if (!brevetState) return;
+  const { sujet, exIdx } = brevetState;
+  const ex = sujet.exercices[exIdx];
+  const list = document.getElementById('brevet-sujets-list');
+  const detail = document.getElementById('brevet-sujet-detail');
+  list.style.display = 'none';
+  detail.style.display = '';
+
+  const nav = sujet.exercices.map((e, i) => `<button class="brevet-nav-btn ${i === exIdx ? 'active' : ''}" data-goto="${i}">${i + 1}</button>`).join('');
+  const isLast = exIdx === sujet.exercices.length - 1;
+
+  const compsBadges = (ex.competencesPrincipales || []).map(c => {
+    const m = COMPETENCE_META[c];
+    return m ? `<span class="brevet-compet-badge" style="background:${m.color};">${m.short}</span>` : '';
+  }).join(' ');
+
+  detail.innerHTML = `
+    <button class="brevet-back-btn" id="brevet-back">← Retour aux sujets</button>
+    <div class="brevet-header">
+      <h2>${sujet.titre}</h2>
+      <div class="brevet-header-meta">⏱ ${sujet.duree} · 🎯 /${sujet.total} points · 🧮 Calculatrice autorisée</div>
+      <div class="brevet-header-intro">${sujet.intro || ''}</div>
+    </div>
+    <div class="brevet-nav">
+      ${nav}
+      <button class="brevet-nav-btn brevet-nav-finish" id="brevet-finish-btn">✓ Terminer</button>
+    </div>
+    <div class="brevet-exercice">
+      <div class="brevet-ex-head">
+        <h3>${ex.titre} <span class="brevet-ex-points">(${ex.points} pts)</span></h3>
+        <div class="brevet-ex-comp">${compsBadges}</div>
+      </div>
+      ${ex.contexte ? `<div class="brevet-ex-contexte">${ex.contexte}</div>` : ''}
+      <ol class="brevet-questions-list">
+        ${ex.questions.map(q => renderBrevetQuestion(q)).join('')}
+      </ol>
+    </div>
+    <div class="brevet-footer">
+      ${exIdx > 0 ? `<button class="ghost" id="brevet-prev">← Exercice précédent</button>` : '<span></span>'}
+      ${!isLast ? `<button class="primary" id="brevet-next">Exercice suivant →</button>` : `<button class="primary" id="brevet-finish-btn-bottom">✓ Terminer et voir mon score</button>`}
+    </div>
+  `;
+  renderMath(detail);
+  // Listeners
+  document.getElementById('brevet-back').addEventListener('click', () => {
+    if (confirm("Veux-tu vraiment quitter l'évaluation ? Tes réponses seront perdues.")) {
+      brevetState = null;
+      renderBrevetList();
+    }
+  });
+  detail.querySelectorAll('.brevet-nav-btn[data-goto]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      saveCurrentReponses();
+      brevetState.exIdx = parseInt(btn.dataset.goto, 10);
+      renderBrevetSujet();
+    });
+  });
+  const prev = document.getElementById('brevet-prev');
+  if (prev) prev.addEventListener('click', () => { saveCurrentReponses(); brevetState.exIdx--; renderBrevetSujet(); });
+  const next = document.getElementById('brevet-next');
+  if (next) next.addEventListener('click', () => { saveCurrentReponses(); brevetState.exIdx++; renderBrevetSujet(); });
+  const fin1 = document.getElementById('brevet-finish-btn');
+  const fin2 = document.getElementById('brevet-finish-btn-bottom');
+  const finish = () => {
+    saveCurrentReponses();
+    if (confirm("Veux-tu terminer l'évaluation et voir ton score ?")) {
+      finishBrevetEval();
+    }
+  };
+  if (fin1) fin1.addEventListener('click', finish);
+  if (fin2) fin2.addEventListener('click', finish);
+}
+
+function renderBrevetQuestion(q) {
+  const existing = brevetState.reponses[q.id] || {};
+  const compMeta = COMPETENCE_META[q.competence];
+  const badge = compMeta ? `<span class="brevet-q-compet" style="background:${compMeta.color}20;color:${compMeta.color};border:1px solid ${compMeta.color}60;">${compMeta.short} · ${q.points} pts</span>` : '';
+  let answerBlock = '';
+  if (q.type === 'input') {
+    answerBlock = `<input type="text" class="brevet-input" data-q="${q.id}" value="${existing.value || ''}" placeholder="Ta réponse…" />`;
+  } else if (q.type === 'qcm') {
+    answerBlock = `<div class="brevet-choices" data-q="${q.id}">
+      ${q.choices.map((c, i) => `<label class="brevet-choice ${existing.value == i ? 'selected' : ''}"><input type="radio" name="brevet-${q.id}" value="${i}" ${existing.value == i ? 'checked' : ''}><span>${c}</span></label>`).join('')}
+    </div>`;
+  }
+  return `<li class="brevet-question">
+    <div class="brevet-q-head">${badge}</div>
+    <div class="brevet-q-body">${q.body}</div>
+    ${answerBlock}
+  </li>`;
+}
+
+function saveCurrentReponses() {
+  if (!brevetState) return;
+  const ex = brevetState.sujet.exercices[brevetState.exIdx];
+  for (const q of ex.questions) {
+    if (q.type === 'input') {
+      const input = document.querySelector(`.brevet-input[data-q="${q.id}"]`);
+      if (input) brevetState.reponses[q.id] = { type: 'input', value: input.value };
+    } else if (q.type === 'qcm') {
+      const checked = document.querySelector(`input[name="brevet-${q.id}"]:checked`);
+      if (checked) brevetState.reponses[q.id] = { type: 'qcm', value: parseInt(checked.value, 10) };
+    }
+  }
+}
+
+function isBrevetAnswerCorrect(q, rep) {
+  if (!rep) return false;
+  if (q.type === 'input') {
+    const v = normalizeAnswer(rep.value || '');
+    const expected = Array.isArray(q.expected) ? q.expected : [q.expected];
+    return expected.some(e => normalizeAnswer(String(e)) === v);
+  }
+  if (q.type === 'qcm') return rep.value === q.correctIdx;
+  return false;
+}
+
+function finishBrevetEval() {
+  if (!brevetState) return;
+  const { sujet, reponses } = brevetState;
+  // Calcul des scores par question, total et par compétence
+  let total = 0;
+  const scoreParComp = {};
+  const maxParComp = {};
+  const details = [];
+  sujet.exercices.forEach(ex => {
+    ex.questions.forEach(q => {
+      const ok = isBrevetAnswerCorrect(q, reponses[q.id]);
+      const pts = ok ? q.points : 0;
+      total += pts;
+      const c = q.competence;
+      scoreParComp[c] = (scoreParComp[c] || 0) + pts;
+      maxParComp[c] = (maxParComp[c] || 0) + q.points;
+      details.push({ ex: ex.titre, q, ok, pts });
+    });
+  });
+  // Sauvegarder
+  const progress = loadBrevetProgress();
+  progress[sujet.id] = { total: Math.round(total * 10) / 10, date: new Date().toLocaleDateString('fr-FR'), scoreParComp, maxParComp };
+  saveBrevetProgress(progress);
+  // Afficher résultats
+  const detail = document.getElementById('brevet-sujet-detail');
+  const note = Math.round(total * 10) / 10;
+  const pct = Math.round(100 * total / sujet.total);
+  const comps = Object.entries(COMPETENCE_META).map(([k, m]) => {
+    const s = scoreParComp[k] || 0, max = maxParComp[k] || 0;
+    if (max === 0) return '';
+    const p = Math.round(100 * s / max);
+    return `<div class="brevet-comp-row">
+      <div class="brevet-comp-label" style="color:${m.color};"><strong>${m.short}</strong></div>
+      <div class="brevet-comp-bar"><div class="brevet-comp-bar-fill" style="width:${p}%;background:${m.color};"></div></div>
+      <div class="brevet-comp-score"><strong>${s}/${max}</strong> (${p}%)</div>
+    </div>`;
+  }).join('');
+  // Compétence la plus faible
+  const faibles = Object.entries(scoreParComp)
+    .filter(([k]) => maxParComp[k] > 0)
+    .map(([k, s]) => ({ k, ratio: s / maxParComp[k] }))
+    .sort((a, b) => a.ratio - b.ratio);
+  const faible = faibles[0];
+  const faibleCompMeta = faible ? COMPETENCE_META[faible.k] : null;
+  const conseilFaible = faibleCompMeta && faible.ratio < 0.7
+    ? `<div class="brevet-conseil">💡 <strong>Ta compétence la plus faible : ${faibleCompMeta.label}</strong> (${Math.round(faible.ratio * 100)}%). <br>Pour progresser, va dans l'onglet <em>🧠 Compétences → ${faibleCompMeta.label}</em> !</div>`
+    : `<div class="brevet-conseil">🎉 <strong>Toutes tes compétences sont au-dessus de 70 %</strong> — continue comme ça !</div>`;
+  detail.innerHTML = `
+    <button class="brevet-back-btn" id="brevet-back">← Retour aux sujets</button>
+    <div class="brevet-results">
+      <h2>📝 ${sujet.titre} — Résultat</h2>
+      <div class="brevet-results-score">
+        <div class="brevet-big-note">${String(note).replace('.', ',')} / ${sujet.total}</div>
+        <div class="brevet-big-pct">${pct} % de réussite</div>
+      </div>
+      <h3>Décomposition par compétence</h3>
+      <div class="brevet-comps-table">${comps}</div>
+      ${conseilFaible}
+      <h3>Détail des questions</h3>
+      <ol class="brevet-details-list">
+        ${details.map(d => `<li class="${d.ok ? 'ok' : 'ko'}">
+          <strong>${d.ex} · Q${sujet.exercices.flatMap(e => e.questions).indexOf(d.q) + 1}</strong>
+          — <span class="brevet-detail-q">${d.q.body.replace(/<[^>]*>/g, '').slice(0, 80)}…</span>
+          <span class="brevet-detail-pts">${d.ok ? `✓ ${d.pts} pt${d.pts > 1 ? 's' : ''}` : '✗ 0 pt'}</span>
+          ${!d.ok && d.q.correction ? `<div class="brevet-detail-correction"><b>Correction :</b> ${d.q.correction}</div>` : ''}
+        </li>`).join('')}
+      </ol>
+      <div class="brevet-actions">
+        <button class="primary" id="brevet-retry">🔁 Recommencer ce sujet</button>
+        <button class="ghost" id="brevet-back-list">← Retour à la liste</button>
+      </div>
+    </div>
+  `;
+  renderMath(detail);
+  document.getElementById('brevet-back').addEventListener('click', () => { brevetState = null; renderBrevetList(); });
+  document.getElementById('brevet-back-list').addEventListener('click', () => { brevetState = null; renderBrevetList(); });
+  document.getElementById('brevet-retry').addEventListener('click', () => { startBrevetSujet(sujet.id); });
+}
+
+function initBrevetTab() {
+  renderBrevetList();
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.brevet-start-btn, .brevet-sujet-card');
+    if (btn && (btn.classList.contains('brevet-start-btn') || e.target.closest('.brevet-sujet-card'))) {
+      const sujetId = btn.dataset.sujet || btn.closest('.brevet-sujet-card')?.dataset.sujet;
+      if (sujetId) startBrevetSujet(sujetId);
+    }
+    // Toggle de sélection choix QCM
+    const choice = e.target.closest('.brevet-choice');
+    if (choice) {
+      const input = choice.querySelector('input[type="radio"]');
+      if (input) {
+        choice.parentElement.querySelectorAll('.brevet-choice').forEach(c => c.classList.remove('selected'));
+        choice.classList.add('selected');
+      }
+    }
+  });
+  // Rafraîchir à l'ouverture de l'onglet
+  document.querySelectorAll('[data-target="tab-brevet"]').forEach(btn => {
+    btn.addEventListener('click', () => setTimeout(renderBrevetList, 50));
+  });
+}
+
 initDarkMode();
 initA11y();
 initTabs();
@@ -6352,6 +6634,7 @@ initThemes();
 initKeyboard();
 initDuel();
 initSkillsTab();
+initBrevetTab();
 initCalc();
 refreshStudentBadge();
 

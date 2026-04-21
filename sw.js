@@ -8,7 +8,7 @@
    Incrémente CACHE_VERSION quand on déploie une nouvelle version.
 */
 
-const CACHE_VERSION = 'v18-2026-04-21-pool-8-ordre';
+const CACHE_VERSION = 'v19-2026-04-21-sevaluer-brevet';
 const SHELL_CACHE = `autopb3-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `autopb3-runtime-${CACHE_VERSION}`;
 
@@ -17,6 +17,7 @@ const SHELL_URLS = [
   './index.html',
   './app.js',
   './questions.js',
+  './brevet-sujets.js',
   './style.css',
   './manifest.webmanifest',
   './icon-192.png',

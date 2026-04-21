@@ -114,6 +114,7 @@
   <section id="screen-home" class="screen active">
     <div class="menu-tabs">
       <button class="tab-btn active" data-target="tab-skills">🧠 Compétences</button>
+      <button class="tab-btn" data-target="tab-brevet">📝 S'évaluer</button>
       <button class="tab-btn" data-target="tab-revision">📚 Fiches & outils</button>
     </div>
 
@@ -132,6 +133,14 @@
 
       <div id="skills-cards"></div>
       <div id="skill-detail" style="display:none;"></div>
+    </div>
+
+    <!-- Onglet : S'évaluer — sujets type Brevet décomposés par compétence -->
+    <div id="tab-brevet" class="tab-panel">
+      <h2>📝 S'évaluer — Sujets type Brevet</h2>
+      <p class="lead">Entraîne-toi avec de <strong>vrais sujets de Brevet</strong>, ou inspirés d'eux. À la fin, tu verras ta note <strong>/14</strong> <em>et</em> le <strong>détail par compétence</strong> (Raisonner, Représenter, Modéliser, Calculer, Communiquer) pour savoir sur quoi travailler.</p>
+      <div id="brevet-sujets-list"></div>
+      <div id="brevet-sujet-detail" style="display:none;"></div>
     </div>
 
     <!-- Onglet : fiches de révision -->
@@ -251,6 +260,7 @@
 </footer>
 
 <script src="questions.js"></script>
+<script src="brevet-sujets.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
