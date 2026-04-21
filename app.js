@@ -4175,12 +4175,12 @@ function _buildOrder(cases, title) {
 }
 
 function rais_ordre_n1() {
-  // Niveau Rouge : 3 étapes seulement, Pythagore direct
+  // Niveau Rouge : 3 étapes, démonstrations courtes
   const cases = [
     {
       theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: 'AB = 3 cm', BC: 'BC = 4 cm', AC: '?' } }),
-      context: "On veut calculer la longueur AC dans le triangle ABC rectangle en B avec AB = 3 cm et BC = 4 cm.",
+      context: "On veut calculer AC dans le triangle ABC rectangle en B, avec AB = 3 cm et BC = 4 cm.",
       steps: [
         "Le triangle ABC est rectangle en B. D'après le théorème de Pythagore : AC² = AB² + BC².",
         "AC² = 3² + 4² = 9 + 16 = 25.",
@@ -4189,12 +4189,71 @@ function rais_ordre_n1() {
     },
     {
       theoreme: 'pythagore_direct',
-      figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } , angleAt: 'A' }),
-      context: "On veut calculer BC dans le triangle rectangle en A avec AC = 6 et l'hypoténuse BC.  On connaît AB = 8.",
+      figure: svgTriangleRect({ sides: { AB: 'AB = 8 cm', BC: 'AC = 6 cm', AC: '?' }, angleAt: 'A' }),
+      context: "On veut calculer BC dans le triangle rectangle en A, avec AB = 8 cm et AC = 6 cm.",
       steps: [
         "Le triangle ABC est rectangle en A, donc d'après Pythagore : BC² = AB² + AC².",
         "BC² = 8² + 6² = 64 + 36 = 100.",
         "BC = √100 = 10 cm."
+      ]
+    },
+    {
+      theoreme: 'pythagore_direct',
+      figure: svgTriangleRect({ sides: { AB: '5', BC: '12', AC: '?' } }),
+      context: "Dans le triangle ABC rectangle en B, AB = 5 cm et BC = 12 cm. Calculer AC.",
+      steps: [
+        "Le triangle ABC est rectangle en B. D'après Pythagore : AC² = AB² + BC².",
+        "AC² = 5² + 12² = 25 + 144 = 169.",
+        "AC = √169 = 13 cm."
+      ]
+    },
+    {
+      theoreme: 'sommes_angles',
+      figure: svgTriangleQuelconque({ angles: { A: '70°', B: '60°', C: '?' } }),
+      context: "Dans le triangle ABC, on a Â = 70° et B̂ = 60°. Calculer Ĉ.",
+      steps: [
+        "Dans tout triangle, la somme des angles vaut 180°.",
+        "Donc Ĉ = 180° − Â − B̂ = 180° − 70° − 60°.",
+        "Donc Ĉ = 50°."
+      ]
+    },
+    {
+      theoreme: 'aire_vs_perimetre',
+      figure: svgRectangle({ L: 8, l: 5, labelL: '8 cm', labelLarg: '5 cm' }),
+      context: "Calculer l'aire d'un rectangle de longueur 8 cm et largeur 5 cm.",
+      steps: [
+        "L'aire d'un rectangle est A = L × ℓ.",
+        "Donc A = 8 × 5 = 40.",
+        "L'aire vaut 40 cm²."
+      ]
+    },
+    {
+      theoreme: 'aire_vs_perimetre',
+      figure: svgRectangle({ L: 8, l: 5, labelL: '8 cm', labelLarg: '5 cm' }),
+      context: "Calculer le périmètre d'un rectangle de longueur 8 cm et largeur 5 cm.",
+      steps: [
+        "Le périmètre d'un rectangle est P = 2 × (L + ℓ).",
+        "Donc P = 2 × (8 + 5) = 2 × 13.",
+        "P = 26 cm."
+      ]
+    },
+    {
+      theoreme: 'cercle',
+      figure: svgCercle({ rayon: 3, marquerRayon: true }),
+      context: "Calculer le périmètre d'un cercle de rayon 3 cm (résultat en fonction de π).",
+      steps: [
+        "Le périmètre d'un cercle est P = 2π r.",
+        "Donc P = 2π × 3.",
+        "P = 6π cm."
+      ]
+    },
+    {
+      theoreme: 'fractions_somme',
+      context: "Calculer \\(\\frac{1}{4} + \\frac{1}{2}\\).",
+      steps: [
+        "On met au même dénominateur : \\(\\frac{1}{2} = \\frac{2}{4}\\).",
+        "On additionne : \\(\\frac{1}{4} + \\frac{2}{4} = \\frac{1 + 2}{4}\\).",
+        "Donc \\(\\frac{1}{4} + \\frac{1}{2} = \\frac{3}{4}\\)."
       ]
     }
   ];
@@ -4202,7 +4261,7 @@ function rais_ordre_n1() {
 }
 
 function rais_ordre_n2() {
-  // Niveau Jaune : 4 étapes, Pythagore + phrase de conclusion obligatoire
+  // Niveau Jaune : 4 étapes, démonstrations variées
   const cases = [
     {
       theoreme: 'pythagore_reciproque',
@@ -4217,13 +4276,77 @@ function rais_ordre_n2() {
     },
     {
       theoreme: 'pythagore_direct',
-      figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } , angleAt: 'A' }),
-      context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. On veut BC.",
+      figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, angleAt: 'A' }),
+      context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. Calculer BC.",
       steps: [
         "Le triangle ABC est rectangle en A.",
         "D'après le théorème de Pythagore : BC² = AB² + AC².",
         "BC² = 4² + 3² = 16 + 9 = 25.",
         "BC = √25 = 5 cm."
+      ]
+    },
+    {
+      theoreme: 'pythagore_reciproque',
+      figure: svgTriangleRect({ sides: { AB: '6', BC: '8', AC: '10' } }),
+      context: "Un triangle ABC a AB = 6, BC = 8 et AC = 10. Est-il rectangle ?",
+      steps: [
+        "Le plus grand côté est AC = 10. On calcule AC² = 100.",
+        "On calcule AB² + BC² = 36 + 64 = 100.",
+        "AB² + BC² = AC², les deux sont égaux.",
+        "D'après la réciproque de Pythagore, ABC est rectangle en B."
+      ]
+    },
+    {
+      theoreme: 'pythagore_contraposee',
+      figure: svgTriangleRect({ sides: { AB: '6', BC: '7', AC: '9' } }),
+      context: "Un triangle a pour côtés 6 cm, 7 cm et 9 cm. Montrer qu'il n'est pas rectangle.",
+      steps: [
+        "Le plus grand côté est 9. On calcule 9² = 81.",
+        "On calcule 6² + 7² = 36 + 49 = 85.",
+        "On observe que 81 ≠ 85.",
+        "D'après la contraposée du théorème de Pythagore, le triangle n'est pas rectangle."
+      ]
+    },
+    {
+      theoreme: 'sommes_angles',
+      figure: svgTriangleQuelconque({ angles: { A: '45°', B: '75°', C: '?' } }),
+      context: "Dans ABC, Â = 45° et B̂ = 75°. Calculer Ĉ et déterminer la nature du triangle.",
+      steps: [
+        "La somme des angles d'un triangle vaut 180°.",
+        "Donc Ĉ = 180° − 45° − 75° = 60°.",
+        "Les trois angles 45°, 75°, 60° sont tous différents.",
+        "Donc ABC est un triangle quelconque (ni équilatéral ni isocèle ni rectangle)."
+      ]
+    },
+    {
+      theoreme: 'cercle',
+      figure: svgCercle({ rayon: 5, marquerRayon: true }),
+      context: "Calculer l'aire d'un disque de rayon 5 cm (résultat en fonction de π).",
+      steps: [
+        "L'aire d'un disque de rayon r est A = π × r².",
+        "Donc A = π × 5².",
+        "A = π × 25.",
+        "A = 25π cm²."
+      ]
+    },
+    {
+      theoreme: 'aire_vs_perimetre',
+      context: "Un jardin rectangulaire mesure 20 m sur 15 m. Quel est le prix d'une clôture à 8 €/m ?",
+      steps: [
+        "Il faut d'abord calculer le périmètre du jardin.",
+        "P = 2 × (20 + 15) = 2 × 35 = 70 m.",
+        "Le prix de la clôture est 70 × 8 = 560.",
+        "La clôture coûte 560 €."
+      ]
+    },
+    {
+      theoreme: 'fractions_somme',
+      context: "Calculer \\(\\frac{3}{4} - \\frac{1}{2}\\).",
+      steps: [
+        "On met au même dénominateur : \\(\\frac{1}{2} = \\frac{2}{4}\\).",
+        "On soustrait : \\(\\frac{3}{4} - \\frac{2}{4} = \\frac{3 - 2}{4}\\).",
+        "Donc \\(\\frac{3}{4} - \\frac{1}{2} = \\frac{1}{4}\\).",
+        "La fraction est irréductible."
       ]
     }
   ];
