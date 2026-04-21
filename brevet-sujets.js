@@ -187,55 +187,118 @@ const BREVET_SUJETS = [
         id: 'ex3',
         titre: 'Exercice 3 — Fonctions',
         points: 3,
-        competencesPrincipales: ['representer', 'calculer'],
+        competencesPrincipales: ['representer', 'calculer', 'raisonner'],
         contexte: "On considère les fonctions :<br>\\(f : x \\mapsto 4x + 3\\) &nbsp; et &nbsp; \\(g : x \\mapsto 6x\\).",
         questions: [
           {
-            id: 'ex3-q1',
-            body: "Parmi ces deux fonctions, laquelle représente une <b>situation de proportionnalité</b> ?",
+            // Q1a : résultat direct (Calculer)
+            id: 'ex3-q1a',
+            body: "Parmi \\(f\\) et \\(g\\), <b>laquelle représente une situation de proportionnalité</b> ?",
+            type: 'qcm',
+            points: 0.25,
+            competence: 'calculer',
+            choices: [
+              'La fonction \\(g\\)',
+              'La fonction \\(f\\)',
+              'Les deux fonctions',
+              'Aucune des deux'
+            ],
+            correctIdx: 0,
+            correction: "Une fonction linéaire (de la forme \\(x \\mapsto ax\\), sans terme constant) représente une proportionnalité. \\(g(x) = 6x\\) est linéaire → <b>c'est g</b>."
+          },
+          {
+            // Q1b : justification (Raisonner)
+            id: 'ex3-q1b',
+            body: "Quelle <b>justification</b> est correcte ?",
             type: 'qcm',
             points: 0.5,
             competence: 'raisonner',
-            choices: ['La fonction \\(f\\)', 'La fonction \\(g\\)', 'Les deux', 'Aucune'],
-            correctIdx: 1,
-            correction: "Une situation de proportionnalité ⇔ fonction linéaire (\\(x \\mapsto ax\\)). \\(g(x) = 6x\\) est linéaire. \\(f(x) = 4x + 3\\) est affine (pas linéaire car \\(b = 3 \\ne 0\\)). Réponse : <b>g</b>."
+            choices: [
+              // Bonne justification
+              "\\(g\\) est linéaire car \\(g(x) = 6x\\) (forme \\(ax\\), sans terme constant). \\(f\\) est affine mais pas linéaire car elle a un terme constant \\(+3\\).",
+              // Erreur fréquente : confondre proportionnalité et affine
+              "\\(f\\) et \\(g\\) sont des fonctions affines, donc les deux représentent une proportionnalité.",
+              // Erreur : se baser sur le coefficient 6 > 4
+              "\\(g\\) car son coefficient (6) est plus grand que celui de \\(f\\) (4).",
+              // Erreur : se baser sur l'image de 0
+              "\\(g\\) car \\(g(0) = 0\\), donc la droite passe par l'origine."
+            ],
+            correctIdx: 0,
+            correction: "<b>Règle :</b> une fonction représente une proportionnalité si et seulement si c'est une <b>fonction linéaire</b> \\(x \\mapsto ax\\) (pas de terme constant).<br>• \\(g(x) = 6x\\) : linéaire → proportionnalité ✓<br>• \\(f(x) = 4x + 3\\) : affine mais non linéaire (terme constant +3) → pas de proportionnalité.<br><em>Piège :</em> une fonction peut avoir \\(f(0) = 0\\) sans être linéaire (si on donne juste un point), mais ici le critère sûr c'est l'absence de terme constant."
           },
           {
             id: 'ex3-q2',
             body: "Calculer l'<b>image de 0</b> par la fonction \\(g\\).",
             type: 'input',
-            points: 0.5,
+            points: 0.25,
             competence: 'calculer',
             expected: ['0'],
             correction: "\\(g(0) = 6 \\times 0 = 0\\)."
           },
           {
-            id: 'ex3-q3',
+            // Q3a : résultat direct (Calculer)
+            id: 'ex3-q3a',
             body: "Déterminer l'<b>antécédent de 0</b> par la fonction \\(f\\).",
             type: 'input',
-            points: 1,
+            points: 0.5,
             competence: 'calculer',
             expected: ['-3/4', '-0,75', '-0.75'],
-            correction: "On cherche \\(x\\) tel que \\(f(x) = 0\\), soit \\(4x + 3 = 0\\), d'où \\(x = -\\frac{3}{4} = -0,75\\)."
+            correction: "On cherche \\(x\\) tel que \\(f(x) = 0\\), soit \\(4x + 3 = 0\\), d'où \\(x = -\\dfrac{3}{4} = -0{,}75\\)."
           },
           {
-            id: 'ex3-q4',
-            body: "Les deux droites représentatives des fonctions \\(f\\) et \\(g\\) se coupent-elles au point \\((1{,}5 \\,;\\, 9)\\) ?<br>Quelle est la <b>démarche correcte</b> avec la bonne conclusion ?",
+            // Q3b : démarche (Raisonner)
+            id: 'ex3-q3b',
+            body: "Quelle est la <b>démarche correcte</b> pour trouver cet antécédent ?",
             type: 'qcm',
-            points: 1,
+            points: 0.5,
             competence: 'raisonner',
             choices: [
               // Bonne démarche
-              "\\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 9\\) et \\(g(1{,}5) = 6 \\times 1{,}5 = 9\\). Les deux valent 9, donc <b>oui</b>, les droites se coupent en \\((1{,}5 \\,;\\, 9)\\).",
-              // Erreur : oubli du +3 dans f
-              "\\(f(1{,}5) = 4 \\times 1{,}5 = 6\\) et \\(g(1{,}5) = 9\\). Les deux sont différents, donc non.",
-              // Erreur : inverser coefficient et ordonnée à l'origine dans f
-              "\\(f(1{,}5) = 3 \\times 1{,}5 + 4 = 8{,}5\\). 8,5 ≠ 9, donc non.",
+              "On cherche \\(x\\) tel que \\(f(x) = 0\\). On résout \\(4x + 3 = 0\\) : \\(4x = -3\\), donc \\(x = -\\dfrac{3}{4}\\).",
               // Erreur : confondre image et antécédent
-              "On résout \\(f(x) = 9\\) : \\(4x + 3 = 9\\), donc \\(x = 1{,}5\\). Donc oui, mais seulement pour \\(f\\), pas pour \\(g\\)."
+              "On calcule \\(f(0) = 4 \\times 0 + 3 = 3\\). L'antécédent de 0 est 3.",
+              // Erreur de signe classique
+              "On résout \\(4x + 3 = 0\\) : \\(4x = 3\\), donc \\(x = \\dfrac{3}{4}\\).",
+              // Erreur : diviser par le mauvais nombre
+              "On résout \\(4x + 3 = 0\\), donc \\(x = \\dfrac{-3}{4+3} = -\\dfrac{3}{7}\\)."
             ],
             correctIdx: 0,
-            correction: "Il faut calculer \\(f(1{,}5)\\) <b>et</b> \\(g(1{,}5)\\) et comparer.<br>\\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 6 + 3 = 9\\). <b>Ne pas oublier le +3.</b><br>\\(g(1{,}5) = 6 \\times 1{,}5 = 9\\).<br>Les deux sont égaux à 9 → les droites se coupent bien en \\((1{,}5 \\,;\\, 9)\\)."
+            correction: "<b>Antécédent de 0</b> = valeur de \\(x\\) telle que \\(f(x) = 0\\).<br>On résout \\(4x + 3 = 0\\) :<br>• Étape 1 : retrancher 3 des deux côtés → \\(4x = -3\\).<br>• Étape 2 : diviser par 4 → \\(x = -\\dfrac{3}{4} = -0{,}75\\).<br><em>Piège :</em> ne pas confondre <b>image</b> (on donne x, on cherche f(x)) et <b>antécédent</b> (on donne f(x), on cherche x)."
+          },
+          {
+            id: 'ex3-q4',
+            figure: svgRepere2Droites({ a1: 4, b1: 3, a2: 6, b2: 0, xMin: -1, xMax: 3, yMin: -2, yMax: 20, inter: [1.5, 9] }),
+            body: "Les courbes représentatives \\((d_1)\\) et \\((d_2)\\) des fonctions \\(f\\) et \\(g\\) sont tracées dans le repère ci-dessus.<br><br><b>a)</b> Associer à chaque droite la fonction qu'elle représente. Quelle est l'association <b>justifiée</b> ?",
+            type: 'qcm',
+            points: 0.75,
+            competence: 'raisonner',
+            choices: [
+              // Bonne réponse avec justification
+              "\\((d_1)\\) = \\(f\\) et \\((d_2)\\) = \\(g\\), car \\((d_1)\\) coupe l'axe (Oy) en 3 (donc \\(b = 3\\)) et \\((d_2)\\) passe par l'origine (donc \\(b = 0\\)).",
+              // Erreur : inversion
+              "\\((d_1)\\) = \\(g\\) et \\((d_2)\\) = \\(f\\), car \\(g\\) a une pente plus grande.",
+              // Erreur : se baser uniquement sur la pente
+              "\\((d_1)\\) = \\(g\\) et \\((d_2)\\) = \\(f\\), car la droite la plus raide est la fonction linéaire.",
+              // Erreur : on ne peut pas conclure
+              "On ne peut pas associer les droites sans plus d'informations."
+            ],
+            correctIdx: 0,
+            correction: "<b>Critère sûr : l'ordonnée à l'origine.</b><br>• \\(f(x) = 4x + 3\\) : la droite de \\(f\\) coupe l'axe (Oy) au point \\((0 \\,;\\, 3)\\).<br>• \\(g(x) = 6x\\) : la droite de \\(g\\) passe par l'origine \\((0 \\,;\\, 0)\\).<br>Sur la figure, \\((d_1)\\) passe par \\((0 \\,;\\, 3)\\) → c'est \\(f\\). \\((d_2)\\) passe par \\((0 \\,;\\, 0)\\) → c'est \\(g\\)."
+          },
+          {
+            id: 'ex3-q5',
+            body: "<b>b)</b> Les deux droites se coupent au point d'intersection. Quelles sont ses <b>coordonnées</b> ?",
+            type: 'qcm',
+            points: 0.25,
+            competence: 'representer',
+            choices: [
+              '\\((1{,}5 \\,;\\, 9)\\)',
+              '\\((9 \\,;\\, 1{,}5)\\)',
+              '\\((3 \\,;\\, 0)\\)',
+              '\\((0 \\,;\\, 3)\\)'
+            ],
+            correctIdx: 0,
+            correction: "Par lecture graphique, les deux droites se coupent en \\((1{,}5 \\,;\\, 9)\\).<br>On peut vérifier par calcul : \\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 9\\) et \\(g(1{,}5) = 6 \\times 1{,}5 = 9\\). ✓<br><em>Piège :</em> les coordonnées sont \\((x \\,;\\, y)\\) — pas \\((y \\,;\\, x)\\)."
           }
         ]
       },
@@ -244,11 +307,13 @@ const BREVET_SUJETS = [
         titre: 'Exercice 4 — Octogone et disque',
         points: 3,
         competencesPrincipales: ['raisonner', 'calculer'],
-        contexte: "ABCD est un <b>carré de côté 9 cm</b>. Les segments de même longueur sont codés. On a construit un octogone IJKLMNOP à partir des milieux / points codés.",
+        contexte: "ABCD est un <b>carré de côté 9 cm</b>. Les segments de même longueur sont codés (chaque côté du carré est divisé en 3 parts égales). On a construit l'<b>octogone IJKLMNOP</b> en reliant les 8 points obtenus.",
+        figureCommune: svgCarreOctogoneDisque({ cote: 9, avecDisque: false, grise: true }),
         questions: [
           {
             id: 'ex4-q1',
-            body: "Le polygone IJKLMNOP a-t-il tous ses côtés de même longueur (polygone <b>régulier</b>) ?<br>Quelle <b>justification</b> est correcte ?",
+            figure: svgCarreOctogoneDisque({ cote: 9, avecDisque: false, grise: true }),
+            body: "<b>Figure :</b> carré ABCD de côté 9 cm, octogone IJKLMNOP grisé (sommets aux tiers des côtés).<br><br>Le polygone IJKLMNOP a-t-il tous ses côtés de même longueur (polygone <b>régulier</b>) ?<br>Quelle <b>justification</b> est correcte ?",
             type: 'qcm',
             points: 0.5,
             competence: 'raisonner',

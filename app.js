@@ -6492,8 +6492,10 @@ function renderBrevetQuestion(q) {
       ${q.choices.map((c, i) => `<label class="brevet-choice ${existing.value == i ? 'selected' : ''}"><input type="radio" name="brevet-${q.id}" value="${i}" ${existing.value == i ? 'checked' : ''}><span>${c}</span></label>`).join('')}
     </div>`;
   }
+  const figHtml = q.figure ? `<div class="geo-figure">${q.figure}</div>` : '';
   return `<li class="brevet-question">
     <div class="brevet-q-head">${badge}</div>
+    ${figHtml}
     <div class="brevet-q-body">${q.body}</div>
     ${answerBlock}
   </li>`;
