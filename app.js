@@ -4801,7 +4801,8 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  showPWAInstallTip();
+  // Popup auto désactivée (cf. bloc plus bas) ; l'événement est capté pour permettre un
+  // déclenchement manuel ultérieur si on expose un bouton « Installer » dans l'UI.
 });
 
 /* Si l'élève a installé, on masque l'astuce et on le félicite la 1re fois */
@@ -4899,20 +4900,10 @@ function showIOSInstallGuide() {
   $('#btn-ios-ok').addEventListener('click', () => modal.remove());
 }
 
-/* Sur iOS, beforeinstallprompt n'existe pas. On déclenche quand même l'astuce
-   dès le 2e chargement, sauf si déjà installé / fermé par l'élève. */
-if (isIOS() && !isStandaloneMode() && !localStorage.getItem(PWA_TIP_DISMISSED_KEY)) {
-  const visits = parseInt(localStorage.getItem('autopb3.visits') || '0');
-  localStorage.setItem('autopb3.visits', String(visits + 1));
-  if (visits >= 1) {
-    // 2e visite ou plus
-    window.addEventListener('load', () => setTimeout(showPWAInstallTip, 1500));
-  }
-}
-// Bandeau d'invitation au 1er lancement (non bloquant)
-if (!getStudent() && !localStorage.getItem('autopb3.welcome-dismissed')) {
-  setTimeout(showWelcomeBanner, 400);
-}
+/* Popups auto désactivés : l'élève a déjà le bouton 👤 (identification) dans le header,
+   et l'installation de l'app peut se faire via le menu du navigateur. Les popups s'empilaient
+   en bas et gênaient la navigation pendant les exercices. Les fonctions restent disponibles
+   au cas où on voudrait les réactiver via un bouton dédié dans l'interface. */
 function showWelcomeBanner() {
   const banner = document.createElement('div');
   banner.className = 'welcome-banner';
