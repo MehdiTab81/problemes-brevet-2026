@@ -1114,27 +1114,35 @@ function renderQuestion() {
   const meta = THEME_META[q.theme] || {};
   const c = $('#question-container');
   const isInput = q.type === 'input';
+  const isOrder = q.type === 'order';
 
-  const answerBlock = isInput ? `
-    <div class="input-answer">
-      <label style="font-weight:600;color:var(--muted);font-size:0.9rem;">Ta réponse :</label>
-      <div class="input-row">
-        <input type="text" id="qinput" value="${ans.inputAnswer ?? ''}" placeholder="tape ta réponse ici" autocomplete="off" inputmode="${q.inputSuffix && /^\d/.test(ans.inputAnswer||'') ? 'decimal' : 'text'}" />
-        ${q.inputSuffix ? `<span class="input-suffix">${q.inputSuffix}</span>` : ''}
-      </div>
-      <p class="note" style="font-size:0.82rem;margin-top:8px;">Tu peux écrire les virgules avec « , » ou « . ». Pas besoin de préciser l'unité.</p>
-    </div>
-  ` : `
-    <div class="choices">
-      ${q.choices.map((ch, i) => `
-        <label class="choice ${ans.selectedIdx === i ? 'selected' : ''}" data-idx="${i}">
-          <input type="radio" name="qchoice" ${ans.selectedIdx === i ? 'checked' : ''} />
-          <span class="letter">${String.fromCharCode(65 + i)}</span>
-          <span class="content">${ch}</span>
-        </label>
-      `).join('')}
-    </div>
-  `;
+  let answerBlock;
+  if (isInput) {
+    answerBlock = `
+      <div class="input-answer">
+        <label style="font-weight:600;color:var(--muted);font-size:0.9rem;">Ta réponse :</label>
+        <div class="input-row">
+          <input type="text" id="qinput" value="${ans.inputAnswer ?? ''}" placeholder="tape ta réponse ici" autocomplete="off" inputmode="${q.inputSuffix && /^\d/.test(ans.inputAnswer||'') ? 'decimal' : 'text'}" />
+          ${q.inputSuffix ? `<span class="input-suffix">${q.inputSuffix}</span>` : ''}
+        </div>
+        <p class="note" style="font-size:0.82rem;margin-top:8px;">Tu peux écrire les virgules avec « , » ou « . ». Pas besoin de préciser l'unité.</p>
+      </div>`;
+  } else if (isOrder) {
+    // Drag-drop : l'ordre actuel est stocké dans ans.orderArr
+    // Au 1er affichage, on construit depuis q.body (qui a déjà des data-orig mélangés)
+    answerBlock = ''; // Le HTML drag-drop est inclus dans q.body
+  } else {
+    answerBlock = `
+      <div class="choices">
+        ${q.choices.map((ch, i) => `
+          <label class="choice ${ans.selectedIdx === i ? 'selected' : ''}" data-idx="${i}">
+            <input type="radio" name="qchoice" ${ans.selectedIdx === i ? 'checked' : ''} />
+            <span class="letter">${String.fromCharCode(65 + i)}</span>
+            <span class="content">${ch}</span>
+          </label>
+        `).join('')}
+      </div>`;
+  }
 
   const a11yPrefs = loadA11y();
   const speakBtn = a11yPrefs.speak
@@ -1184,6 +1192,71 @@ function renderQuestion() {
     });
   }
 
+  // Drag-drop pour les questions de type "order"
+  if (isOrder) {
+    const list = c.querySelector('.order-list');
+    if (list) {
+      // Ajoute des boutons ↑↓ à chaque item (plus fiable que drag sur mobile)
+      list.querySelectorAll('.order-item').forEach(item => {
+        const text = item.querySelector('.order-text');
+        const controls = document.createElement('span');
+        controls.className = 'order-controls';
+        controls.innerHTML = '<button class="order-up" type="button">↑</button><button class="order-down" type="button">↓</button>';
+        item.appendChild(controls);
+      });
+
+      const updateAnswer = () => {
+        const currentOrder = Array.from(list.querySelectorAll('.order-item'))
+          .map(li => parseInt(li.dataset.orig, 10));
+        state.answers[state.current].orderArr = currentOrder;
+        renderDots();
+      };
+
+      list.addEventListener('click', e => {
+        const up = e.target.closest('.order-up');
+        const down = e.target.closest('.order-down');
+        if (up) {
+          const li = up.closest('.order-item');
+          const prev = li.previousElementSibling;
+          if (prev) { list.insertBefore(li, prev); updateAnswer(); li.animate([{ background: 'rgba(139, 92, 246, 0.3)' }, { background: 'transparent' }], { duration: 500 }); }
+        } else if (down) {
+          const li = down.closest('.order-item');
+          const next = li.nextElementSibling;
+          if (next) { list.insertBefore(next, li); updateAnswer(); li.animate([{ background: 'rgba(139, 92, 246, 0.3)' }, { background: 'transparent' }], { duration: 500 }); }
+        }
+      });
+
+      // HTML5 drag-drop (pour PC)
+      let dragged = null;
+      list.querySelectorAll('.order-item').forEach(item => {
+        item.addEventListener('dragstart', e => {
+          dragged = item;
+          item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+          if (dragged) dragged.classList.remove('dragging');
+          dragged = null;
+          updateAnswer();
+        });
+        item.addEventListener('dragover', e => e.preventDefault());
+        item.addEventListener('drop', e => {
+          e.preventDefault();
+          if (dragged && dragged !== item) {
+            const rect = item.getBoundingClientRect();
+            const afterEl = (e.clientY - rect.top) > rect.height / 2;
+            list.insertBefore(dragged, afterEl ? item.nextElementSibling : item);
+          }
+        });
+      });
+
+      // Init : stocker l'ordre initial mélangé
+      if (!state.answers[state.current].orderArr) {
+        state.answers[state.current].orderArr = Array.from(list.querySelectorAll('.order-item'))
+          .map(li => parseInt(li.dataset.orig, 10));
+      }
+    }
+  }
+
   if (state.mode === 'train') {
     $('#btn-help').addEventListener('click', () => {
       state.answers[state.current].helped = true;
@@ -1222,7 +1295,9 @@ function renderDots() {
     const a = state.answers[i];
     let cls = 'qdot';
     const q = state.series[i];
-    const isAns = q.type === 'input' ? (a.inputAnswer && a.inputAnswer.trim()) : (a.selectedIdx !== null);
+    const isAns = q.type === 'input' ? (a.inputAnswer && a.inputAnswer.trim())
+                : q.type === 'order' ? !!a.orderArr
+                : (a.selectedIdx !== null);
     if (isAns) cls += ' answered';
     if (a.helped) cls += ' helped';
     if (i === state.current) cls += ' current';
@@ -1247,7 +1322,9 @@ $('#btn-next').addEventListener('click', () => {
 $('#btn-finish').addEventListener('click', () => {
   const unanswered = state.answers.filter((a, i) => {
     const q = state.series[i];
-    return q.type === 'input' ? !(a.inputAnswer && a.inputAnswer.trim()) : a.selectedIdx === null;
+    return q.type === 'input' ? !(a.inputAnswer && a.inputAnswer.trim())
+         : q.type === 'order' ? !a.orderArr
+         : a.selectedIdx === null;
   }).length;
   if (unanswered > 0) {
     if (!confirm(`Il reste ${unanswered} question(s) sans réponse. Valider quand même ?`)) return;
@@ -1255,8 +1332,14 @@ $('#btn-finish').addEventListener('click', () => {
   finishTest();
 });
 
-/* ---------- Vérification d'une réponse (QCM ou input) ---------- */
+/* ---------- Vérification d'une réponse (QCM, input ou order) ---------- */
 function isAnswerCorrect(q, a) {
+  if (q.type === 'order') {
+    if (!a.orderArr) return false;
+    // q.expected = [0, 1, 2, ..., n-1] (ordre correct)
+    // a.orderArr = ordre actuel des data-orig
+    return a.orderArr.every((v, i) => v === q.expected[i]);
+  }
   if (q.type === 'input') {
     if (!a.inputAnswer) return false;
     const got = normalizeAnswer(a.inputAnswer);
@@ -3478,13 +3561,513 @@ function _buildQCM(cases, title) {
 }
 
 /* Lance une série de 5 questions d'un format/niveau donné */
-const SKILL_FORMAT_GENERATORS = {
+let SKILL_FORMAT_GENERATORS = {
   'raisonner.theoreme.1': rais_theoreme_n1,
   'raisonner.theoreme.2': rais_theoreme_n2,
   'raisonner.theoreme.3': rais_theoreme_n3,
   'raisonner.theoreme.4': rais_theoreme_n4,
   'raisonner.theoreme.5': rais_theoreme_n5
 };
+
+
+/* ==========================================================================
+   RAISONNER — Format B : Ordonner les étapes d'une démonstration
+   Rendu drag-drop : chaque étape est une ligne déplaçable, l'élève les remet en ordre.
+   ========================================================================== */
+
+/* Helper : construit un exercice d'ordonnancement */
+function _buildOrder(cases, title) {
+  const k = cases[Math.floor(Math.random() * cases.length)];
+  const n = k.steps.length;
+  // Mélange : on renvoie les étapes dans un ordre aléatoire, l'élève doit retrouver l'ordre correct
+  const shuffledIdx = shuffle(k.steps.map((_, i) => i));
+  // Construit le HTML du drag-drop
+  const items = shuffledIdx.map((origIdx, newPos) =>
+    `<li class="order-item" draggable="true" data-orig="${origIdx}">
+      <span class="order-handle">☰</span>
+      <span class="order-text">${k.steps[origIdx]}</span>
+    </li>`
+  ).join('');
+  const header = k.context ? `<div class="order-context">${k.context}</div>` : '';
+  return {
+    theme: 'raisonner', title,
+    body: `${header}<p><b>Remets les étapes de la démonstration dans le bon ordre</b> (glisse les lignes avec ☰ ou clique sur ↑/↓) :</p>
+      <ol class="order-list" data-correct="${k.steps.map((_, i) => i).join(',')}">${items}</ol>
+      <p class="note" style="margin-top:8px;font-size:0.8rem;">💡 Astuce : sur mobile, maintiens longtemps l'icône ☰ avant de glisser. Sur ordinateur, clic-glisser.</p>`,
+    type: 'order',
+    expected: k.steps.map((_, i) => i),  // ordre correct = 0, 1, 2, ... n-1
+    solution: k.solution || `Ordre correct : <ol>${k.steps.map(s => `<li>${s}</li>`).join('')}</ol>`,
+    help: {
+      cours: k.cours || "Une démonstration suit un ordre logique : <ol><li>Énoncer ce qu'on sait (hypothèses).</li><li>Citer le théorème utilisé.</li><li>Appliquer la formule.</li><li>Calculer.</li><li>Conclure avec une phrase claire.</li></ol>",
+      savoirFaire: "Chercher toujours l'étape qui introduit les données (première), puis la citation du théorème, puis les calculs, puis la conclusion.",
+      erreurs: ["Placer la conclusion avant les calculs.", "Oublier de citer le théorème.", "Mélanger le calcul et l'énoncé des données."]
+    }
+  };
+}
+
+function rais_ordre_n1() {
+  // Niveau Rouge : 3 étapes seulement, Pythagore direct
+  const cases = [
+    {
+      context: "On veut calculer la longueur AC dans le triangle ABC rectangle en B avec AB = 3 cm et BC = 4 cm.",
+      steps: [
+        "Le triangle ABC est rectangle en B. D'après le théorème de Pythagore : AC² = AB² + BC².",
+        "AC² = 3² + 4² = 9 + 16 = 25.",
+        "Donc AC = √25 = 5 cm."
+      ]
+    },
+    {
+      context: "On veut calculer BC dans le triangle rectangle en A avec AC = 6 et l'hypoténuse BC.  On connaît AB = 8.",
+      steps: [
+        "Le triangle ABC est rectangle en A, donc d'après Pythagore : BC² = AB² + AC².",
+        "BC² = 8² + 6² = 64 + 36 = 100.",
+        "BC = √100 = 10 cm."
+      ]
+    }
+  ];
+  return _buildOrder(cases, 'Niveau 🔴 — Ordonner une démonstration');
+}
+
+function rais_ordre_n2() {
+  // Niveau Jaune : 4 étapes, Pythagore + phrase de conclusion obligatoire
+  const cases = [
+    {
+      context: "Les trois côtés du triangle ABC mesurent AB = 5 cm, BC = 12 cm, AC = 13 cm. On veut montrer qu'il est rectangle.",
+      steps: [
+        "Le plus grand côté est AC (13 cm). On calcule AC² = 13² = 169.",
+        "On calcule AB² + BC² = 5² + 12² = 25 + 144 = 169.",
+        "On constate que AB² + BC² = AC² = 169.",
+        "D'après la réciproque du théorème de Pythagore, le triangle ABC est rectangle en B."
+      ]
+    },
+    {
+      context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. On veut BC.",
+      steps: [
+        "Le triangle ABC est rectangle en A.",
+        "D'après le théorème de Pythagore : BC² = AB² + AC².",
+        "BC² = 4² + 3² = 16 + 9 = 25.",
+        "BC = √25 = 5 cm."
+      ]
+    }
+  ];
+  return _buildOrder(cases, 'Niveau 🟡 — Ordonner une démonstration');
+}
+
+function rais_ordre_n3() {
+  // Niveau Vert clair : 5 étapes, Thalès direct
+  const cases = [
+    {
+      context: "Dans un triangle ABC, les points M et N appartiennent respectivement aux segments [AB] et [AC]. On sait que AM = 3, AB = 5, AN = 6 et (MN) // (BC). On veut calculer AC.",
+      steps: [
+        "Les droites (BM) et (CN) sont sécantes en A, et (MN) est parallèle à (BC).",
+        "D'après le théorème de Thalès : AM / AB = AN / AC = MN / BC.",
+        "On a donc 3/5 = 6/AC.",
+        "Par produit en croix : AC × 3 = 5 × 6, donc AC = 30/3 = 10 cm.",
+        "Conclusion : AC mesure 10 cm."
+      ]
+    },
+    {
+      context: "Dans le triangle ABC, M ∈ [AB] et N ∈ [AC] avec (MN) // (BC). AM = 4, MB = 6, AN = 5. Calculer NC.",
+      steps: [
+        "AB = AM + MB = 4 + 6 = 10.",
+        "Les droites (AB) et (AC) sont sécantes en A et (MN) // (BC).",
+        "D'après le théorème de Thalès : AM/AB = AN/AC.",
+        "Soit 4/10 = 5/AC donc AC = 50/4 = 12,5.",
+        "D'où NC = AC − AN = 12,5 − 5 = 7,5 cm."
+      ]
+    }
+  ];
+  return _buildOrder(cases, 'Niveau 🟢 — Ordonner une démonstration');
+}
+
+function rais_ordre_n4() {
+  // Niveau Vert foncé : 6 étapes, réciproque de Thalès
+  const cases = [
+    {
+      context: "Dans un triangle ABC, M est sur [AB] et N sur [AC]. On sait que AM = 4, AB = 10, AN = 6, AC = 15. On veut prouver que (MN) est parallèle à (BC).",
+      steps: [
+        "On identifie les points M et N sur les côtés [AB] et [AC] du triangle.",
+        "On calcule le rapport AM/AB = 4/10 = 2/5.",
+        "On calcule le rapport AN/AC = 6/15 = 2/5.",
+        "On constate que AM/AB = AN/AC = 2/5.",
+        "Les points A, M, B d'une part et A, N, C d'autre part sont alignés dans le même ordre.",
+        "D'après la réciproque du théorème de Thalès, les droites (MN) et (BC) sont parallèles."
+      ]
+    }
+  ];
+  return _buildOrder(cases, 'Niveau 💚 — Ordonner une démonstration');
+}
+
+function rais_ordre_n5() {
+  // Niveau Noir : 7 étapes, démonstration mixte (trigo + Pythagore)
+  const cases = [
+    {
+      context: "Dans un triangle ABC rectangle en A, on connaît BC = 10 cm et l'angle \\(\\widehat{ABC} = 35°\\). On veut calculer AB.",
+      steps: [
+        "Le triangle ABC est rectangle en A.",
+        "Dans un triangle rectangle, le cosinus d'un angle aigu = côté adjacent / hypoténuse.",
+        "L'angle considéré est \\(\\widehat{ABC}\\). Son côté adjacent est AB, son hypoténuse est BC.",
+        "Donc cos(35°) = AB / BC = AB / 10.",
+        "D'où AB = 10 × cos(35°).",
+        "À la calculatrice : cos(35°) ≈ 0,819.",
+        "AB ≈ 10 × 0,819 ≈ 8,19 cm."
+      ]
+    }
+  ];
+  return _buildOrder(cases, 'Niveau ⚫ — Ordonner une démonstration');
+}
+
+/* ==========================================================================
+   RAISONNER — Format C : Trouver l'erreur dans une démonstration
+   ========================================================================== */
+
+function _buildTrouveErreur(cases, title) {
+  const k = cases[Math.floor(Math.random() * cases.length)];
+  const n = k.steps.length;
+  const erreurIdx = k.erreurIdx;
+  const stepsHTML = k.steps.map((s, i) => `<li data-step="${i}"><b>Étape ${i+1}.</b> ${s}</li>`).join('');
+  const { choices, correctIdx } = makeQCM(
+    k.steps.map((_, i) => ({ html: `Étape ${i+1}`, correct: i === erreurIdx }))
+  );
+  return {
+    theme: 'raisonner', title,
+    body: `${k.context ? `<div class="order-context">${k.context}</div>` : ''}
+      <p><b>Voici une démonstration qui contient <em>une seule erreur</em>.</b> Quelle étape est incorrecte ?</p>
+      <ol class="demo-list">${stepsHTML}</ol>`,
+    type: 'qcm',
+    choices, correctIdx,
+    solution: `L'erreur est à l'<b>étape ${erreurIdx + 1}</b>. ${k.explain}`,
+    help: {
+      cours: "Vérifier une démonstration = lire ligne par ligne et se demander : <em>cette étape découle-t-elle logiquement des précédentes ?</em>",
+      savoirFaire: "Repère les calculs, les signes, les citations de théorèmes, et les phrases de conclusion.",
+      erreurs: ["Ne lire que le résultat final.", "Oublier de vérifier chaque calcul.", "Faire confiance à la première étape sans la tester."]
+    }
+  };
+}
+
+function rais_erreur_n1() {
+  // Niveau Rouge : erreur de calcul évidente
+  const cases = [
+    {
+      context: "Triangle ABC rectangle en B, AB = 6 cm, BC = 8 cm.",
+      steps: [
+        "D'après Pythagore : AC² = AB² + BC².",
+        "AC² = 6² + 8² = 36 + 64 = 90.",
+        "AC = √90 ≈ 9,49 cm."
+      ],
+      erreurIdx: 1,
+      explain: "L'erreur est dans le calcul : 36 + 64 = <b>100</b>, pas 90. Donc AC² = 100 et AC = 10 cm."
+    },
+    {
+      context: "Triangle ABC rectangle en A, AB = 3 et AC = 4.",
+      steps: [
+        "Le triangle est rectangle en A donc BC est l'hypoténuse.",
+        "D'après Pythagore : BC² = AB² + AC².",
+        "BC² = 3 + 4 = 7 et BC = √7 cm."
+      ],
+      erreurIdx: 2,
+      explain: "Il manque les <b>carrés</b> dans l'étape 3 : BC² = 3² + 4² = 9 + 16 = 25, donc BC = 5 cm."
+    }
+  ];
+  return _buildTrouveErreur(cases, 'Niveau 🔴 — Trouver l\'erreur');
+}
+
+function rais_erreur_n2() {
+  // Niveau Jaune : erreur dans l'application d'un théorème
+  const cases = [
+    {
+      context: "On veut montrer que le triangle ABC avec AB = 6, BC = 8, AC = 10 est rectangle.",
+      steps: [
+        "Le plus grand côté est AC.",
+        "On calcule AC² = 10² = 100.",
+        "On calcule AB² + BC² = 6² + 8² = 36 + 64 = 100.",
+        "D'après le <b>théorème de Pythagore</b>, le triangle est rectangle en B."
+      ],
+      erreurIdx: 3,
+      explain: "On part des trois longueurs et on veut <b>prouver</b> que le triangle est rectangle. C'est la <b>réciproque</b> du théorème de Pythagore qu'il faut citer, pas le théorème direct."
+    },
+    {
+      context: "Dans le triangle ABC, M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 3, AB = 6, AN = 4. Calcul de AC.",
+      steps: [
+        "Les droites (AB) et (AC) sont sécantes en A et (MN) // (BC).",
+        "D'après Thalès : AM/MB = AN/NC.",
+        "3/3 = 4/NC donc NC = 4 cm.",
+        "AC = AN + NC = 4 + 4 = 8 cm."
+      ],
+      erreurIdx: 1,
+      explain: "La relation de Thalès s'écrit AM/<b>AB</b> = AN/<b>AC</b> (pas avec MB et NC). Le numérateur et le dénominateur doivent être <em>de même côté</em> de A."
+    }
+  ];
+  return _buildTrouveErreur(cases, 'Niveau 🟡 — Trouver l\'erreur');
+}
+
+function rais_erreur_n3() {
+  // Niveau Vert clair : erreur subtile sur les hypothèses
+  const cases = [
+    {
+      context: "ABC est un triangle avec AB = 5, BC = 12, AC = 13.",
+      steps: [
+        "D'après le théorème de Pythagore : AC² = AB² + BC².",
+        "On vérifie : 13² = 169 et 5² + 12² = 25 + 144 = 169.",
+        "L'égalité est vérifiée, donc ABC est rectangle en B."
+      ],
+      erreurIdx: 0,
+      explain: "Le théorème de Pythagore (direct) suppose <em>déjà</em> que le triangle est rectangle. Or ici on ne le sait pas au départ. On doit utiliser la <b>réciproque</b> : c'est en constatant l'égalité qu'on conclut que le triangle est rectangle."
+    },
+    {
+      context: "Dans un triangle ABC rectangle en A, on cherche cos(B̂) avec AB = 3, AC = 4, BC = 5.",
+      steps: [
+        "Dans le triangle rectangle en A, l'hypoténuse est BC.",
+        "L'angle B̂ a pour côté adjacent AB et pour côté opposé AC.",
+        "cos(B̂) = AC / BC = 4/5 = 0,8."
+      ],
+      erreurIdx: 2,
+      explain: "cos = adjacent/hypoténuse. Le côté adjacent à B̂ est <b>AB</b>, pas AC. Donc cos(B̂) = AB/BC = 3/5 = 0,6."
+    }
+  ];
+  return _buildTrouveErreur(cases, 'Niveau 🟢 — Trouver l\'erreur');
+}
+
+function rais_erreur_n4() {
+  // Niveau Vert foncé : erreur logique dans l'enchaînement
+  const cases = [
+    {
+      context: "Dans un triangle ABC, M ∈ [AB] avec AM/AB = 1/2, N ∈ [AC] avec AN/AC = 1/2. On veut savoir si (MN) // (BC).",
+      steps: [
+        "On calcule AM/AB et AN/AC.",
+        "On trouve AM/AB = 1/2 et AN/AC = 1/2.",
+        "Les deux rapports sont égaux.",
+        "Les points A, M, B et A, N, C sont alignés dans le même ordre.",
+        "D'après le <b>théorème</b> de Thalès, les droites (MN) et (BC) sont parallèles."
+      ],
+      erreurIdx: 4,
+      explain: "On <em>prouve</em> le parallélisme à partir des rapports, c'est donc la <b>réciproque</b> du théorème de Thalès qu'il faut invoquer, pas le théorème direct."
+    },
+    {
+      context: "Démonstration que le triangle ABC avec AB=6, BC=7, AC=9 n'est pas rectangle.",
+      steps: [
+        "Le plus grand côté est AC = 9.",
+        "AC² = 9² = 81.",
+        "AB² + BC² = 6² + 7² = 36 + 49 = 85.",
+        "On a AB² + BC² ≠ AC², donc d'après le théorème de Pythagore, le triangle n'est pas rectangle."
+      ],
+      erreurIdx: 3,
+      explain: "On utilise ici le raisonnement par la <b>contraposée</b> du théorème de Pythagore : « si le triangle était rectangle, on aurait AB²+BC² = AC². Or ce n'est pas le cas, donc il n'est pas rectangle. » Citer le théorème direct est une erreur de logique."
+    }
+  ];
+  return _buildTrouveErreur(cases, 'Niveau 💚 — Trouver l\'erreur');
+}
+
+function rais_erreur_n5() {
+  // Niveau Noir : erreur très subtile (ordre d'alignement, unités)
+  const cases = [
+    {
+      context: "Dans la configuration papillon : A, M, B d'un côté et A, N, C de l'autre. AM=3, AB=6, AN=4, AC=8.",
+      steps: [
+        "AM/AB = 3/6 = 1/2.",
+        "AN/AC = 4/8 = 1/2.",
+        "Les deux rapports sont égaux.",
+        "D'après la réciproque du théorème de Thalès, les droites (MN) et (BC) sont parallèles."
+      ],
+      erreurIdx: 3,
+      explain: "Dans la <b>configuration papillon</b>, la réciproque de Thalès demande une condition supplémentaire : <b>les points doivent être alignés dans le même ordre ou en ordres inverses</b>. Sans préciser l'alignement, la conclusion n'est pas rigoureuse. Il faut étudier les positions de M et N par rapport à A."
+    },
+    {
+      context: "Dans un triangle ABC rectangle en A, AC = 3 m et BC = 5 m (hypoténuse). On veut AB en mètres.",
+      steps: [
+        "D'après Pythagore : BC² = AB² + AC².",
+        "25 = AB² + 9.",
+        "AB² = 16.",
+        "AB = 4.",
+        "AB mesure donc 4 cm."
+      ],
+      erreurIdx: 4,
+      explain: "Les longueurs étaient en <b>mètres</b> (pas en cm) ! Il fallait écrire AB = 4 <b>m</b>. Toujours vérifier l'unité à la fin."
+    }
+  ];
+  return _buildTrouveErreur(cases, 'Niveau ⚫ — Trouver l\'erreur');
+}
+
+/* ==========================================================================
+   RAISONNER — Format D : Vrai / Faux justifié
+   ========================================================================== */
+
+function _buildVF(cases, title) {
+  const k = cases[Math.floor(Math.random() * cases.length)];
+  const { choices, correctIdx } = makeQCM([
+    { html: `✅ <b>Vrai</b> — ${k.vraiRaison}`, correct: k.estVrai === true && k.justeVraie === true },
+    { html: `❌ <b>Faux</b> — ${k.fauxRaison}`, correct: k.estVrai === false && k.justeVraie === false },
+    { html: `✅ Vrai — ${k.vraiFausseRaison || 'mauvaise justification 1'}`, correct: false },
+    { html: `❌ Faux — ${k.fauxFausseRaison || 'mauvaise justification 2'}`, correct: false }
+  ]);
+  return {
+    theme: 'raisonner', title,
+    body: `<div class="order-context"><b>Affirmation :</b> ${k.affirmation}</div>
+      <p>Est-elle vraie ou fausse ? <b>Choisis la bonne justification.</b></p>`,
+    type: 'qcm',
+    choices, correctIdx,
+    solution: `${k.estVrai ? '✅ Vrai' : '❌ Faux'}. ${k.estVrai ? k.vraiRaison : k.fauxRaison}`,
+    help: {
+      cours: "<b>Vrai/Faux justifié</b> : un simple <em>vrai</em> ou <em>faux</em> sans justification ne suffit pas. Il faut <b>donner une raison</b> : énoncé d'un théorème, contre-exemple, calcul…",
+      savoirFaire: "Pour prouver qu'une affirmation est fausse, il suffit d'un <b>contre-exemple</b>. Pour la prouver vraie, il faut un raisonnement général.",
+      erreurs: ["Donner la bonne conclusion avec une mauvaise justification.", "Confondre 'il existe' et 'pour tout'.", "Utiliser un cas particulier pour prouver une affirmation générale."]
+    }
+  };
+}
+
+function rais_vf_n1() {
+  // Niveau Rouge : énoncé simple, vrai/faux évident
+  const cases = [
+    {
+      affirmation: "Dans tout triangle, la somme des angles est 180°.",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "c'est une propriété générale vraie pour tous les triangles (propriété du cours).",
+      fauxRaison: "seulement pour les triangles rectangles.",
+      vraiFausseRaison: "parce qu'un triangle a 3 angles de 60°.",
+      fauxFausseRaison: "c'est 360°, pas 180°."
+    },
+    {
+      affirmation: "Un triangle rectangle a deux côtés perpendiculaires.",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "par définition, un triangle rectangle a un angle droit, donc deux côtés (les côtés de l'angle droit) perpendiculaires.",
+      fauxRaison: "non, un triangle rectangle n'a pas d'angle droit.",
+      vraiFausseRaison: "c'est toujours un triangle équilatéral.",
+      fauxFausseRaison: "les 3 côtés sont perpendiculaires."
+    }
+  ];
+  return _buildVF(cases, 'Niveau 🔴 — Vrai / Faux justifié');
+}
+
+function rais_vf_n2() {
+  // Niveau Jaune : affirmations avec nuances
+  const cases = [
+    {
+      affirmation: "Si un triangle a trois côtés de longueurs 3, 4, 5, alors il est rectangle.",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "car 3² + 4² = 9 + 16 = 25 = 5². D'après la réciproque de Pythagore, le triangle est rectangle.",
+      fauxRaison: "car 3+4+5 = 12.",
+      vraiFausseRaison: "parce que les longueurs sont entières.",
+      fauxFausseRaison: "on ne peut pas le savoir sans plus d'informations."
+    },
+    {
+      affirmation: "Si deux rapports AM/AB et AN/AC sont égaux, alors (MN) // (BC).",
+      estVrai: false,
+      justeVraie: false,
+      vraiRaison: "par la réciproque de Thalès directement.",
+      fauxRaison: "la réciproque de Thalès exige aussi que les points soient alignés <b>dans le même ordre</b>. Sans cette condition, ce n'est pas toujours vrai.",
+      vraiFausseRaison: "parce que les rapports sont des nombres égaux.",
+      fauxFausseRaison: "car Thalès ne s'applique qu'avec 3 rapports."
+    }
+  ];
+  return _buildVF(cases, 'Niveau 🟡 — Vrai / Faux justifié');
+}
+
+function rais_vf_n3() {
+  // Niveau Vert clair : nuances plus fines (contraposée vs direct)
+  const cases = [
+    {
+      affirmation: "Si dans un triangle ABC on a AB² + BC² ≠ AC², alors ABC n'est pas rectangle.",
+      estVrai: false,
+      justeVraie: false,
+      vraiRaison: "d'après la contraposée du théorème de Pythagore.",
+      fauxRaison: "la contraposée de Pythagore dit que si AB²+BC² ≠ AC² alors ABC n'est pas rectangle <b>en B</b>. Mais il pourrait être rectangle en un autre sommet (A ou C).",
+      vraiFausseRaison: "parce que les carrés sont différents.",
+      fauxFausseRaison: "il faut utiliser Thalès."
+    },
+    {
+      affirmation: "Un triangle avec un angle de 90° a nécessairement un côté de longueur entière.",
+      estVrai: false,
+      justeVraie: false,
+      vraiRaison: "d'après Pythagore, il a toujours des longueurs entières.",
+      fauxRaison: "contre-exemple : un triangle rectangle d'hypoténuse √2 et de côtés 1 et 1 n'a pas que des longueurs entières.",
+      vraiFausseRaison: "car les angles sont entiers.",
+      fauxFausseRaison: "parce qu'un triangle rectangle n'existe pas avec un angle de 90°."
+    }
+  ];
+  return _buildVF(cases, 'Niveau 🟢 — Vrai / Faux justifié');
+}
+
+function rais_vf_n4() {
+  // Niveau Vert foncé : distinguer direct / réciproque / contraposée
+  const cases = [
+    {
+      affirmation: "Si ABC est rectangle en A, alors BC est l'hypoténuse.",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "l'hypoténuse est le côté opposé à l'angle droit. Si l'angle droit est en A, le côté opposé est [BC].",
+      fauxRaison: "l'hypoténuse est toujours le plus petit côté.",
+      vraiFausseRaison: "par le théorème de Pythagore direct.",
+      fauxFausseRaison: "car l'hypoténuse est AC."
+    },
+    {
+      affirmation: "Dans un triangle rectangle, le cosinus d'un angle aigu peut être supérieur à 1.",
+      estVrai: false,
+      justeVraie: false,
+      vraiRaison: "pour de très grands angles aigus.",
+      fauxRaison: "le cosinus = adjacent/hypoténuse. Or l'hypoténuse est toujours le plus grand côté, donc adjacent/hypoténuse < 1. Le cosinus d'un angle aigu est toujours entre 0 et 1 (strictement).",
+      vraiFausseRaison: "pour un angle de 89°.",
+      fauxFausseRaison: "le cosinus est toujours négatif."
+    }
+  ];
+  return _buildVF(cases, 'Niveau 💚 — Vrai / Faux justifié');
+}
+
+function rais_vf_n5() {
+  // Niveau Noir : pièges très fins
+  const cases = [
+    {
+      affirmation: "Si deux triangles ont leurs 3 côtés deux à deux proportionnels, alors ils sont semblables.",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "c'est la définition même des triangles semblables : côtés proportionnels deux à deux.",
+      fauxRaison: "il faut aussi que les angles soient égaux.",
+      vraiFausseRaison: "parce que les triangles se ressemblent.",
+      fauxFausseRaison: "ils sont seulement égaux s'ils ont la même aire."
+    },
+    {
+      affirmation: "Si deux triangles sont semblables et que le rapport des longueurs est k, alors le rapport des aires est k².",
+      estVrai: true,
+      justeVraie: true,
+      vraiRaison: "dans un agrandissement de rapport k, les longueurs sont multipliées par k et les aires par k².",
+      fauxRaison: "le rapport des aires est aussi k.",
+      vraiFausseRaison: "par Thalès.",
+      fauxFausseRaison: "c'est k³ pour les aires."
+    },
+    {
+      affirmation: "Un triangle équilatéral peut être rectangle.",
+      estVrai: false,
+      justeVraie: false,
+      vraiRaison: "oui si les 3 côtés sont très courts.",
+      fauxRaison: "un triangle équilatéral a 3 angles de 60° chacun. Aucun n'est égal à 90°. Il ne peut donc pas être rectangle.",
+      vraiFausseRaison: "si tous les angles sont droits.",
+      fauxFausseRaison: "car un triangle équilatéral n'existe pas."
+    }
+  ];
+  return _buildVF(cases, 'Niveau ⚫ — Vrai / Faux justifié');
+}
+
+/* Export pour SKILL_FORMAT_GENERATORS */
+Object.assign(SKILL_FORMAT_GENERATORS, {
+  'raisonner.ordre.1': rais_ordre_n1,
+  'raisonner.ordre.2': rais_ordre_n2,
+  'raisonner.ordre.3': rais_ordre_n3,
+  'raisonner.ordre.4': rais_ordre_n4,
+  'raisonner.ordre.5': rais_ordre_n5,
+  'raisonner.erreur.1': rais_erreur_n1,
+  'raisonner.erreur.2': rais_erreur_n2,
+  'raisonner.erreur.3': rais_erreur_n3,
+  'raisonner.erreur.4': rais_erreur_n4,
+  'raisonner.erreur.5': rais_erreur_n5,
+  'raisonner.vf.1': rais_vf_n1,
+  'raisonner.vf.2': rais_vf_n2,
+  'raisonner.vf.3': rais_vf_n3,
+  'raisonner.vf.4': rais_vf_n4,
+  'raisonner.vf.5': rais_vf_n5
+});
+
 
 function startSkillExercise(skillId, formatId, level) {
   const key = `${skillId}.${formatId}.${level}`;

@@ -2720,3 +2720,81 @@ body[data-theme="dark"] .skill-level-badge.n2 { color: #fde047; }
 @media (max-width: 480px) {
   .calc-widget { width: calc(100% - 24px); right: 12px; }
 }
+
+/* ==========================================================================
+   Exercices type "order" (drag-drop pour ordonner des étapes)
+   ========================================================================== */
+.order-context {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+.order-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  counter-reset: order-step;
+}
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg-elev);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: background 150ms;
+}
+.order-item:hover { border-color: var(--accent); }
+.order-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+.order-handle {
+  font-size: 1.3rem;
+  color: var(--muted);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+.order-text {
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.order-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.order-controls button {
+  padding: 4px 10px;
+  background: var(--bg-elev-2, var(--bg-elev));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+.order-controls button:hover { background: var(--accent-soft); }
+
+/* Type 'demo-list' pour afficher des démonstrations (format Trouver l'erreur) */
+.demo-list {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+.demo-list li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: var(--bg-elev);
+  border-radius: 6px;
+  list-style-position: outside;
+}
