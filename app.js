@@ -3954,6 +3954,7 @@ function rais_theoreme_n5() {
       sol: "Pythagore dit : <em>rectangle en B ⇒ AB²+BC² = AC²</em>. La <b>contraposée</b> : <em>AB²+BC² ≠ AC² ⇒ non rectangle en B</em>. Il <b>pourrait</b> être rectangle ailleurs (en A ou en C)."
     },
     {
+      theoreme: 'thales_direct',
       body: "On a deux triangles ABC et MNP tels que \\(\\dfrac{AB}{MN} = \\dfrac{BC}{NP} = \\dfrac{AC}{MP} = \\dfrac{2}{3}\\). Que peut-on dire ?",
       a: "MNP est un agrandissement de ABC (triangles semblables)",
       opts: [
@@ -4104,6 +4105,7 @@ function rais_ordre_n2() {
   // Niveau Jaune : 4 étapes, Pythagore + phrase de conclusion obligatoire
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       figure: svgTriangleRect({ sides: { AB: '5 cm', BC: '12 cm', AC: '13 cm' } }),
       context: "Les trois côtés du triangle ABC mesurent AB = 5 cm, BC = 12 cm, AC = 13 cm. On veut montrer qu'il est rectangle.",
       steps: [
@@ -4114,6 +4116,7 @@ function rais_ordre_n2() {
       ]
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '4 cm', BC: '3 cm', AC: '?' }, labels: { A:'A', B:'B', C:'C' } }),
       context: "Dans un triangle rectangle en A, AB = 4 cm et AC = 3 cm. On veut BC.",
       steps: [
@@ -4131,6 +4134,7 @@ function rais_ordre_n3() {
   // Niveau Vert clair : 5 étapes, Thalès direct
   const cases = [
     {
+      theoreme: 'thales_direct',
       figure: svgThales({ AB: 5, AC: 10, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, les points M et N appartiennent respectivement aux segments [AB] et [AC]. On sait que AM = 3, AB = 5, AN = 6 et (MN) // (BC). On veut calculer AC.",
       steps: [
@@ -4142,6 +4146,7 @@ function rais_ordre_n3() {
       ]
     },
     {
+      theoreme: 'thales_direct',
       figure: svgThales({ AB: 10, AC: 12.5, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans le triangle ABC, M ∈ [AB] et N ∈ [AC] avec (MN) // (BC). AM = 4, MB = 6, AN = 5. Calculer NC.",
       steps: [
@@ -4160,6 +4165,7 @@ function rais_ordre_n4() {
   // Niveau Vert foncé : 6 étapes, réciproque de Thalès
   const cases = [
     {
+      theoreme: 'thales_reciproque',
       figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, M est sur [AB] et N sur [AC]. On sait que AM = 4, AB = 10, AN = 6, AC = 15. On veut prouver que (MN) est parallèle à (BC).",
       steps: [
@@ -4179,6 +4185,7 @@ function rais_ordre_n5() {
   // Niveau Noir : 7 étapes, démonstration mixte (trigo + Pythagore)
   const cases = [
     {
+      theoreme: 'trigonometrie',
       figure: svgTriangleRect({ sides: { AB: '?', BC: '10 cm', AC: '' }, angleAt: 'B' }),
       context: "Dans un triangle ABC rectangle en A, on connaît BC = 10 cm et l'angle \\(\\widehat{ABC} = 35°\\). On veut calculer AB.",
       steps: [
@@ -4231,6 +4238,7 @@ function rais_erreur_n1() {
   const cases = [
     // --- PYTHAGORE : erreurs de calcul ---
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '6 cm', BC: '8 cm', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 6 cm, BC = 8 cm.",
       steps: [
@@ -4242,6 +4250,7 @@ function rais_erreur_n1() {
       explain: "Erreur d'addition : 36 + 64 = <b>100</b>, pas 90. Donc AC² = 100 et AC = 10 cm."
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '?' }, angleAt: 'A' }),
       context: "Triangle ABC rectangle en A, AB = 3 et AC = 4.",
       steps: [
@@ -4253,6 +4262,7 @@ function rais_erreur_n1() {
       explain: "Erreur classique : on a oublié les <b>carrés</b>. BC² = 3² + 4² = 9 + 16 = 25, donc BC = 5 cm."
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '5 cm', BC: '12 cm', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 5 cm, BC = 12 cm.",
       steps: [
@@ -4264,6 +4274,7 @@ function rais_erreur_n1() {
       explain: "On a oublié la <b>racine carrée</b> à la fin ! AC² = 169 veut dire AC = √169 = 13 cm. Très fréquent : ne pas confondre le carré d'une longueur avec la longueur elle-même."
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '8 cm', BC: '?', AC: '10 cm' }, angleAt: 'B' }),
       context: "Triangle ABC rectangle en B, AB = 8 cm, AC = 10 cm (hypoténuse). On cherche BC.",
       steps: [
@@ -4275,6 +4286,7 @@ function rais_erreur_n1() {
       explain: "Erreur de signe : on <b>additionne</b> les carrés des côtés de l'angle droit, mais quand on cherche un côté non-hypoténuse, il faut <b>soustraire</b>. BC² = AC² − AB² = 100 − 64 = 36, donc BC = 6 cm."
     },
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '9 cm', BC: '12 cm', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 9 cm, BC = 12 cm.",
       steps: [
@@ -4287,6 +4299,7 @@ function rais_erreur_n1() {
     },
     // --- PYTHAGORE : mauvaise identification de l'hypoténuse ---
     {
+      theoreme: 'pythagore_reciproque',
       figure: svgTriangleRect({ sides: { AB: '5', BC: '13', AC: '12' }, angleAt: 'B' }),
       context: "Triangle ABC rectangle en B, AB = 5, BC = 13, AC = 12.",
       steps: [
@@ -4300,6 +4313,7 @@ function rais_erreur_n1() {
     },
     // --- CALCUL DE CARRÉ ---
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '7', BC: '24', AC: '?' } }),
       context: "Triangle ABC rectangle en B, AB = 7 cm, BC = 24 cm.",
       steps: [
@@ -4312,6 +4326,7 @@ function rais_erreur_n1() {
     },
     // --- TRIGONOMÉTRIE : formules ---
     {
+      theoreme: 'trigonometrie',
       figure: svgTriangleRect({ sides: { AB: '4', BC: '3', AC: '5' }, angleAt: 'A' }),
       context: "Dans ABC rectangle en A : AB = 4, AC = 3, BC = 5. On cherche cos(ABC).",
       steps: [
@@ -4323,6 +4338,7 @@ function rais_erreur_n1() {
       explain: "Le côté <b>adjacent</b> à l'angle B, c'est le côté qui <b>touche</b> B (hors de l'hypoténuse). C'est donc <b>AB = 4</b>, pas AC. Le bon cosinus est cos(ABC) = AB/BC = 4/5."
     },
     {
+      theoreme: 'trigonometrie',
       figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '5' }, angleAt: 'A' }),
       context: "Dans ABC rectangle en A : AB = 3, AC = 4, BC = 5. On cherche sin(ABC).",
       steps: [
@@ -4335,6 +4351,7 @@ function rais_erreur_n1() {
     },
     // --- THÉORÈME DE THALÈS : mise en équation ---
     {
+      theoreme: 'thales_direct',
       figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans le triangle ABC : M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 4, AB = 10, AN = 6. Calculer AC.",
       steps: [
@@ -4347,6 +4364,7 @@ function rais_erreur_n1() {
     },
     // --- ANGLES ET TRIANGLES ---
     {
+      theoreme: 'sommes_angles',
       context: "Dans un triangle ABC, on sait que l'angle Â = 60° et l'angle B̂ = 40°. On cherche l'angle Ĉ.",
       steps: [
         "La somme des angles d'un triangle vaut 360°.",
@@ -4357,6 +4375,7 @@ function rais_erreur_n1() {
       explain: "La somme des angles d'un triangle est <b>180°</b>, pas 360° (ça c'est pour un quadrilatère). Ici : Ĉ = 180 − 60 − 40 = 80°."
     },
     {
+      theoreme: 'pythagore_direct',
       context: "Un triangle a deux côtés qui mesurent 7 cm et 10 cm, et un angle droit entre eux. Quel est le périmètre ?",
       steps: [
         "Les deux côtés de l'angle droit sont 7 cm et 10 cm.",
@@ -4368,6 +4387,7 @@ function rais_erreur_n1() {
     },
     // --- CALCULS NUMÉRIQUES ---
     {
+      theoreme: 'aire_vs_perimetre',
       context: "Calcul de la longueur AB d'un cercle de rayon 3 cm.",
       steps: [
         "Le périmètre d'un cercle vaut P = π × D où D est le diamètre.",
@@ -4380,6 +4400,7 @@ function rais_erreur_n1() {
     },
     // --- UNITÉS ---
     {
+      theoreme: 'pythagore_direct',
       context: "Calculer l'aire d'un rectangle de 5 m de long et 3 m de large.",
       steps: [
         "L'aire vaut A = longueur × largeur.",
@@ -4390,6 +4411,7 @@ function rais_erreur_n1() {
       explain: "L'<b>unité d'aire</b> est m<b>²</b> (mètres carrés), pas m (mètres linéaires). L'aire mesure 15 m². Très fréquent : oublier le « carré » à l'unité."
     },
     {
+      theoreme: 'conversions_aire',
       context: "Un terrain mesure 150 m². Combien cela fait-il en km² ?",
       steps: [
         "1 km = 1 000 m, donc 1 km² = 1 000 m².",
@@ -4400,6 +4422,7 @@ function rais_erreur_n1() {
     },
     // --- FRACTIONS ---
     {
+      theoreme: 'fractions_somme',
       context: "Calcul : 1/2 + 1/3.",
       steps: [
         "On additionne les numérateurs et les dénominateurs.",
@@ -4410,6 +4433,7 @@ function rais_erreur_n1() {
     },
     // --- PUISSANCES ---
     {
+      theoreme: 'puissances_signe',
       context: "Calcul : (−3)².",
       steps: [
         "Un carré est toujours positif.",
@@ -4426,6 +4450,7 @@ function rais_erreur_n2() {
   // Niveau Jaune : erreur dans l'application d'un théorème
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       figure: svgTriangleRect({ sides: { AB: '6', BC: '8', AC: '10' } }),
       context: "On veut montrer que le triangle ABC avec AB = 6, BC = 8, AC = 10 est rectangle.",
       steps: [
@@ -4438,6 +4463,7 @@ function rais_erreur_n2() {
       explain: "On part des trois longueurs et on veut <b>prouver</b> que le triangle est rectangle. C'est la <b>réciproque</b> du théorème de Pythagore qu'il faut citer, pas le théorème direct."
     },
     {
+      theoreme: 'thales_direct',
       figure: svgThales({ AB: 6, AC: 8, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans le triangle ABC, M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 3, AB = 6, AN = 4. Calcul de AC.",
       steps: [
@@ -4457,6 +4483,7 @@ function rais_erreur_n3() {
   // Niveau Vert clair : erreur subtile sur les hypothèses
   const cases = [
     {
+      theoreme: 'pythagore_direct',
       figure: svgTriangleRect({ sides: { AB: '5', BC: '12', AC: '13' } }),
       context: "ABC est un triangle avec AB = 5, BC = 12, AC = 13.",
       steps: [
@@ -4468,6 +4495,7 @@ function rais_erreur_n3() {
       explain: "Le théorème de Pythagore (direct) suppose <em>déjà</em> que le triangle est rectangle. Or ici on ne le sait pas au départ. On doit utiliser la <b>réciproque</b> : c'est en constatant l'égalité qu'on conclut que le triangle est rectangle."
     },
     {
+      theoreme: 'trigonometrie',
       figure: svgTriangleRect({ sides: { AB: '3', BC: '4', AC: '5' }, angleAt: 'A' }),
       context: "Dans un triangle ABC rectangle en A, on cherche cos(B̂) avec AB = 3, AC = 4, BC = 5.",
       steps: [
@@ -4486,6 +4514,7 @@ function rais_erreur_n4() {
   // Niveau Vert foncé : erreur logique dans l'enchaînement
   const cases = [
     {
+      theoreme: 'thales_reciproque',
       figure: svgThales({ AB: 2, AC: 2, AD: 1, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       context: "Dans un triangle ABC, M ∈ [AB] avec AM/AB = 1/2, N ∈ [AC] avec AN/AC = 1/2. On veut savoir si (MN) // (BC).",
       steps: [
@@ -4499,6 +4528,7 @@ function rais_erreur_n4() {
       explain: "On <em>prouve</em> le parallélisme à partir des rapports, c'est donc la <b>réciproque</b> du théorème de Thalès qu'il faut invoquer, pas le théorème direct."
     },
     {
+      theoreme: 'pythagore_contraposee',
       figure: svgTriangleRect({ sides: { AB: '6', BC: '7', AC: '9' } }),
       context: "Démonstration que le triangle ABC avec AB=6, BC=7, AC=9 n'est pas rectangle.",
       steps: [
@@ -4518,6 +4548,7 @@ function rais_erreur_n5() {
   // Niveau Noir : erreur très subtile (ordre d'alignement, unités)
   const cases = [
     {
+      theoreme: 'thales_reciproque',
       context: "Dans la configuration papillon : A, M, B d'un côté et A, N, C de l'autre. AM=3, AB=6, AN=4, AC=8.",
       steps: [
         "AM/AB = 3/6 = 1/2.",
@@ -4529,6 +4560,7 @@ function rais_erreur_n5() {
       explain: "Dans la <b>configuration papillon</b>, la réciproque de Thalès demande une condition supplémentaire : <b>les points doivent être alignés dans le même ordre ou en ordres inverses</b>. Sans préciser l'alignement, la conclusion n'est pas rigoureuse. Il faut étudier les positions de M et N par rapport à A."
     },
     {
+      theoreme: 'pythagore_direct',
       context: "Dans un triangle ABC rectangle en A, AC = 3 m et BC = 5 m (hypoténuse). On veut AB en mètres.",
       steps: [
         "D'après Pythagore : BC² = AB² + AC².",
@@ -4578,6 +4610,7 @@ function rais_vf_n1() {
   // Niveau Rouge : énoncé simple, vrai/faux évident
   const cases = [
     {
+      theoreme: 'sommes_angles',
       affirmation: "Dans tout triangle, la somme des angles est 180°.",
       estVrai: true,
       justeVraie: true,
@@ -4587,6 +4620,7 @@ function rais_vf_n1() {
       fauxFausseRaison: "c'est 360°, pas 180°."
     },
     {
+      theoreme: 'aire_vs_perimetre',
       affirmation: "Un triangle rectangle a deux côtés perpendiculaires.",
       estVrai: true,
       justeVraie: true,
@@ -4603,6 +4637,7 @@ function rais_vf_n2() {
   // Niveau Jaune : affirmations avec nuances
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       affirmation: "Si un triangle a trois côtés de longueurs 3, 4, 5, alors il est rectangle.",
       estVrai: true,
       justeVraie: true,
@@ -4612,6 +4647,7 @@ function rais_vf_n2() {
       fauxFausseRaison: "on ne peut pas le savoir sans plus d'informations."
     },
     {
+      theoreme: 'thales_reciproque',
       affirmation: "Si deux rapports AM/AB et AN/AC sont égaux, alors (MN) // (BC).",
       estVrai: false,
       justeVraie: false,
@@ -4628,6 +4664,7 @@ function rais_vf_n3() {
   // Niveau Vert clair : nuances plus fines (contraposée vs direct)
   const cases = [
     {
+      theoreme: 'pythagore_contraposee',
       affirmation: "Si dans un triangle ABC on a AB² + BC² ≠ AC², alors ABC n'est pas rectangle.",
       estVrai: false,
       justeVraie: false,
@@ -4637,6 +4674,7 @@ function rais_vf_n3() {
       fauxFausseRaison: "il faut utiliser Thalès."
     },
     {
+      theoreme: 'pythagore_direct',
       affirmation: "Un triangle avec un angle de 90° a nécessairement un côté de longueur entière.",
       estVrai: false,
       justeVraie: false,
@@ -4653,6 +4691,7 @@ function rais_vf_n4() {
   // Niveau Vert foncé : distinguer direct / réciproque / contraposée
   const cases = [
     {
+      theoreme: 'pythagore_direct',
       affirmation: "Si ABC est rectangle en A, alors BC est l'hypoténuse.",
       estVrai: true,
       justeVraie: true,
@@ -4662,6 +4701,7 @@ function rais_vf_n4() {
       fauxFausseRaison: "car l'hypoténuse est AC."
     },
     {
+      theoreme: 'pythagore_direct',
       affirmation: "Dans un triangle rectangle, le cosinus d'un angle aigu peut être supérieur à 1.",
       estVrai: false,
       justeVraie: false,
@@ -4678,6 +4718,7 @@ function rais_vf_n5() {
   // Niveau Noir : pièges très fins
   const cases = [
     {
+      theoreme: 'aire_vs_perimetre',
       affirmation: "Si deux triangles ont leurs 3 côtés deux à deux proportionnels, alors ils sont semblables.",
       estVrai: true,
       justeVraie: true,
@@ -4687,6 +4728,7 @@ function rais_vf_n5() {
       fauxFausseRaison: "ils sont seulement égaux s'ils ont la même aire."
     },
     {
+      theoreme: 'thales_direct',
       affirmation: "Si deux triangles sont semblables et que le rapport des longueurs est k, alors le rapport des aires est k².",
       estVrai: true,
       justeVraie: true,
@@ -4968,6 +5010,7 @@ function comm_conclure_n1() {
   // 🔴 Découverte — conclusion simple Pythagore
   const cases = [
     {
+      theoreme: 'pythagore_direct',
       contexte: "Dans le triangle ABC rectangle en B, on a calculé \\(AC^2 = 25\\).",
       good: "Donc \\(AC = \\sqrt{25} = 5\\) cm.",
       wrongs: [
@@ -5005,6 +5048,7 @@ function comm_conclure_n2() {
   // 🟡 Apprentissage — conclusion Thalès / proportionnalité
   const cases = [
     {
+      theoreme: 'thales_direct',
       contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\) et que (BC) // (DE).",
       good: "D'après le théorème de Thalès, on a \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC} = \\dfrac{DE}{BC}\\).",
       wrongs: [
@@ -5014,6 +5058,7 @@ function comm_conclure_n2() {
       ]
     },
     {
+      theoreme: 'thales_direct',
       contexte: "On a calculé x et trouvé \\(x = 6\\) dans un problème de Thalès sur des longueurs en cm.",
       good: "Donc la longueur cherchée vaut 6 cm.",
       wrongs: [
@@ -5042,6 +5087,7 @@ function comm_conclure_n3() {
   // 🟢 Confirmé — conclusion réciproque Thalès / Pythagore
   const cases = [
     {
+      theoreme: 'thales_reciproque',
       contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\), les points A, D, B et A, E, C étant alignés dans cet ordre.",
       good: "D'après la réciproque du théorème de Thalès, les droites (DE) et (BC) sont parallèles.",
       wrongs: [
@@ -5051,6 +5097,7 @@ function comm_conclure_n3() {
       ]
     },
     {
+      theoreme: 'pythagore_reciproque',
       contexte: "On a vérifié que \\(AB^2 + AC^2 = BC^2\\) dans un triangle ABC.",
       good: "D'après la réciproque du théorème de Pythagore, le triangle ABC est rectangle en A.",
       wrongs: [
@@ -5079,6 +5126,7 @@ function comm_conclure_n4() {
   // 💚 Maîtrise — contraposée / négation
   const cases = [
     {
+      theoreme: 'pythagore_contraposee',
       contexte: "On a vérifié que \\(AB^2 + AC^2 \\ne BC^2\\) dans un triangle ABC.",
       good: "D'après la contraposée du théorème de Pythagore, le triangle ABC n'est pas rectangle en A.",
       wrongs: [
@@ -5088,6 +5136,7 @@ function comm_conclure_n4() {
       ]
     },
     {
+      theoreme: 'thales_reciproque',
       contexte: "On a vérifié que \\(\\dfrac{AD}{AB} \\ne \\dfrac{AE}{AC}\\), avec A, D, B alignés et A, E, C alignés.",
       good: "D'après la contraposée de la réciproque de Thalès, les droites (DE) et (BC) ne sont pas parallèles.",
       wrongs: [
@@ -5116,6 +5165,7 @@ function comm_conclure_n5() {
   // ⚫ Expert — conclusion complète rédigée
   const cases = [
     {
+      theoreme: 'pythagore_reciproque',
       contexte: "Problème : « Montrer que le triangle ABC de côtés AB = 6, AC = 8, BC = 10 est rectangle. »<br>On a calculé \\(AB^2 + AC^2 = 100\\) et \\(BC^2 = 100\\).",
       good: "On constate que \\(AB^2 + AC^2 = BC^2\\). D'après la réciproque du théorème de Pythagore, le triangle ABC est rectangle en A.",
       wrongs: [
@@ -5125,6 +5175,7 @@ function comm_conclure_n5() {
       ]
     },
     {
+      theoreme: 'pythagore_direct',
       contexte: "Problème : « Calculer une longueur. » On travaille dans un triangle rectangle en A avec AB = 5 et AC = 12.<br>On a posé \\(BC^2 = 5^2 + 12^2 = 25 + 144 = 169\\).",
       good: "D'après le théorème de Pythagore, \\(BC^2 = AB^2 + AC^2 = 169\\), donc \\(BC = \\sqrt{169} = 13\\) cm.",
       wrongs: [
