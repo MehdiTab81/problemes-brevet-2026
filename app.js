@@ -186,7 +186,7 @@ function a11ySpeak(text) {
   let spoken = tmp.textContent || tmp.innerText || '';
   // Simplifications LaTeX courantes
   spoken = spoken
-    .replace(/\\dfrac\{([^}]+)\}\{([^}]+)\}/g, '$1 sur $2')
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1 sur $2')
     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1 sur $2')
     .replace(/\\sqrt\{([^}]+)\}/g, 'racine carrée de $1')
     .replace(/\\times/g, ' fois ')
@@ -3442,217 +3442,256 @@ function renderFormatBlock(skillId, format) {
 const THEOREMES = {
   pythagore_direct: {
     nom: 'Théorème de Pythagore (direct)',
+    emoji: '📐',
+    couleur: '#2b5fd6',
+    astuce: "Le <b>grand côté au carré</b> = somme des carrés des deux petits. Imagine un terrain : la diagonale est toujours plus grande que les côtés !",
     quand: "On sait qu'un triangle est <b>rectangle</b> et on veut calculer un côté.",
     enonce: "Si ABC est rectangle en A, alors <b>BC² = AB² + AC²</b> (BC est l'hypoténuse, face à l'angle droit).",
     redaction: [
-      "1) <em>Dans le triangle ABC rectangle en A,</em>",
-      "2) <em>d'après le théorème de Pythagore :</em> <b>BC² = AB² + AC²</b>",
-      "3) <em>donc BC² = ...² + ...² = ...</em>",
-      "4) <em>donc BC = √... = ... cm.</em>"
+      "Dans le triangle ABC rectangle en A,",
+      "d'après le théorème de Pythagore : <b>BC² = AB² + AC²</b>",
+      "donc BC² = ...² + ...² = ...",
+      "donc BC = √... = ... cm."
     ],
-    exemple: "Si AB = 3 cm et AC = 4 cm dans un triangle rectangle en A : BC² = 3² + 4² = 9 + 16 = 25, donc BC = √25 = <b>5 cm</b>.",
+    exemple: "AB = 3 cm, AC = 4 cm, rectangle en A → BC² = 9 + 16 = 25, donc BC = <b>5 cm</b>.",
     erreurs: [
-      "Oublier la racine carrée à la fin (donner BC² comme longueur).",
+      "Oublier la racine carrée à la fin.",
       "Additionner les longueurs au lieu des carrés (3+4=7 au lieu de 9+16=25).",
-      "Confondre hypoténuse et autre côté (l'hypoténuse est toujours face à l'angle droit)."
+      "Confondre hypoténuse et petit côté."
     ]
   },
   pythagore_reciproque: {
     nom: 'Réciproque du théorème de Pythagore',
+    emoji: '🔄',
+    couleur: '#8b5cf6',
+    astuce: "On <b>part des 3 longueurs</b>, on veut <b>prouver que c'est rectangle</b>. Si ça colle → réciproque !",
     quand: "On connaît les <b>3 longueurs</b> et on veut <b>prouver</b> qu'un triangle est rectangle.",
     enonce: "Si BC² = AB² + AC², alors ABC est <b>rectangle en A</b> (A = sommet opposé au plus grand côté BC).",
     redaction: [
-      "1) <em>Le plus grand côté est BC. On calcule BC² et AB² + AC².</em>",
-      "2) <em>On trouve BC² = ... et AB² + AC² = ...</em>",
-      "3) <em>BC² = AB² + AC², donc d'après la <b>réciproque</b> du théorème de Pythagore,</em>",
-      "4) <em>le triangle ABC est rectangle en A.</em>"
+      "Le plus grand côté est BC. On calcule BC² et AB² + AC².",
+      "On trouve BC² = ... et AB² + AC² = ...",
+      "BC² = AB² + AC², donc d'après la <b>réciproque</b> du théorème de Pythagore,",
+      "le triangle ABC est rectangle en A."
     ],
-    exemple: "Si AB = 5, AC = 12, BC = 13 : BC² = 169 et AB² + AC² = 25 + 144 = 169. Égalité vérifiée ⇒ ABC est <b>rectangle en A</b>.",
+    exemple: "AB = 5, AC = 12, BC = 13 : BC² = 169 et 5² + 12² = 25 + 144 = 169. Égal ⇒ <b>rectangle en A</b>.",
     erreurs: [
-      "Dire « d'après Pythagore » au lieu de « d'après la réciproque de Pythagore ».",
-      "Oublier de désigner le sommet de l'angle droit (en face du plus grand côté).",
-      "Conclure rectangle si AB²+BC² = AC² au lieu de vérifier l'égalité avec le PLUS GRAND côté au carré."
+      "Écrire « d'après Pythagore » au lieu de « d'après la réciproque ».",
+      "Oublier de dire OÙ se trouve l'angle droit (opposé au plus grand côté).",
+      "Ne pas comparer avec le PLUS GRAND côté au carré."
     ]
   },
   pythagore_contraposee: {
     nom: 'Contraposée du théorème de Pythagore',
+    emoji: '❌',
+    couleur: '#dc2626',
+    astuce: "Si l'égalité NE COLLE PAS → le triangle <b>n'est pas</b> rectangle. C'est tout !",
     quand: "On connaît les <b>3 longueurs</b> et on veut <b>prouver qu'un triangle n'est PAS rectangle</b>.",
-    enonce: "Si BC² ≠ AB² + AC² (où BC est le plus grand côté), alors ABC n'est <b>pas rectangle en A</b>.",
+    enonce: "Si BC² ≠ AB² + AC² (avec BC le plus grand côté), alors ABC n'est <b>pas rectangle en A</b>.",
     redaction: [
-      "1) <em>On calcule BC² (plus grand côté au carré) et AB² + AC².</em>",
-      "2) <em>On trouve BC² = ... et AB² + AC² = ... : les deux sont différents.</em>",
-      "3) <em>D'après la <b>contraposée</b> du théorème de Pythagore, ABC n'est pas rectangle en A.</em>"
+      "On calcule BC² (plus grand côté au carré) et AB² + AC².",
+      "On trouve BC² = ... et AB² + AC² = ... : les deux sont différents.",
+      "D'après la <b>contraposée</b> du théorème de Pythagore, ABC n'est pas rectangle en A."
     ],
-    exemple: "Si AB = 6, AC = 7, BC = 9 : BC² = 81, AB² + AC² = 36 + 49 = 85. Différents ⇒ ABC <b>n'est pas rectangle</b>.",
+    exemple: "AB = 6, AC = 7, BC = 9 : BC² = 81 ; 6² + 7² = 85. Différents ⇒ <b>pas rectangle</b>.",
     erreurs: [
       "Dire « d'après Pythagore » au lieu de « d'après la contraposée ».",
-      "Conclure « rectangle quelque part » : non, ce raisonnement exclut seulement l'angle droit au sommet opposé au plus grand côté."
+      "Conclure « rectangle ailleurs » : on exclut juste l'angle droit au sommet opposé au plus grand côté."
     ]
   },
   thales_direct: {
     nom: 'Théorème de Thalès (direct)',
+    emoji: '✂️',
+    couleur: '#f97316',
+    astuce: "Une droite <b>parallèle</b> coupe 2 côtés ⇒ <b>3 rapports égaux</b>. Toujours le sommet commun au dénominateur ! 💡 « Sommet / cousin »",
     quand: "Une droite <b>parallèle</b> à un côté coupe les deux autres côtés. On veut une longueur.",
     enonce: "Si (DE) // (BC) avec D ∈ [AB] et E ∈ [AC], alors <b>AD/AB = AE/AC = DE/BC</b>.",
     redaction: [
-      "1) <em>Les droites (BD) et (CE) sont sécantes en A, et (DE) est parallèle à (BC).</em>",
-      "2) <em>D'après le théorème de Thalès : AD/AB = AE/AC = DE/BC.</em>",
-      "3) <em>On remplace les valeurs connues et on résout par produit en croix.</em>",
-      "4) <em>Conclusion : la longueur cherchée vaut ... cm.</em>"
+      "Les droites (BD) et (CE) sont sécantes en A, et (DE) // (BC).",
+      "D'après le théorème de Thalès : AD/AB = AE/AC = DE/BC.",
+      "On remplace les valeurs connues et on résout par produit en croix.",
+      "Conclusion : la longueur cherchée vaut ... cm."
     ],
-    exemple: "Si AD = 3, AB = 5, AE = 6 et (DE) // (BC) : 3/5 = 6/AC, donc AC = 5×6/3 = <b>10 cm</b>.",
+    exemple: "AD = 3, AB = 5, AE = 6, (DE)//(BC) : 3/5 = 6/AC → AC = 5×6/3 = <b>10 cm</b>.",
     erreurs: [
-      "Écrire AD/DB au lieu de AD/AB (on prend <b>toujours le sommet A</b> au dénominateur).",
-      "Oublier de préciser le parallélisme avant d'appliquer Thalès.",
-      "Mélanger numérateur et dénominateur dans la règle."
+      "Écrire AD/DB au lieu de AD/AB (le sommet A va <b>toujours</b> au dénominateur).",
+      "Oublier de préciser le parallélisme.",
+      "Inverser numérateur et dénominateur."
     ]
   },
   thales_reciproque: {
     nom: 'Réciproque du théorème de Thalès',
+    emoji: '🔀',
+    couleur: '#8b5cf6',
+    astuce: "Si les <b>2 rapports sont égaux</b> (et l'alignement est bon) → les droites sont <b>parallèles</b>.",
     quand: "On veut <b>prouver que deux droites sont parallèles</b>, à partir de rapports de longueurs.",
     enonce: "Si A, D, B et A, E, C sont alignés dans le même ordre et AD/AB = AE/AC, alors (DE) // (BC).",
     redaction: [
-      "1) <em>Les points A, D, B sont alignés dans cet ordre, idem pour A, E, C.</em>",
-      "2) <em>On calcule AD/AB et AE/AC.</em>",
-      "3) <em>On trouve les deux rapports égaux (par exemple 2/5 = 2/5).</em>",
-      "4) <em>D'après la <b>réciproque</b> du théorème de Thalès, les droites (DE) et (BC) sont parallèles.</em>"
+      "Les points A, D, B sont alignés dans cet ordre, idem pour A, E, C.",
+      "On calcule AD/AB et AE/AC.",
+      "On trouve les deux rapports égaux.",
+      "D'après la <b>réciproque</b> du théorème de Thalès, (DE) // (BC)."
     ],
-    exemple: "Si AD = 4, AB = 10, AE = 6, AC = 15 : AD/AB = 4/10 = 2/5 et AE/AC = 6/15 = 2/5. Égalité ⇒ <b>(DE) // (BC)</b>.",
+    exemple: "AD = 4, AB = 10, AE = 6, AC = 15 : 4/10 = 2/5 et 6/15 = 2/5. Égal ⇒ <b>(DE) // (BC)</b>.",
     erreurs: [
-      "Oublier de vérifier l'alignement dans le même ordre (indispensable).",
+      "Oublier de vérifier l'alignement dans le même ordre.",
       "Dire « d'après Thalès » au lieu de « d'après la réciproque ».",
       "Confondre AD/AB avec AD/DB."
     ]
   },
   thales_contraposee: {
     nom: 'Contraposée du théorème de Thalès',
+    emoji: '🚫',
+    couleur: '#dc2626',
+    astuce: "Rapports <b>différents</b> → droites <b>pas parallèles</b>. Miroir de la réciproque !",
     quand: "On veut <b>prouver que deux droites ne sont PAS parallèles</b>.",
-    enonce: "Si AD/AB ≠ AE/AC (avec les points alignés dans le même ordre), alors (DE) n'est pas parallèle à (BC).",
+    enonce: "Si AD/AB ≠ AE/AC (alignement même ordre), alors (DE) n'est pas parallèle à (BC).",
     redaction: [
-      "1) <em>On calcule les rapports AD/AB et AE/AC.</em>",
-      "2) <em>Les deux rapports sont différents.</em>",
-      "3) <em>D'après la <b>contraposée</b> du théorème de Thalès, les droites (DE) et (BC) ne sont pas parallèles.</em>"
+      "On calcule les rapports AD/AB et AE/AC.",
+      "Les deux rapports sont différents.",
+      "D'après la <b>contraposée</b> du théorème de Thalès, (DE) n'est pas parallèle à (BC)."
     ],
-    exemple: "Si AD/AB = 2/5 et AE/AC = 1/3 : les deux sont différents ⇒ (DE) <b>n'est pas parallèle</b> à (BC).",
+    exemple: "AD/AB = 2/5 et AE/AC = 1/3 : différents ⇒ <b>pas parallèles</b>.",
     erreurs: [
-      "Dire « d'après Thalès » au lieu de « d'après la contraposée ».",
-      "Oublier que Thalès suppose un ordre d'alignement."
+      "Dire « d'après Thalès » au lieu de « contraposée ».",
+      "Oublier l'ordre d'alignement."
     ]
   },
   trigonometrie: {
-    nom: 'Trigonométrie dans le triangle rectangle',
+    nom: 'Trigonométrie',
+    emoji: '📏',
+    couleur: '#14b8a6',
+    astuce: "🎵 <b>SOH-CAH-TOA</b> 🎵<br>" +
+      "<b>S</b>in = <b>O</b>pp / <b>H</b>yp &nbsp; <b>C</b>os = <b>A</b>dj / <b>H</b>yp &nbsp; <b>T</b>an = <b>O</b>pp / <b>A</b>dj<br>" +
+      "👉 L'<b>hypoténuse</b> est <b>TOUJOURS</b> face à l'angle droit. Les autres sont opposé/adjacent selon l'angle étudié.",
     quand: "On a un triangle <b>rectangle</b>, un <b>angle aigu</b> et on veut un côté ou un angle.",
-    enonce: "Pour un angle aigu \\(\\alpha\\) d'un triangle rectangle :<br>" +
-      "• <b>cos(α) = adjacent / hypoténuse</b><br>" +
-      "• <b>sin(α) = opposé / hypoténuse</b><br>" +
-      "• <b>tan(α) = opposé / adjacent</b><br>" +
-      "Astuce « SOH-CAH-TOA ».",
+    enonce: "Pour un angle aigu α d'un triangle rectangle :<br>" +
+      "• <b>cos(α) = adjacent / hypoténuse</b> (CAH)<br>" +
+      "• <b>sin(α) = opposé / hypoténuse</b> (SOH)<br>" +
+      "• <b>tan(α) = opposé / adjacent</b> (TOA)",
     redaction: [
-      "1) <em>Dans le triangle rectangle en ..., l'hypoténuse est ...</em>",
-      "2) <em>Pour l'angle α, le côté adjacent est ..., l'opposé est ...</em>",
-      "3) <em>On utilise la formule adaptée : cos / sin / tan = ... / ...</em>",
-      "4) <em>On isole l'inconnue et on conclut avec l'unité.</em>"
+      "Dans le triangle rectangle en ..., l'hypoténuse est ...",
+      "Pour l'angle α, le côté adjacent est ..., l'opposé est ...",
+      "On utilise : cos / sin / tan = ... / ...",
+      "On isole l'inconnue et on conclut avec l'unité."
     ],
-    exemple: "Triangle rectangle en A, \\(\\widehat{B} = 35°\\), BC = 10. On cherche AB (adjacent à B) : cos(35°) = AB/10, donc AB = 10 × cos(35°) ≈ <b>8,19 cm</b>.",
+    exemple: "Rectangle en A, \\(\\widehat{B} = 35°\\), BC = 10. AB adjacent à B, BC = hypoténuse → cos(35°) = AB/10 ⇒ AB ≈ <b>8,19 cm</b>.",
     erreurs: [
-      "Confondre le côté adjacent et le côté opposé.",
-      "Confondre hypoténuse avec un autre côté (l'hypoténuse est face à l'angle droit, jamais attachée à l'angle étudié).",
+      "Confondre adjacent et opposé (l'adjacent <b>touche</b> l'angle étudié).",
+      "Confondre hypoténuse avec un autre côté.",
       "Utiliser la formule dans un triangle non rectangle."
     ]
   },
   sommes_angles: {
     nom: 'Somme des angles d\'un triangle',
+    emoji: '🔺',
+    couleur: '#ef4444',
+    astuce: "Dans un <b>triangle</b> : <b>180°</b> (demi-tour). 🔑 Un triangle, c'est la moitié d'un rectangle.",
     quand: "On connaît deux angles d'un triangle et on veut le troisième.",
     enonce: "La somme des trois angles d'un triangle vaut toujours <b>180°</b>.",
     redaction: [
-      "1) <em>Dans le triangle ABC, Â + B̂ + Ĉ = 180°.</em>",
-      "2) <em>Donc Ĉ = 180° − Â − B̂.</em>",
-      "3) <em>On remplace par les valeurs connues et on conclut.</em>"
+      "Dans le triangle ABC : Â + B̂ + Ĉ = 180°.",
+      "Donc Ĉ = 180° − Â − B̂.",
+      "On remplace par les valeurs connues et on conclut."
     ],
-    exemple: "Si Â = 60° et B̂ = 70°, alors Ĉ = 180 − 60 − 70 = <b>50°</b>.",
+    exemple: "Â = 60°, B̂ = 70° → Ĉ = 180 − 60 − 70 = <b>50°</b>.",
     erreurs: [
-      "Utiliser 360° au lieu de 180° (c'est la somme pour un quadrilatère).",
-      "Oublier qu'un triangle équilatéral a 3 angles de 60°.",
-      "Additionner Â + B̂ sans soustraire de 180."
+      "Utiliser 360° au lieu de 180° (360° c'est pour un quadrilatère).",
+      "Oublier que l'équilatéral = 3 angles de 60°.",
+      "Additionner Â + B̂ sans soustraire de 180°."
     ]
   },
   aire_vs_perimetre: {
-    nom: 'Aire ≠ périmètre',
-    quand: "Il faut bien distinguer ces deux grandeurs.",
-    enonce: "• <b>Périmètre</b> = somme des longueurs du contour (unité : m, cm…).<br>" +
-      "• <b>Aire</b> = mesure de la surface intérieure (unité : m², cm²…).",
+    nom: 'Aire ≠ Périmètre',
+    emoji: '📦',
+    couleur: '#22c55e',
+    astuce: "🎯 <b>Péri = pourtour</b> (la clôture 🚧). <b>Aire = surface</b> (la pelouse 🌱).<br>Unité : <b>cm</b> pour le périmètre, <b>cm²</b> pour l'aire.",
+    quand: "Distinguer contour et surface, choisir la bonne formule, la bonne unité.",
+    enonce: "• <b>Périmètre</b> = somme des longueurs du contour (m, cm…).<br>" +
+      "• <b>Aire</b> = surface intérieure (m², cm²…).<br>" +
+      "Rectangle : P = 2(L+ℓ), A = L × ℓ.",
     redaction: [
-      "1) <em>Je repère si on me demande le contour (périmètre) ou la surface (aire).</em>",
-      "2) <em>J'applique la bonne formule (P = 2(L+l) pour un rectangle, A = L×l).</em>",
-      "3) <em>Je n'oublie pas le carré de l'unité pour une aire.</em>"
+      "Je repère : contour (périmètre) ou surface (aire) ?",
+      "J'applique la bonne formule.",
+      "Je n'oublie pas le <b>carré</b> de l'unité pour une aire."
     ],
-    exemple: "Rectangle 5 m × 3 m : périmètre = 2×(5+3) = 16 m ; aire = 5×3 = <b>15 m²</b>.",
+    exemple: "Rectangle 5 m × 3 m : P = 2×(5+3) = 16 m ; A = 5×3 = <b>15 m²</b>.",
     erreurs: [
-      "Donner une aire en m (unité linéaire) au lieu de m² (unité carrée).",
-      "Additionner les côtés au lieu de les multiplier pour une aire.",
-      "Confondre « aire » et « périmètre » dans l'énoncé."
+      "Écrire une aire en m (linéaire) au lieu de m² (carré).",
+      "Additionner L et ℓ au lieu de les multiplier pour l'aire.",
+      "Confondre « aire » et « périmètre »."
     ]
   },
   conversions_aire: {
     nom: 'Conversions d\'aire',
+    emoji: '🔁',
+    couleur: '#f59e0b',
+    astuce: "Pour les <b>aires</b> : chaque rang vaut <b>×100</b> (pas ×10). 💡 Car 1 m = 10 dm, donc 1 m² = 10² = <b>100</b> dm².",
     quand: "Convertir entre différentes unités d'aire (m², cm², km²…).",
-    enonce: "Entre deux unités d'aire consécutives, le facteur est <b>× 100</b> (ou ÷100), pas ×10. " +
-      "Car 1 m = 10 dm ⇒ 1 m² = 10² dm² = 100 dm².",
+    enonce: "Entre deux unités d'aire consécutives, facteur <b>×100</b> (ou ÷100). Jamais ×10.",
     redaction: [
-      "1) <em>Je place le nombre dans un tableau de conversion d'aire (2 cases par unité).</em>",
-      "2) <em>Je convertis en sachant que chaque cran vaut ×100.</em>",
-      "3) <em>Je vérifie le sens (plus grande unité ⇒ nombre plus petit).</em>"
+      "Je place le nombre dans un tableau d'aire (<b>2 cases par unité</b>).",
+      "Je convertis avec ×100 par cran.",
+      "Je vérifie le sens (plus grande unité ⇒ nombre plus petit)."
     ],
-    exemple: "150 m² en km² : 1 km² = 1 000 000 m², donc 150 m² = 150 / 1 000 000 = <b>0,000 15 km²</b>.",
+    exemple: "150 m² en km² : 1 km² = 1 000 000 m² → 150 m² = <b>0,000 15 km²</b>.",
     erreurs: [
       "Utiliser ×10 au lieu de ×100.",
       "Inverser le sens (diviser au lieu de multiplier).",
-      "Confondre m et m² dans les conversions."
+      "Confondre m et m²."
     ]
   },
   fractions_somme: {
     nom: 'Addition de fractions',
-    quand: "On additionne ou soustrait deux fractions.",
-    enonce: "Il faut <b>un dénominateur commun</b> avant de faire la somme. " +
-      "<b>On n'additionne JAMAIS les dénominateurs</b>.",
+    emoji: '➕',
+    couleur: '#0ea5e9',
+    astuce: "🚨 On n'additionne <b>JAMAIS</b> les dénominateurs !<br>💡 Comme des pizzas : pour additionner il faut des <b>parts de même taille</b>.",
+    quand: "Addition ou soustraction de deux fractions.",
+    enonce: "Règle d'or : <b>même dénominateur AVANT</b> d'additionner. " +
+      "a/b + c/b = (a + c)/b.",
     redaction: [
-      "1) <em>Je trouve un dénominateur commun (multiple commun).</em>",
-      "2) <em>Je mets chaque fraction au même dénominateur.</em>",
-      "3) <em>J'additionne les numérateurs (dénominateur inchangé).</em>",
-      "4) <em>Je simplifie si possible.</em>"
+      "Je trouve un dénominateur commun (multiple commun).",
+      "Je mets chaque fraction au même dénominateur.",
+      "J'additionne les numérateurs (dénominateur inchangé).",
+      "Je simplifie si possible."
     ],
-    exemple: "1/2 + 1/3 : on met au même dénominateur 6 → 3/6 + 2/6 = <b>5/6</b>.",
+    exemple: "1/2 + 1/3 : dénominateur commun 6 → 3/6 + 2/6 = <b>5/6</b>.",
     erreurs: [
-      "Additionner les dénominateurs (1/2 + 1/3 = 2/5 : FAUX).",
-      "Additionner numérateurs sans réduire les fractions au même dénominateur.",
+      "1/2 + 1/3 = 2/5 : <b>FAUX</b> !",
+      "Additionner numérateurs sans réduire.",
       "Oublier de simplifier à la fin."
     ]
   },
   puissances_signe: {
     nom: 'Puissances et signes',
+    emoji: '🔣',
+    couleur: '#d946ef',
+    astuce: "📌 <b>Parenthèses vitales</b> !<br>(−3)² = <b>+9</b> (moins×moins = plus)<br>−3² = <b>−9</b> (on fait 3² puis on prend l'opposé)",
     quand: "Calcul de (−a)ⁿ ou d'expressions avec des parenthèses.",
-    enonce: "• <b>(−a)²</b> = (−a) × (−a) = <b>+a²</b> (signe moins × signe moins = plus).<br>" +
-      "• <b>−a²</b> = <b>−(a²)</b> (on met d'abord au carré puis on change le signe).",
+    enonce: "• <b>(−a)² = +a²</b> (moins × moins = plus)<br>• <b>−a² = −(a²)</b> (on met d'abord au carré, puis on change le signe)",
     redaction: [
-      "1) <em>Je regarde s'il y a des parenthèses autour du signe moins.</em>",
-      "2) <em>Je développe prudemment : (−3)² = (−3)×(−3) = +9.</em>"
+      "Je regarde s'il y a des parenthèses autour du signe moins.",
+      "Avec parenthèses : (−3) × (−3) = +9.",
+      "Sans parenthèses : c'est l'opposé du carré."
     ],
-    exemple: "(−3)² = 9 (résultat positif). Mais −3² = −9 (résultat négatif).",
+    exemple: "(−3)² = 9 ; mais −3² = −9.",
     erreurs: [
-      "Confondre (−3)² et −3² (parenthèses capitales).",
+      "Confondre (−3)² et −3².",
       "Donner (−3)² = −9 (oubli de la règle des signes)."
     ]
   },
   cercle: {
     nom: 'Cercle : périmètre et aire',
-    quand: "Calculs de longueur ou surface sur un cercle / disque.",
-    enonce: "• <b>Périmètre (circonférence)</b> : <b>P = 2π r = π D</b> (r rayon, D diamètre).<br>" +
-      "• <b>Aire du disque</b> : <b>A = π r²</b>.",
+    emoji: '⭕',
+    couleur: '#0ea5e9',
+    astuce: "🔑 Deux formules à ne JAMAIS confondre :<br>• <b>P = 2πr</b> (contour, en cm)<br>• <b>A = πr²</b> (surface, en cm²)<br>💡 « π sans carré = contour, π avec carré = surface »",
+    quand: "Calculs de longueur (circonférence) ou surface (aire) sur un cercle / disque.",
+    enonce: "• <b>Périmètre</b> : P = 2π r = π D<br>• <b>Aire</b> du disque : A = π r²",
     redaction: [
-      "1) <em>Je repère le rayon r du cercle.</em>",
-      "2) <em>J'applique la bonne formule (périmètre ou aire selon la question).</em>",
-      "3) <em>Je donne le résultat en fonction de π ou en décimal (selon la consigne).</em>"
+      "Je repère le rayon r du cercle.",
+      "J'applique la bonne formule (contour ou surface).",
+      "Je donne le résultat en fonction de π ou en décimal."
     ],
-    exemple: "Rayon 3 cm : P = 2π × 3 = 6π ≈ 18,85 cm ; A = π × 3² = 9π ≈ 28,27 cm².",
+    exemple: "r = 3 cm : P = 6π ≈ 18,85 cm ; A = 9π ≈ 28,27 cm².",
     erreurs: [
       "Utiliser πr² pour le périmètre (c'est l'aire).",
       "Utiliser 2πr pour l'aire (c'est le périmètre).",
@@ -3661,42 +3700,64 @@ const THEOREMES = {
   }
 };
 
-/* Construit une aide {cours, savoirFaire, erreurs} adaptée au niveau 1..5 */
+/* Construit une aide {cours, savoirFaire, erreurs} adaptée au niveau 1..5.
+   Rendu ludique : emoji, astuce mnémotechnique, encadrés colorés, bloc rédaction-type. */
 function makeHelp(theoremeKey, level) {
   const t = THEOREMES[theoremeKey];
   if (!t) return null;
+  const color = t.couleur || '#2b5fd6';
+  const emoji = t.emoji || '📘';
+
+  // Bandeau titre coloré
+  const titre = `<div class="help-titre" style="background:linear-gradient(135deg,${color}ee 0%,${color}aa 100%);">${emoji} ${t.nom}</div>`;
+
+  // Encadré astuce mnémotechnique (toujours présent si défini)
+  const astuce = t.astuce ? `<div class="help-astuce">💡 <b>Astuce :</b> ${t.astuce}</div>` : '';
+
+  // Bloc « Quand l'utiliser »
+  const quand = `<div class="help-quand"><b>🎯 Quand l'utiliser :</b> ${t.quand}</div>`;
+
+  // Formule / énoncé mis en valeur
+  const formule = `<div class="help-formule" style="border-left:4px solid ${color};">${t.enonce}</div>`;
+
+  // Rédaction-type étape par étape
+  const redaction = `<div class="help-redaction"><b>✍️ Rédaction :</b><ol class="help-steps">${t.redaction.map(r => `<li>${r}</li>`).join('')}</ol></div>`;
+
+  // Exemple
+  const exemple = `<div class="help-exemple"><b>🔢 Exemple :</b> ${t.exemple}</div>`;
+
   if (level <= 1) {
-    // 🔴 Niveau complet : énoncé + rédaction + exemple
+    // 🔴 COMPLET : tout affiché
     return {
-      cours: `<b>${t.nom}</b><br><em>Quand l'utiliser :</em> ${t.quand}<br><em>Énoncé :</em> ${t.enonce}`,
-      savoirFaire: `<b>Rédaction-type :</b><ol style="margin:6px 0;padding-left:18px;">${t.redaction.map(r => `<li>${r}</li>`).join('')}</ol><em>Exemple :</em> ${t.exemple}`,
+      cours: titre + astuce + quand + formule,
+      savoirFaire: redaction + exemple,
       erreurs: t.erreurs
     };
   } else if (level <= 2) {
-    // 🟡 Complet mais un peu plus court (on garde tout)
+    // 🟡 Astuce + énoncé + exemple
     return {
-      cours: `<b>${t.nom}</b><br>${t.enonce}<br><em>${t.quand}</em>`,
-      savoirFaire: `<b>Rédaction :</b> ${t.redaction.join(' → ')}<br><em>Ex :</em> ${t.exemple}`,
+      cours: titre + astuce + formule,
+      savoirFaire: `<b>Rédaction (condensée) :</b> ${t.redaction.join(' → ')}` + exemple,
       erreurs: t.erreurs
     };
   } else if (level <= 3) {
-    // 🟢 Énoncé + 1er point de rédaction
+    // 🟢 Astuce + énoncé
     return {
-      cours: `<b>${t.nom}</b> — ${t.enonce}`,
-      savoirFaire: `<em>Piste :</em> ${t.redaction[0]}. <em>Ex :</em> ${t.exemple}`,
+      cours: titre + astuce + formule,
+      savoirFaire: exemple,
       erreurs: t.erreurs.slice(0, 2)
     };
   } else if (level <= 4) {
-    // 💚 Juste un rappel + piège à éviter
+    // 💚 Rappel bref + 1 erreur
     return {
-      cours: `<b>${t.nom}</b> : ${t.enonce}`,
-      savoirFaire: `Attention à la <b>rigueur</b> de la rédaction.`,
+      cours: titre + formule,
+      savoirFaire: `<b>À la rigueur !</b>`,
       erreurs: t.erreurs.slice(0, 1)
     };
   } else {
-    // ⚫ Expert : à peine un mot-clé
+    // ⚫ Expert : indice seul
     return {
-      cours: `Indice : <b>${t.nom}</b>.`,
+      cours: `<div class="help-titre" style="background:${color};">${emoji} ${t.nom}</div>`,
       savoirFaire: "À toi de rédiger rigoureusement.",
       erreurs: []
     };
@@ -3787,7 +3848,7 @@ function rais_theoreme_n2() {
       body: "Dans un triangle ABC, on a deux sécantes et on connaît 4 longueurs : AM, AB, AN, AC. On veut savoir si (MN) est parallèle à (BC).",
       a: "Réciproque de Thalès",
       opts: ["Réciproque de Thalès", "Thalès direct", "Pythagore", "Réciproque de Pythagore"],
-      sol: "On veut PROUVER le parallélisme → on vérifie \\(\\dfrac{AM}{AB} = \\dfrac{AN}{AC}\\) → <b>réciproque de Thalès</b>."
+      sol: "On veut PROUVER le parallélisme → on vérifie \\(\\frac{AM}{AB} = \\frac{AN}{AC}\\) → <b>réciproque de Thalès</b>."
     },
     {
       figure: svgTriangleRect({ sides: { AB: 'AB', BC: 'BC', AC: '' }, angleAt: 'A' }),
@@ -3834,7 +3895,7 @@ function rais_theoreme_n3() {
       body: "Dans un triangle ABC, (MN) // (BC). On connaît AM, MB, AN. On veut calculer NC.",
       a: "Théorème de Thalès (direct)",
       opts: ["Théorème de Thalès (direct)", "Réciproque de Thalès", "Droite des milieux", "Triangles semblables"],
-      sol: "Parallélisme donné, on cherche une longueur → <b>Thalès direct</b>. \\(\\dfrac{AM}{AB} = \\dfrac{AN}{AC}\\). On connaît AM, MB (donc AB), AN → on calcule AC puis NC."
+      sol: "Parallélisme donné, on cherche une longueur → <b>Thalès direct</b>. \\(\\frac{AM}{AB} = \\frac{AN}{AC}\\). On connaît AM, MB (donc AB), AN → on calcule AC puis NC."
     },
     {
       figure: svgTriangleRect({ sides: { AB: '', BC: '', AC: '' } }),
@@ -3850,12 +3911,12 @@ function rais_theoreme_n3() {
       body: "On a un triangle rectangle en B. On connaît AB = 6 et \\(\\widehat{A} = 40°\\). On veut BC.",
       a: "Tangente de l'angle A",
       opts: ["Tangente de l'angle A", "Cosinus de l'angle A", "Sinus de l'angle A", "Pythagore direct"],
-      sol: "BC est opposé à l'angle A, AB est adjacent à l'angle A → <b>\\(\\tan(\\widehat{A}) = \\dfrac{\\text{opp}}{\\text{adj}} = \\dfrac{BC}{AB}\\)</b>."
+      sol: "BC est opposé à l'angle A, AB est adjacent à l'angle A → <b>\\(\\tan(\\widehat{A}) = \\frac{\\text{opp}}{\\text{adj}} = \\frac{BC}{AB}\\)</b>."
     },
     {
       figure: svgThales({ AB: 10, AC: 15, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       theoreme: 'thales_contraposee',
-      body: "On a 2 droites sécantes en A et 4 points M, B, N, C alignés sur ces droites. Les rapports \\(\\dfrac{AM}{AB}\\) et \\(\\dfrac{AN}{AC}\\) sont différents. Que peut-on conclure ?",
+      body: "On a 2 droites sécantes en A et 4 points M, B, N, C alignés sur ces droites. Les rapports \\(\\frac{AM}{AB}\\) et \\(\\frac{AN}{AC}\\) sont différents. Que peut-on conclure ?",
       a: "(MN) n'est pas parallèle à (BC) (contraposée de Thalès)",
       opts: ["(MN) n'est pas parallèle à (BC) (contraposée de Thalès)", "(MN) est parallèle à (BC)", "Le triangle est rectangle", "On ne peut rien conclure"],
       sol: "Si les 2 rapports étaient égaux → parallèle (réciproque). Ici ils diffèrent → <b>contraposée</b> : non parallèle."
@@ -3899,7 +3960,7 @@ function rais_theoreme_n4() {
       body: "Dans un triangle ABC rectangle en A, on connaît BC = 10 et \\(\\widehat{B} = 35°\\). On veut AC <b>en 2 étapes</b>. Le plan le plus efficace est :",
       a: "Utiliser le sinus de B uniquement",
       opts: ["Utiliser le sinus de B uniquement", "Utiliser Pythagore après avoir trouvé AB", "Utiliser cos puis Pythagore", "Utiliser uniquement la tangente"],
-      sol: "AC est le côté opposé à l'angle B, BC est l'hypoténuse → \\(\\sin(\\widehat{B}) = \\dfrac{AC}{BC}\\) donc \\(AC = 10 \\sin(35°)\\). <b>Une seule étape avec le sinus</b>."
+      sol: "AC est le côté opposé à l'angle B, BC est l'hypoténuse → \\(\\sin(\\widehat{B}) = \\frac{AC}{BC}\\) donc \\(AC = 10 \\sin(35°)\\). <b>Une seule étape avec le sinus</b>."
     },
     {
       figure: svgThales({ AB: 5, AC: 7, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
@@ -3979,7 +4040,7 @@ function rais_theoreme_n5() {
     {
       figure: svgThales({ AB: 5, AC: 7, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       theoreme: 'thales_direct',
-      body: "On a deux triangles ABC et MNP tels que \\(\\dfrac{AB}{MN} = \\dfrac{BC}{NP} = \\dfrac{AC}{MP} = \\dfrac{2}{3}\\). Que peut-on dire ?",
+      body: "On a deux triangles ABC et MNP tels que \\(\\frac{AB}{MN} = \\frac{BC}{NP} = \\frac{AC}{MP} = \\frac{2}{3}\\). Que peut-on dire ?",
       a: "MNP est un agrandissement de ABC (triangles semblables)",
       opts: [
         "MNP est un agrandissement de ABC (triangles semblables)",
@@ -5098,21 +5159,21 @@ function repr_lecture_n3() {
     {
       body: "Soit \\(g(x) = 3x - 5\\). Quel est l'antécédent de 10 ?",
       good: '\\(5\\)',
-      wrongs: ['\\(25\\)', '\\(3\\)', '\\(\\dfrac{10}{3}\\)'],
+      wrongs: ['\\(25\\)', '\\(3\\)', '\\(\\frac{10}{3}\\)'],
       sol: "\\(3x-5=10 ⇔ 3x=15 ⇔ x=5\\)."
     },
     // Coefficient directeur entre 2 points
     {
       body: "Une droite passe par \\(A(1\\,;\\,3)\\) et \\(B(4\\,;\\,9)\\). Quel est son coefficient directeur \\(a\\) ?",
       good: '\\(a = 2\\)',
-      wrongs: ['\\(a = 3\\)', '\\(a = 6\\)', '\\(a = \\dfrac{1}{2}\\)'],
-      sol: "\\(a = \\dfrac{y_B - y_A}{x_B - x_A} = \\dfrac{9-3}{4-1} = \\dfrac{6}{3} = 2\\)."
+      wrongs: ['\\(a = 3\\)', '\\(a = 6\\)', '\\(a = \\frac{1}{2}\\)'],
+      sol: "\\(a = \\frac{y_B - y_A}{x_B - x_A} = \\frac{9-3}{4-1} = \\frac{6}{3} = 2\\)."
     },
     {
       body: "Droite passant par \\(A(0\\,;\\,2)\\) et \\(B(2\\,;\\,-2)\\). Coefficient directeur ?",
       good: '\\(a = -2\\)',
       wrongs: ['\\(a = 2\\)', '\\(a = -4\\)', '\\(a = 0\\)'],
-      sol: "\\(a = \\dfrac{-2-2}{2-0} = \\dfrac{-4}{2} = -2\\)."
+      sol: "\\(a = \\frac{-2-2}{2-0} = \\frac{-4}{2} = -2\\)."
     },
     // Distinction affine vs linéaire
     {
@@ -5147,7 +5208,7 @@ function repr_lecture_n3() {
       body: "Une droite passe par \\(A(0\\,;\\,4)\\) et \\(B(1\\,;\\,6)\\). Quelle est son équation ?",
       good: '\\(y = 2x + 4\\)',
       wrongs: ['\\(y = 4x + 2\\)', '\\(y = 2x + 6\\)', '\\(y = x + 4\\)'],
-      sol: "\\(a = \\dfrac{6-4}{1-0} = 2\\). L'ordonnée à l'origine est \\(y_A = 4\\) (car \\(x_A = 0\\)). Donc \\(y = 2x+4\\)."
+      sol: "\\(a = \\frac{6-4}{1-0} = 2\\). L'ordonnée à l'origine est \\(y_A = 4\\) (car \\(x_A = 0\\)). Donc \\(y = 2x+4\\)."
     }
   ];
   const k = pick(cases);
@@ -5159,7 +5220,7 @@ function repr_lecture_n3() {
     type: 'qcm', choices, correctIdx,
     solution: k.sol,
     help: {
-      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\). Image de \\(a\\) : calcul direct. Antécédent de \\(y\\) : résoudre \\(ax+b=y\\). Coefficient directeur entre 2 points : \\(a = \\dfrac{y_B - y_A}{x_B - x_A}\\).",
+      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\). Image de \\(a\\) : calcul direct. Antécédent de \\(y\\) : résoudre \\(ax+b=y\\). Coefficient directeur entre 2 points : \\(a = \\frac{y_B - y_A}{x_B - x_A}\\).",
       savoirFaire: "Pour une image : remplacer \\(x\\) et calculer. Pour un antécédent : poser l'équation \\(ax+b=y\\) et résoudre. Pour deux points : calculer la variation des \\(y\\) divisée par celle des \\(x\\).",
       erreurs: ["Confondre image (\\(f(a)\\)) et antécédent (\\(x\\) tel que \\(f(x)=b\\)).", "Oublier le signe de \\(b\\) dans le calcul.", "Inverser numérateur/dénominateur dans le coefficient directeur."]
     }
@@ -5250,7 +5311,7 @@ function repr_lecture_n4() {
     {
       body: "Quelle fonction correspond à une situation de <b>proportionnalité</b> ?",
       good: '\\(f(x) = 7x\\)',
-      wrongs: ['\\(f(x) = 7x + 2\\)', '\\(f(x) = 7\\)', '\\(f(x) = \\dfrac{1}{x}\\)'],
+      wrongs: ['\\(f(x) = 7x + 2\\)', '\\(f(x) = 7\\)', '\\(f(x) = \\frac{1}{x}\\)'],
       sol: "Proportionnalité = linéaire = \\(f(x) = ax\\). Seule \\(7x\\) convient."
     }
   ];
@@ -5555,8 +5616,8 @@ function comm_conclure_n2() {
     {
       figure: svgThales({ AB: 5, AC: 7, AD: 3, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       theoreme: 'thales_direct',
-      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\) et que (BC) // (DE).",
-      good: "D'après le théorème de Thalès, on a \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC} = \\dfrac{DE}{BC}\\).",
+      contexte: "On a vérifié que \\(\\frac{AD}{AB} = \\frac{AE}{AC}\\) et que (BC) // (DE).",
+      good: "D'après le théorème de Thalès, on a \\(\\frac{AD}{AB} = \\frac{AE}{AC} = \\frac{DE}{BC}\\).",
       wrongs: [
         "Donc (AB) est parallèle à (DE).",
         "Donc les triangles sont égaux.",
@@ -5596,7 +5657,7 @@ function comm_conclure_n3() {
     {
       figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       theoreme: 'thales_reciproque',
-      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\), les points A, D, B et A, E, C étant alignés dans cet ordre.",
+      contexte: "On a vérifié que \\(\\frac{AD}{AB} = \\frac{AE}{AC}\\), les points A, D, B et A, E, C étant alignés dans cet ordre.",
       good: "D'après la réciproque du théorème de Thalès, les droites (DE) et (BC) sont parallèles.",
       wrongs: [
         "D'après le théorème de Thalès, on peut calculer DE.",
@@ -5648,7 +5709,7 @@ function comm_conclure_n4() {
     {
       figure: svgThales({ AB: 10, AC: 15, AD: 4, labels: { A:'A', B:'B', C:'C', D:'M', E:'N' } }),
       theoreme: 'thales_reciproque',
-      contexte: "On a vérifié que \\(\\dfrac{AD}{AB} \\ne \\dfrac{AE}{AC}\\), avec A, D, B alignés et A, E, C alignés.",
+      contexte: "On a vérifié que \\(\\frac{AD}{AB} \\ne \\frac{AE}{AC}\\), avec A, D, B alignés et A, E, C alignés.",
       good: "D'après la contraposée de la réciproque de Thalès, les droites (DE) et (BC) ne sont pas parallèles.",
       wrongs: [
         "D'après Thalès, les droites sont parallèles.",

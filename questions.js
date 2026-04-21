@@ -144,11 +144,12 @@ function svgThales({ AB, AC, AD, labels = { A: 'A', B: 'B', C: 'C', D: 'D', E: '
     <!-- Côtés du grand triangle -->
     <line x1="${Ax}" y1="${Ay}" x2="${Bx}" y2="${By}" stroke="#333" stroke-width="1.5"/>
     <line x1="${Ax}" y1="${Ay}" x2="${Cx}" y2="${Cy}" stroke="#333" stroke-width="1.5"/>
-    <!-- (BC) et (DE) : parallèles avec marques -->
-    <line x1="${Bx}" y1="${By}" x2="${Cx}" y2="${Cy}" stroke="#2b5fd6" stroke-width="2"/>
-    <line x1="${Dx.toFixed(2)}" y1="${Dy.toFixed(2)}" x2="${Ex.toFixed(2)}" y2="${Ey.toFixed(2)}" stroke="#2b5fd6" stroke-width="2"/>
-    ${perpTick(Dx, Dy, Ex, Ey, 1)}
-    ${perpTick(Bx, By, Cx, Cy, 1)}
+    <!-- (BC) et (DE) : droites parallèles signalées par une MÊME COULEUR (vert émeraude)
+         et un symbole ∥. Les tirets perpendiculaires (perpTick) sont réservés aux côtés/angles égaux. -->
+    <line x1="${Bx}" y1="${By}" x2="${Cx}" y2="${Cy}" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="${Dx.toFixed(2)}" y1="${Dy.toFixed(2)}" x2="${Ex.toFixed(2)}" y2="${Ey.toFixed(2)}" stroke="#10b981" stroke-width="2.5"/>
+    <text x="${((Bx + Cx)/2).toFixed(1)}" y="${((By + Cy)/2 - 8).toFixed(1)}" font-size="14" fill="#10b981" text-anchor="middle" font-weight="700">∥</text>
+    <text x="${((Dx + Ex)/2).toFixed(1)}" y="${((Dy + Ey)/2 - 8).toFixed(1)}" font-size="14" fill="#10b981" text-anchor="middle" font-weight="700">∥</text>
     <!-- Points -->
     <circle cx="${Ax}" cy="${Ay}" r="3" fill="#333"/>
     <circle cx="${Bx}" cy="${By}" r="3" fill="#333"/>
@@ -202,7 +203,7 @@ function t1_somme_fractions() {
     { a:'1/6', b:'1/3', r:'1/2' }
   ];
   const k = pick(cases);
-  const toLatex = f => { const [n,d]=f.split('/'); return `\\dfrac{${n}}{${d}}`; };
+  const toLatex = f => { const [n,d]=f.split('/'); return `\\frac{${n}}{${d}}`; };
   // Pool de distracteurs plausibles (résultats typiquement erronés)
   const pool = ['3/4','5/6','1/2','2/3','1/4','3/5','5/8','2/5','1/3','7/12'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.r))).slice(0, 3);
@@ -298,7 +299,7 @@ function t1_frac_irred() {
     { num:8, den:12, r:'2/3' }, { num:14, den:16, r:'7/8' }
   ];
   const k = pick(cases);
-  const toLatex = f => { const [n,d]=f.split('/'); return `\\dfrac{${n}}{${d}}`; };
+  const toLatex = f => { const [n,d]=f.split('/'); return `\\frac{${n}}{${d}}`; };
   // Distracteurs uniques, différents de k.r
   const pool = ['2/3','3/5','3/4','2/5','7/8','1/2','5/6','3/8','4/5'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.r))).slice(0, 3);
@@ -308,9 +309,9 @@ function t1_frac_irred() {
   ]);
   return {
     theme: 'arithmetique', title: 'Fraction irréductible',
-    body: `L'écriture irréductible de \\(\\dfrac{${k.num}}{${k.den}}\\) est :`,
+    body: `L'écriture irréductible de \\(\\frac{${k.num}}{${k.den}}\\) est :`,
     type: 'qcm', choices, correctIdx,
-    solution: `On divise numérateur et dénominateur par leur PGCD : \\(\\dfrac{${k.num}}{${k.den}} = ${toLatex(k.r)}\\).`,
+    solution: `On divise numérateur et dénominateur par leur PGCD : \\(\\frac{${k.num}}{${k.den}} = ${toLatex(k.r)}\\).`,
     help: {
       cours: "Une fraction est <b>irréductible</b> si son numérateur et son dénominateur n'ont pas de diviseur commun autre que 1.",
       savoirFaire: "Diviser haut et bas par le même nombre (idéalement le PGCD pour aller d'un coup).",
@@ -359,7 +360,7 @@ function t1_produit_fractions() {
     { a:'3/5', b:'5/9', r:'1/3' }
   ];
   const k = pick(cases);
-  const toLatex = f => { const [n,d] = f.split('/'); return `\\dfrac{${n}}{${d}}`; };
+  const toLatex = f => { const [n,d] = f.split('/'); return `\\frac{${n}}{${d}}`; };
   const pool = ['1/2','1/3','1/4','3/10','3/4','2/3','5/6','2/5','1/6','1/5'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.r))).slice(0,3);
   const { choices, correctIdx } = makeQCM([
@@ -372,7 +373,7 @@ function t1_produit_fractions() {
     type: 'qcm', choices, correctIdx,
     solution: `\\(${toLatex(k.a)} \\times ${toLatex(k.b)} = ${toLatex(k.r)}\\) (produit des numérateurs sur produit des dénominateurs, puis simplification).`,
     help: {
-      cours: "Pour multiplier deux fractions : \\(\\dfrac{a}{b} \\times \\dfrac{c}{d} = \\dfrac{a \\times c}{b \\times d}\\), puis on simplifie.",
+      cours: "Pour multiplier deux fractions : \\(\\frac{a}{b} \\times \\frac{c}{d} = \\frac{a \\times c}{b \\times d}\\), puis on simplifie.",
       savoirFaire: "Multiplier numérateurs entre eux et dénominateurs entre eux, puis simplifier (chercher des facteurs communs).",
       erreurs: ["Additionner au lieu de multiplier.", "Mettre au même dénominateur (inutile pour la multiplication).", "Ne pas simplifier."]
     }
@@ -618,9 +619,9 @@ function t2_pct_effectif() {
     theme: 'pourcent', title: 'Pourcentage d\'un effectif',
     body: `Dans un collège de ${k.n} élèves, ${k.p}% portent des lunettes. Combien d'élèves portent des lunettes ?`,
     type: 'input', expected: String(k.r),
-    solution: `\\(${k.p}\\%\\) de \\(${k.n}\\) c'est \\(\\dfrac{${k.p}}{100} \\times ${k.n} = ${k.r}\\).`,
+    solution: `\\(${k.p}\\%\\) de \\(${k.n}\\) c'est \\(\\frac{${k.p}}{100} \\times ${k.n} = ${k.r}\\).`,
     help: {
-      cours: "\\(p\\,\\%\\) de \\(N\\) = \\(\\dfrac{p}{100} \\times N\\).",
+      cours: "\\(p\\,\\%\\) de \\(N\\) = \\(\\frac{p}{100} \\times N\\).",
       savoirFaire: "Astuces : 10% = ÷10 ; 25% = ÷4 ; 50% = ÷2 ; 75% = les 3/4.",
       erreurs: ["Oublier de diviser par 100.", "Confondre avec le reste.", "Se tromper de calcul mental."]
     }
@@ -637,7 +638,7 @@ function t2_pct_complement() {
     theme: 'pourcent', title: 'Complément à un pourcentage',
     body: `Dans un collège de ${k.n} élèves, ${k.p}% participent à un projet. Combien d'élèves n'y participent PAS ?`,
     type: 'input', expected: String(k.r),
-    solution: `${k.p}% participent, donc \\(100-${k.p} = ${100-k.p}\\%\\) ne participent pas. \\(\\dfrac{${100-k.p}}{100} \\times ${k.n} = ${k.r}\\).`,
+    solution: `${k.p}% participent, donc \\(100-${k.p} = ${100-k.p}\\%\\) ne participent pas. \\(\\frac{${100-k.p}}{100} \\times ${k.n} = ${k.r}\\).`,
     help: {
       cours: "Si \\(p\\%\\) font quelque chose, alors \\((100-p)\\%\\) ne le font pas.",
       savoirFaire: "Calculer d'abord \\(100-p\\), puis appliquer ce pourcentage à l'effectif total.",
@@ -663,7 +664,7 @@ function t2_vitesse_temps() {
     type: 'qcm', choices, correctIdx,
     solution: `Temps = distance / vitesse = ${k.d} / ${k.v} = ${k.d/k.v} h = ${k.t}.`,
     help: {
-      cours: "Formules : \\(v = \\dfrac{d}{t}\\), \\(d = v \\times t\\), \\(t = \\dfrac{d}{v}\\).",
+      cours: "Formules : \\(v = \\frac{d}{t}\\), \\(d = v \\times t\\), \\(t = \\frac{d}{v}\\).",
       savoirFaire: "Convertir les heures en minutes : 0,5 h = 30 min, 0,25 h = 15 min, 1/3 h = 20 min.",
       erreurs: ["Confondre vitesse et temps.", "Oublier la conversion h → min.", "Multiplier au lieu de diviser."]
     }
@@ -683,7 +684,7 @@ function t2_quatrieme_prop() {
     type: 'input', expected: String(k.r),
     solution: `Prix au kg : \\(${k.c1}/${k.n1} = ${k.c1/k.n1}\\) €. Pour ${k.n2} kg : \\(${k.c1/k.n1} \\times ${k.n2} = ${k.r}\\) €.`,
     help: {
-      cours: "En situation de proportionnalité, si \\(n_1\\) objets valent \\(c_1\\), alors \\(n_2\\) objets valent \\(\\dfrac{n_2 \\times c_1}{n_1}\\).",
+      cours: "En situation de proportionnalité, si \\(n_1\\) objets valent \\(c_1\\), alors \\(n_2\\) objets valent \\(\\frac{n_2 \\times c_1}{n_1}\\).",
       savoirFaire: "Calculer d'abord le prix unitaire (à l'unité), puis multiplier.",
       erreurs: ["Additionner ou soustraire au lieu de multiplier.", "Mélanger les données.", "Se tromper sur l'unité."]
     }
@@ -757,10 +758,10 @@ function t2_coef_multiplicateur() {
     body: `Quel est le coefficient multiplicateur associé à une <b>${k.sens} de ${k.pct}&nbsp;%</b> ?`,
     type: 'qcm', choices, correctIdx,
     solution: k.sens === 'augmentation'
-      ? `Augmenter de ${k.pct}&nbsp;% revient à multiplier par \\(1 + \\dfrac{${k.pct}}{100} = ${k.coef}\\).`
-      : `Diminuer de ${k.pct}&nbsp;% revient à multiplier par \\(1 - \\dfrac{${k.pct}}{100} = ${k.coef}\\).`,
+      ? `Augmenter de ${k.pct}&nbsp;% revient à multiplier par \\(1 + \\frac{${k.pct}}{100} = ${k.coef}\\).`
+      : `Diminuer de ${k.pct}&nbsp;% revient à multiplier par \\(1 - \\frac{${k.pct}}{100} = ${k.coef}\\).`,
     help: {
-      cours: "Augmenter de \\(t\\%\\) → multiplier par \\(1 + \\dfrac{t}{100}\\). Diminuer de \\(t\\%\\) → multiplier par \\(1 - \\dfrac{t}{100}\\).",
+      cours: "Augmenter de \\(t\\%\\) → multiplier par \\(1 + \\frac{t}{100}\\). Diminuer de \\(t\\%\\) → multiplier par \\(1 - \\frac{t}{100}\\).",
       savoirFaire: "Retenir : +5% → ×1,05 ; −20% → ×0,80 ; +50% → ×1,50.",
       erreurs: ["Confondre \\(0{,}05\\) (juste le pourcentage) et \\(1{,}05\\) (coefficient).", "Utiliser le même coefficient pour augmentation ET diminution.", "Se tromper de signe (+/−)."]
     }
@@ -792,7 +793,7 @@ function t2_coef_mult_application() {
     type: 'input', expected: String(k.pf), suffix: '€',
     solution: `${mot === 'augmente' ? 'Augmenter' : 'Diminuer'} de ${k.pct}&nbsp;%, c'est multiplier par ${coef}. Nouveau prix : \\(${k.p0} \\times ${coef} = ${k.pf}\\)&nbsp;€.`,
     help: {
-      cours: "Pour appliquer une évolution en pourcentage, on multiplie par le <b>coefficient multiplicateur</b> : \\(1 + \\dfrac{t}{100}\\) pour une hausse, \\(1 - \\dfrac{t}{100}\\) pour une baisse.",
+      cours: "Pour appliquer une évolution en pourcentage, on multiplie par le <b>coefficient multiplicateur</b> : \\(1 + \\frac{t}{100}\\) pour une hausse, \\(1 - \\frac{t}{100}\\) pour une baisse.",
       savoirFaire: "Écrire : nouveau prix = ancien prix × coefficient.",
       erreurs: ["Ajouter \\(t\\%\\) du prix au lieu de multiplier (piège avec % > 10%).", "Confondre +25% et ×0,25.", "Appliquer deux fois un +10% pour faire +20% (faux, car ×1,1 × 1,1 = ×1,21)."]
     }
@@ -889,18 +890,18 @@ function t3_equivalence_equation() {
   const a = pick([3,4,5,6]);
   const b = pick([2,3,4,5]);
   const c = pick([15,18,20,25,30]);
-  const correctExpr = `\\dfrac{${c}+${b}}{${a}}`;
+  const correctExpr = `\\frac{${c}+${b}}{${a}}`;
   const { choices, correctIdx } = makeQCM([
     { html: `\\(x = ${correctExpr}\\)`, correct: true },
-    { html: `\\(x = \\dfrac{${c}}{${a}} + ${b}\\)`, correct: false },
-    { html: `\\(x = \\dfrac{${c}-${b}}{${a}}\\)`, correct: false },
+    { html: `\\(x = \\frac{${c}}{${a}} + ${b}\\)`, correct: false },
+    { html: `\\(x = \\frac{${c}-${b}}{${a}}\\)`, correct: false },
     { html: `\\(x = ${c} \\times ${a} + ${b}\\)`, correct: false }
   ]);
   return {
     theme: 'algebre', title: 'Équation — expression de x',
     body: `Pour résoudre l'équation \\(${a}x - ${b} = ${c}\\), on trouve :`,
     type: 'qcm', choices, correctIdx,
-    solution: `\\(${a}x - ${b} = ${c} \\iff ${a}x = ${c}+${b} \\iff x = \\dfrac{${c}+${b}}{${a}}\\).`,
+    solution: `\\(${a}x - ${b} = ${c} \\iff ${a}x = ${c}+${b} \\iff x = \\frac{${c}+${b}}{${a}}\\).`,
     help: {
       cours: "Isoler la variable : passer \\(b\\) de l'autre côté (change de signe), puis diviser tout par \\(a\\).",
       savoirFaire: "Écrire soigneusement l'étape intermédiaire avant de diviser.",
@@ -1259,7 +1260,7 @@ function t4_coefficient_lin() {
     type: 'input', expected: String(a),
     solution: `Pour une fonction linéaire \\(f(x) = ax\\), on a \\(a = f(${x})/${x} = ${y}/${x} = ${a}\\).`,
     help: {
-      cours: "Si \\(f(x) = ax\\), alors \\(a = \\dfrac{f(x)}{x}\\) (pour \\(x \\neq 0\\)).",
+      cours: "Si \\(f(x) = ax\\), alors \\(a = \\frac{f(x)}{x}\\) (pour \\(x \\neq 0\\)).",
       savoirFaire: "Diviser l'image par l'antécédent.",
       erreurs: ["Multiplier au lieu de diviser.", "Se tromper de signe.", "Confondre image et antécédent."]
     }
@@ -1481,9 +1482,9 @@ function t5_thales() {
     theme: 'geometrie', title: 'Théorème de Thalès',
     body: `Les droites (DE) et (BC) sont parallèles. On a AB = ${k.ab} cm, AC = ${k.ac} cm et AD = ${k.ad} cm. Calculer AE.${fig}`,
     type: 'input', expected: k.r, inputSuffix: 'cm',
-    solution: `D'après Thalès : \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC}\\). Donc \\(AE = \\dfrac{AD \\times AC}{AB} = \\dfrac{${k.ad} \\times ${k.ac}}{${k.ab}} = ${k.r}\\) cm.`,
+    solution: `D'après Thalès : \\(\\frac{AD}{AB} = \\frac{AE}{AC}\\). Donc \\(AE = \\frac{AD \\times AC}{AB} = \\frac{${k.ad} \\times ${k.ac}}{${k.ab}} = ${k.r}\\) cm.`,
     help: {
-      cours: "<b>Théorème de Thalès</b> : si deux droites sécantes sont coupées par deux parallèles, alors \\(\\dfrac{AD}{AB} = \\dfrac{AE}{AC} = \\dfrac{DE}{BC}\\).",
+      cours: "<b>Théorème de Thalès</b> : si deux droites sécantes sont coupées par deux parallèles, alors \\(\\frac{AD}{AB} = \\frac{AE}{AC} = \\frac{DE}{BC}\\).",
       savoirFaire: "Écrire la proportion, puis produit en croix pour isoler l'inconnue.",
       erreurs: ["Mal ordonner les points (numérateur = petit côté).", "Inverser les rapports.", "Oublier que les droites doivent être parallèles."]
     }
@@ -1519,9 +1520,9 @@ function t5_triangles_semblables() {
     theme: 'geometrie', title: 'Triangles semblables',
     body: `Les triangles ABC et A'B'C' sont semblables. On a AB = ${k.AB} cm, BC = ${k.BC} cm et A'B' = ${k.ApBp} cm. Calculer B'C'.`,
     type: 'input', expected: String(k.BpCp), inputSuffix: 'cm',
-    solution: `Les côtés sont proportionnels : \\(\\dfrac{A'B'}{AB} = \\dfrac{B'C'}{BC}\\). Donc B'C' = \\(\\dfrac{${k.ApBp} \\times ${k.BC}}{${k.AB}} = ${k.BpCp}\\) cm.`,
+    solution: `Les côtés sont proportionnels : \\(\\frac{A'B'}{AB} = \\frac{B'C'}{BC}\\). Donc B'C' = \\(\\frac{${k.ApBp} \\times ${k.BC}}{${k.AB}} = ${k.BpCp}\\) cm.`,
     help: {
-      cours: "Deux triangles sont <b>semblables</b> si leurs angles sont deux à deux égaux. Alors les côtés sont <b>proportionnels</b> : \\(\\dfrac{A'B'}{AB} = \\dfrac{B'C'}{BC} = \\dfrac{A'C'}{AC}\\).",
+      cours: "Deux triangles sont <b>semblables</b> si leurs angles sont deux à deux égaux. Alors les côtés sont <b>proportionnels</b> : \\(\\frac{A'B'}{AB} = \\frac{B'C'}{BC} = \\frac{A'C'}{AC}\\).",
       savoirFaire: "Écrire la proportion avec les côtés connus, produit en croix, isoler l'inconnue.",
       erreurs: ["Inverser numérateur et dénominateur.", "Se tromper de correspondance des côtés.", "Confondre avec Thalès (configuration différente)."]
     }
@@ -1600,10 +1601,11 @@ function svgThalesPapillon({ AB, AC, AM, AN } = {}) {
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">
     <line x1="${Bx}" y1="${By}" x2="${Nx.toFixed(1)}" y2="${Ny.toFixed(1)}" stroke="#333" stroke-width="1.5"/>
     <line x1="${Cx}" y1="${Cy}" x2="${Mx.toFixed(1)}" y2="${My.toFixed(1)}" stroke="#333" stroke-width="1.5"/>
-    <line x1="${Bx}" y1="${By}" x2="${Cx}" y2="${Cy}" stroke="#2b5fd6" stroke-width="2"/>
-    <line x1="${Mx.toFixed(1)}" y1="${My.toFixed(1)}" x2="${Nx.toFixed(1)}" y2="${Ny.toFixed(1)}" stroke="#2b5fd6" stroke-width="2"/>
-    ${perpTick(Bx,By,Cx,Cy,1)}
-    ${perpTick(Mx,My,Nx,Ny,1)}
+    <!-- Droites parallèles signalées par la même couleur (vert émeraude) et le symbole ∥ -->
+    <line x1="${Bx}" y1="${By}" x2="${Cx}" y2="${Cy}" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="${Mx.toFixed(1)}" y1="${My.toFixed(1)}" x2="${Nx.toFixed(1)}" y2="${Ny.toFixed(1)}" stroke="#10b981" stroke-width="2.5"/>
+    <text x="${((Bx+Cx)/2).toFixed(1)}" y="${((By+Cy)/2 - 8).toFixed(1)}" font-size="14" fill="#10b981" text-anchor="middle" font-weight="700">∥</text>
+    <text x="${((Mx+Nx)/2).toFixed(1)}" y="${((My+Ny)/2 + 20).toFixed(1)}" font-size="14" fill="#10b981" text-anchor="middle" font-weight="700">∥</text>
     <circle cx="${Sx}" cy="${Sy}" r="3" fill="#333"/>
     <circle cx="${Bx}" cy="${By}" r="3" fill="#333"/>
     <circle cx="${Cx}" cy="${Cy}" r="3" fill="#333"/>
@@ -1634,7 +1636,7 @@ function t5_thales_papillon() {
     theme: 'geometrie', title: 'Thalès — configuration papillon',
     body: `Sur la figure (configuration « papillon »), les droites (BC) et (MN) sont parallèles. On a SB = ${SB} cm, SC = ${SC} cm et SM = ${SM} cm. Calculer SN.${fig}`,
     type: 'input', expected: String(SN).replace('.', ','), inputSuffix: 'cm',
-    solution: `Configuration papillon : \\(\\dfrac{SM}{SB} = \\dfrac{SN}{SC}\\). Donc \\(SN = \\dfrac{SM \\times SC}{SB} = \\dfrac{${SM} \\times ${SC}}{${SB}} = ${SN}\\) cm.`,
+    solution: `Configuration papillon : \\(\\frac{SM}{SB} = \\frac{SN}{SC}\\). Donc \\(SN = \\frac{SM \\times SC}{SB} = \\frac{${SM} \\times ${SC}}{${SB}} = ${SN}\\) cm.`,
     help: {
       cours: "Configuration <b>« papillon »</b> : deux triangles opposés par un sommet commun avec deux parallèles. Les rapports <b>SM/SB = SN/SC = MN/BC</b>.",
       savoirFaire: "Repérer le sommet commun (S), puis écrire la proportion en mettant les longueurs du même « côté » du papillon en numérateur.",
@@ -1662,9 +1664,9 @@ function t5_thales_reciproque() {
     theme: 'geometrie', title: 'Réciproque de Thalès',
     body: `Les points A, M, B sont alignés dans cet ordre et A, N, C aussi. On a AM = ${k.AM}, AB = ${k.AB}, AN = ${k.AN} et AC = ${k.AC} (en cm). Que peut-on dire de (MN) et (BC) ?`,
     type: 'qcm', choices, correctIdx,
-    solution: `On calcule : \\(\\dfrac{AM}{AB} = \\dfrac{${k.AM}}{${k.AB}}\\) et \\(\\dfrac{AN}{AC} = \\dfrac{${k.AN}}{${k.AC}}\\). ${k.para ? 'Les deux rapports sont égaux → par la réciproque de Thalès, (MN) // (BC).' : 'Les deux rapports ne sont pas égaux → (MN) et (BC) ne sont pas parallèles.'}`,
+    solution: `On calcule : \\(\\frac{AM}{AB} = \\frac{${k.AM}}{${k.AB}}\\) et \\(\\frac{AN}{AC} = \\frac{${k.AN}}{${k.AC}}\\). ${k.para ? 'Les deux rapports sont égaux → par la réciproque de Thalès, (MN) // (BC).' : 'Les deux rapports ne sont pas égaux → (MN) et (BC) ne sont pas parallèles.'}`,
     help: {
-      cours: "<b>Réciproque de Thalès</b> : si A, M, B sont alignés dans cet ordre, A, N, C aussi, et si \\(\\dfrac{AM}{AB} = \\dfrac{AN}{AC}\\), alors (MN) est parallèle à (BC).",
+      cours: "<b>Réciproque de Thalès</b> : si A, M, B sont alignés dans cet ordre, A, N, C aussi, et si \\(\\frac{AM}{AB} = \\frac{AN}{AC}\\), alors (MN) est parallèle à (BC).",
       savoirFaire: "Calculer les deux rapports et les comparer (en simplifiant les fractions).",
       erreurs: ["Intervertir numérateurs et dénominateurs.", "Confondre avec le théorème direct (parallèles déjà donnés).", "Oublier la condition d'alignement."]
     }
@@ -1892,7 +1894,7 @@ function t6_cos_formule() {
     theme: 'geometrie', title: 'Formule du cosinus',
     body: `Dans un triangle ABC rectangle en A, quel calcul permet de déterminer le cosinus de l'angle \\(\\widehat{ABC}\\) ?`,
     type: 'qcm', choices, correctIdx,
-    solution: `\\(\\cos(\\widehat{B}) = \\dfrac{\\text{côté adjacent à B}}{\\text{hypoténuse}} = \\dfrac{AB}{BC}\\). L'hypoténuse est toujours le côté opposé à l'angle droit.`,
+    solution: `\\(\\cos(\\widehat{B}) = \\frac{\\text{côté adjacent à B}}{\\text{hypoténuse}} = \\frac{AB}{BC}\\). L'hypoténuse est toujours le côté opposé à l'angle droit.`,
     help: {
       cours: "Dans un triangle rectangle : <b>cos = adjacent / hypoténuse</b>, <b>sin = opposé / hypoténuse</b>, <b>tan = opposé / adjacent</b> (mnémonique : SOH-CAH-TOA).",
       savoirFaire: "Identifier l'hypoténuse (face à l'angle droit), puis repérer côté adjacent (touche l'angle) et côté opposé.",
@@ -2467,9 +2469,9 @@ function t8_moy_effectifs() {
     theme: 'stats', title: 'Moyenne avec tableau d\'effectifs',
     body: `Voici les notes d'une classe :${tableau}Quelle est la moyenne ? (Arrondie au dixième si besoin.)`,
     type: 'input', expected: [ans, ans.replace(',', '.')],
-    solution: `Moyenne = \\(\\dfrac{\\sum n_i x_i}{\\sum n_i} = \\dfrac{${totalVal}}{${totalEff}} \\approx ${ans}\\).`,
+    solution: `Moyenne = \\(\\frac{\\sum n_i x_i}{\\sum n_i} = \\frac{${totalVal}}{${totalEff}} \\approx ${ans}\\).`,
     help: {
-      cours: "Moyenne pondérée : \\(\\bar{x} = \\dfrac{n_1 x_1 + n_2 x_2 + \\ldots}{n_1 + n_2 + \\ldots}\\).",
+      cours: "Moyenne pondérée : \\(\\bar{x} = \\frac{n_1 x_1 + n_2 x_2 + \\ldots}{n_1 + n_2 + \\ldots}\\).",
       savoirFaire: "Multiplier chaque valeur par son effectif, additionner, diviser par le total des effectifs.",
       erreurs: ["Oublier la pondération (faire la moyenne des valeurs sans tenir compte des effectifs).", "Additionner les effectifs à la place.", "Ne pas arrondir."]
     }
@@ -2577,7 +2579,7 @@ function t8_camembert() {
     type: 'qcm', choices, correctIdx,
     solution: `Dans un camembert, la taille d'un secteur est proportionnelle à sa fréquence. Ici : <b>${k.r}</b>.`,
     help: {
-      cours: "Un <b>diagramme circulaire</b> (camembert) représente des pourcentages : 360° = 100%. Un secteur de x° correspond à \\(\\dfrac{x}{360}\\) de l'ensemble.",
+      cours: "Un <b>diagramme circulaire</b> (camembert) représente des pourcentages : 360° = 100%. Un secteur de x° correspond à \\(\\frac{x}{360}\\) de l'ensemble.",
       savoirFaire: "Repérer le secteur le plus grand ou calculer l'angle (100% → 360°, donc t% → t × 3,6°).",
       erreurs: ["Confondre pourcentage et angle.", "Oublier que 50% = demi-disque = 180°."]
     }
@@ -2701,7 +2703,7 @@ function t8_camembert_angle() {
     theme: 'stats', title: 'Camembert — angle d\'un secteur',
     body: `Dans un diagramme circulaire, un secteur représente ${k.pct}% du total. Quelle est la mesure de son angle (en degrés) ?`,
     type: 'input', expected: String(k.angle), inputSuffix: '°',
-    solution: `100% correspond à 360°. Donc ${k.pct}% → \\(${k.pct} × 3{,}6 = ${k.angle}°\\) (ou \\(\\dfrac{${k.pct}}{100} × 360\\)).`,
+    solution: `100% correspond à 360°. Donc ${k.pct}% → \\(${k.pct} × 3{,}6 = ${k.angle}°\\) (ou \\(\\frac{${k.pct}}{100} × 360\\)).`,
     help: {
       cours: "Dans un diagramme circulaire : 100% = 360°. Angle d'un secteur = pourcentage × 3,6.",
       savoirFaire: "Multiplier le pourcentage par 3,6 (ou calculer p/100 × 360).",
@@ -2727,7 +2729,7 @@ function t8_frequence() {
     type: 'input',
     expected: askPct ? [k.pct, k.pct + '%'] : [k.r, k.r.replace(',', '.')],
     inputSuffix: askPct ? '%' : '',
-    solution: `Fréquence = \\(\\dfrac{\\text{effectif}}{\\text{effectif total}} = \\dfrac{${k.eff}}{${k.total}} = ${k.r}\\)${askPct ? ' = ' + k.pct + '%' : ''}.`,
+    solution: `Fréquence = \\(\\frac{\\text{effectif}}{\\text{effectif total}} = \\frac{${k.eff}}{${k.total}} = ${k.r}\\)${askPct ? ' = ' + k.pct + '%' : ''}.`,
     help: {
       cours: "<b>Fréquence</b> d'une valeur = effectif / effectif total. S'exprime en décimal (entre 0 et 1) ou en pourcentage (×100).",
       savoirFaire: "Diviser l'effectif de la valeur par l'effectif total. Pour obtenir un pourcentage, multiplier par 100.",
@@ -2749,7 +2751,7 @@ function t8_proba_deux_epreuves() {
       desc: "On lance <b>deux dés à 6 faces</b> et on s'intéresse à la <b>somme</b> des deux résultats.",
       qLabel: "Quelle est la probabilité d'obtenir une somme égale à 7&nbsp;?",
       // Tableau 6x6 des sommes ; 6 issues sur 36 donnent 7
-      total: 36, favorable: 6, frac: '\\dfrac{6}{36} = \\dfrac{1}{6}',
+      total: 36, favorable: 6, frac: '\\frac{6}{36} = \\frac{1}{6}',
       tableHtml: (() => {
         let h = '<table class="proba-table"><thead><tr><th>+</th>';
         for (let j = 1; j <= 6; j++) h += `<th>${j}</th>`;
@@ -2769,7 +2771,7 @@ function t8_proba_deux_epreuves() {
     {
       desc: "On lance <b>deux pièces équilibrées</b>.",
       qLabel: "Quelle est la probabilité d'obtenir <b>deux faces</b> (F-F)&nbsp;?",
-      total: 4, favorable: 1, frac: '\\dfrac{1}{4}',
+      total: 4, favorable: 1, frac: '\\frac{1}{4}',
       tableHtml: `<table class="proba-table"><thead><tr><th></th><th>P</th><th>F</th></tr></thead>
         <tbody>
           <tr><th>P</th><td>P-P</td><td>P-F</td></tr>
@@ -2780,7 +2782,7 @@ function t8_proba_deux_epreuves() {
     {
       desc: "On tire <b>successivement et avec remise</b> deux boules dans une urne contenant <b>1 boule bleue et 2 boules violettes</b>.",
       qLabel: "Quelle est la probabilité de tirer <b>deux boules violettes</b>&nbsp;?",
-      total: 9, favorable: 4, frac: '\\dfrac{4}{9}',
+      total: 9, favorable: 4, frac: '\\frac{4}{9}',
       tableHtml: `<table class="proba-table"><thead><tr><th>2<sup>e</sup>↓ / 1<sup>er</sup>→</th><th>B</th><th>V<sub>1</sub></th><th>V<sub>2</sub></th></tr></thead>
         <tbody>
           <tr><th>B</th><td>B-B</td><td>V<sub>1</sub>-B</td><td>V<sub>2</sub>-B</td></tr>
@@ -2792,7 +2794,7 @@ function t8_proba_deux_epreuves() {
     {
       desc: "Un couple souhaite avoir <b>deux enfants</b>. On suppose que la probabilité d'avoir une fille ou un garçon est la même.",
       qLabel: "Quelle est la probabilité que le couple ait <b>deux garçons</b>&nbsp;?",
-      total: 4, favorable: 1, frac: '\\dfrac{1}{4}',
+      total: 4, favorable: 1, frac: '\\frac{1}{4}',
       tableHtml: `<table class="proba-table"><thead><tr><th>2<sup>e</sup>↓ / 1<sup>er</sup>→</th><th>F</th><th>G</th></tr></thead>
         <tbody>
           <tr><th>F</th><td>F-F</td><td>G-F</td></tr>
@@ -2802,7 +2804,7 @@ function t8_proba_deux_epreuves() {
     }
   ];
   const k = pick(cases);
-  const pool = ['\\dfrac{1}{6}','\\dfrac{1}{4}','\\dfrac{1}{3}','\\dfrac{1}{2}','\\dfrac{2}{3}','\\dfrac{4}{9}','\\dfrac{1}{9}','\\dfrac{6}{36}'];
+  const pool = ['\\frac{1}{6}','\\frac{1}{4}','\\frac{1}{3}','\\frac{1}{2}','\\frac{2}{3}','\\frac{4}{9}','\\frac{1}{9}','\\frac{6}{36}'];
   const distract = shuffle(pool.filter(x => x !== k.frac.split('=').pop().trim())).slice(0, 3);
   const correctHtml = k.frac.includes('=')
     ? k.frac.split('=').pop().trim()
@@ -2826,13 +2828,13 @@ function t8_proba_deux_epreuves() {
 
 function t8_proba_simple() {
   const cases = [
-    { desc:'On tire une carte parmi 52 cartes. Quelle est la probabilité de tirer un roi (4 rois) ?', r:'1/13', html:'\\dfrac{1}{13}' },
-    { desc:'On lance un dé à 6 faces. Quelle est la probabilité d\'obtenir un 3 ?', r:'1/6', html:'\\dfrac{1}{6}' },
-    { desc:'On tire une boule parmi 20 boules dont 5 sont rouges. Quelle est la probabilité de tirer une rouge ?', r:'1/4', html:'\\dfrac{1}{4}' },
-    { desc:'Dans une urne de 10 jetons numérotés de 1 à 10, quelle est la probabilité de tirer un nombre pair ?', r:'1/2', html:'\\dfrac{1}{2}' }
+    { desc:'On tire une carte parmi 52 cartes. Quelle est la probabilité de tirer un roi (4 rois) ?', r:'1/13', html:'\\frac{1}{13}' },
+    { desc:'On lance un dé à 6 faces. Quelle est la probabilité d\'obtenir un 3 ?', r:'1/6', html:'\\frac{1}{6}' },
+    { desc:'On tire une boule parmi 20 boules dont 5 sont rouges. Quelle est la probabilité de tirer une rouge ?', r:'1/4', html:'\\frac{1}{4}' },
+    { desc:'Dans une urne de 10 jetons numérotés de 1 à 10, quelle est la probabilité de tirer un nombre pair ?', r:'1/2', html:'\\frac{1}{2}' }
   ];
   const k = pick(cases);
-  const pool = ['\\dfrac{1}{2}','\\dfrac{1}{3}','\\dfrac{1}{4}','\\dfrac{1}{6}','\\dfrac{1}{13}','\\dfrac{4}{52}'];
+  const pool = ['\\frac{1}{2}','\\frac{1}{3}','\\frac{1}{4}','\\frac{1}{6}','\\frac{1}{13}','\\frac{4}{52}'];
   const distract = shuffle(pool.filter(x => x !== k.html)).slice(0,3);
   const { choices, correctIdx } = makeQCM([
     { html: `\\(${k.html}\\)`, correct: true },
@@ -2844,7 +2846,7 @@ function t8_proba_simple() {
     type: 'qcm', choices, correctIdx,
     solution: `Probabilité = cas favorables / cas possibles. Résultat simplifié : \\(${k.html}\\).`,
     help: {
-      cours: "En situation d'équiprobabilité : \\(P(A) = \\dfrac{\\text{nombre de cas favorables}}{\\text{nombre de cas possibles}}\\).",
+      cours: "En situation d'équiprobabilité : \\(P(A) = \\frac{\\text{nombre de cas favorables}}{\\text{nombre de cas possibles}}\\).",
       savoirFaire: "Compter les issues favorables, diviser par le total, puis simplifier.",
       erreurs: ["Ne pas simplifier.", "Inverser favorables et possibles.", "Oublier une issue."]
     }
@@ -2856,8 +2858,8 @@ function t8_proba_contraire() {
   const cases = [
     { pA:'0{,}3', r:'0,7' }, { pA:'0{,}4', r:'0,6' },
     { pA:'0{,}85', r:'0,15' }, { pA:'0{,}25', r:'0,75' },
-    { pA:'\\dfrac{1}{4}', r:'3/4', altAns:['3/4','0,75'] },
-    { pA:'\\dfrac{2}{5}', r:'3/5', altAns:['3/5','0,6'] }
+    { pA:'\\frac{1}{4}', r:'3/4', altAns:['3/4','0,75'] },
+    { pA:'\\frac{2}{5}', r:'3/5', altAns:['3/5','0,6'] }
   ];
   const k = pick(cases);
   return {
@@ -2882,7 +2884,7 @@ function t8_proba_tableau() {
     { total: 150, fav: 30, r: '1/5',  extraContext: "Dans un lycée de 150 élèves, 30 portent des lunettes." }
   ];
   const k = pick(cases);
-  const toLatex = f => { const [n,d] = f.split('/'); return `\\dfrac{${n}}{${d}}`; };
+  const toLatex = f => { const [n,d] = f.split('/'); return `\\frac{${n}}{${d}}`; };
   const pool = ['1/2','1/3','1/4','1/5','3/10','2/5','2/3','3/4'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.r))).slice(0, 3);
   const { choices, correctIdx } = makeQCM([
@@ -2893,7 +2895,7 @@ function t8_proba_tableau() {
     theme: 'probas', title: 'Probabilité (fraction irréductible)',
     body: `${k.extraContext} On choisit une personne au hasard. Quelle est la probabilité que cette personne soit concernée ? (Réponse sous forme de fraction irréductible.)`,
     type: 'qcm', choices, correctIdx,
-    solution: `\\(P = \\dfrac{${k.fav}}{${k.total}} = ${toLatex(k.r)}\\) (simplifié).`,
+    solution: `\\(P = \\frac{${k.fav}}{${k.total}} = ${toLatex(k.r)}\\) (simplifié).`,
     help: {
       cours: "Probabilité = favorables / total, à simplifier.",
       savoirFaire: "Diviser favorables et total par leur PGCD pour simplifier la fraction.",
@@ -2912,7 +2914,7 @@ function t8_proba_de() {
     { desc: "obtenir un nombre premier", r: '1/2' }
   ];
   const k = pick(cases);
-  const toLatex = f => { const [n,d] = f.split('/'); return `\\dfrac{${n}}{${d}}`; };
+  const toLatex = f => { const [n,d] = f.split('/'); return `\\frac{${n}}{${d}}`; };
   const pool = ['1/2','1/3','1/6','2/3','5/6','1/4'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.r))).slice(0, 3);
   const { choices, correctIdx } = makeQCM([
@@ -3168,9 +3170,9 @@ function t11_volume_cone() {
     theme: 'espace', title: 'Volume d\'un cône',
     body: `Un cône a pour rayon ${k.r} cm et hauteur ${k.h} cm. Quel est son volume ?`,
     type: 'qcm', choices, correctIdx,
-    solution: `\\(V = \\dfrac{1}{3} \\pi r^2 h = \\dfrac{1}{3} \\times \\pi \\times ${k.r}^2 \\times ${k.h} = ${k.v}\\) cm³.`,
+    solution: `\\(V = \\frac{1}{3} \\pi r^2 h = \\frac{1}{3} \\times \\pi \\times ${k.r}^2 \\times ${k.h} = ${k.v}\\) cm³.`,
     help: {
-      cours: "Volume d'un <b>cône de révolution</b> : \\(V = \\dfrac{1}{3}\\pi r^2 h\\). C'est un tiers du volume du cylindre de mêmes dimensions.",
+      cours: "Volume d'un <b>cône de révolution</b> : \\(V = \\frac{1}{3}\\pi r^2 h\\). C'est un tiers du volume du cylindre de mêmes dimensions.",
       savoirFaire: "Calculer d'abord le volume du cylindre (\\(\\pi r^2 h\\)), puis diviser par 3.",
       erreurs: ["Oublier le facteur \\(1/3\\) (on confond avec le cylindre).", "Confondre avec la pyramide (formule similaire mais base polygonale).", "Utiliser le diamètre."]
     }
@@ -3181,11 +3183,11 @@ function t11_volume_cone() {
 function t11_volume_sphere() {
   const cases = [
     { r:3, v:'36\\pi' }, { r:6, v:'288\\pi' },
-    { r:1, v:'\\dfrac{4}{3}\\pi' }, { r:2, v:'\\dfrac{32}{3}\\pi' },
-    { r:5, v:'\\dfrac{500}{3}\\pi' }
+    { r:1, v:'\\frac{4}{3}\\pi' }, { r:2, v:'\\frac{32}{3}\\pi' },
+    { r:5, v:'\\frac{500}{3}\\pi' }
   ];
   const k = pick(cases);
-  const pool = ['36\\pi','288\\pi','\\dfrac{4}{3}\\pi','\\dfrac{32}{3}\\pi','\\dfrac{500}{3}\\pi','4\\pi','12\\pi','24\\pi','100\\pi'];
+  const pool = ['36\\pi','288\\pi','\\frac{4}{3}\\pi','\\frac{32}{3}\\pi','\\frac{500}{3}\\pi','4\\pi','12\\pi','24\\pi','100\\pi'];
   const distract = Array.from(new Set(pool.filter(x => x !== k.v))).slice(0,3);
   const { choices, correctIdx } = makeQCM([
     { html: `\\(${k.v}\\) cm³`, correct: true },
@@ -3195,9 +3197,9 @@ function t11_volume_sphere() {
     theme: 'espace', title: 'Volume d\'une boule',
     body: `Une boule a pour rayon ${k.r} cm. Quel est son volume ?`,
     type: 'qcm', choices, correctIdx,
-    solution: `\\(V = \\dfrac{4}{3} \\pi r^3 = \\dfrac{4}{3} \\pi \\times ${k.r}^3 = ${k.v}\\) cm³.`,
+    solution: `\\(V = \\frac{4}{3} \\pi r^3 = \\frac{4}{3} \\pi \\times ${k.r}^3 = ${k.v}\\) cm³.`,
     help: {
-      cours: "Volume d'une <b>boule</b> de rayon \\(r\\) : \\(V = \\dfrac{4}{3}\\pi r^3\\).",
+      cours: "Volume d'une <b>boule</b> de rayon \\(r\\) : \\(V = \\frac{4}{3}\\pi r^3\\).",
       savoirFaire: "Cuber le rayon (\\(r^3\\)), multiplier par \\(\\pi\\), puis par \\(4/3\\).",
       erreurs: ["Utiliser \\(r^2\\) au lieu de \\(r^3\\).", "Oublier le facteur \\(4/3\\).", "Confondre avec l'aire de la sphère (\\(4\\pi r^2\\))."]
     }
@@ -3214,9 +3216,9 @@ function t11_volume_pyramide() {
     theme: 'espace', title: 'Volume d\'une pyramide',
     body: `Une pyramide a pour base un carré de côté ${L} cm et pour hauteur ${h} cm. Quel est son volume (en cm³) ?`,
     type: 'input', expected: String(v), inputSuffix: 'cm³',
-    solution: `Aire de la base = \\(${L}^2 = ${L*L}\\) cm². Volume = \\(\\dfrac{1}{3} \\times ${L*L} \\times ${h} = ${v}\\) cm³.`,
+    solution: `Aire de la base = \\(${L}^2 = ${L*L}\\) cm². Volume = \\(\\frac{1}{3} \\times ${L*L} \\times ${h} = ${v}\\) cm³.`,
     help: {
-      cours: "Volume d'une <b>pyramide</b> : \\(V = \\dfrac{1}{3} \\times \\text{aire de la base} \\times h\\) (h = hauteur de la pyramide).",
+      cours: "Volume d'une <b>pyramide</b> : \\(V = \\frac{1}{3} \\times \\text{aire de la base} \\times h\\) (h = hauteur de la pyramide).",
       savoirFaire: "1) Calculer l'aire de la base. 2) Multiplier par la hauteur. 3) Diviser par 3.",
       erreurs: ["Oublier le facteur \\(1/3\\).", "Confondre hauteur et arête latérale.", "Utiliser le périmètre de la base."]
     }
@@ -3428,15 +3430,15 @@ function t11_volume_assemblage() {
     const halfBallCoef = (2 / 3) * k.r * k.r * k.r;
     const total = cylCoef + halfBallCoef;
     // On force un cas qui donne un résultat propre : 2r³/3 entier ⇒ r multiple de 3 ou r tel que 2r³ mult de 3
-    vExpr = `V = V_{\\text{cyl}} + V_{\\frac{1}{2}\\text{boule}} = \\pi \\times ${k.r}^2 \\times ${k.h} + \\dfrac{1}{2} \\times \\dfrac{4}{3}\\pi \\times ${k.r}^3 = ${cylCoef}\\pi + \\dfrac{${2 * k.r * k.r * k.r}}{3}\\pi`;
+    vExpr = `V = V_{\\text{cyl}} + V_{\\frac{1}{2}\\text{boule}} = \\pi \\times ${k.r}^2 \\times ${k.h} + \\frac{1}{2} \\times \\frac{4}{3}\\pi \\times ${k.r}^3 = ${cylCoef}\\pi + \\frac{${2 * k.r * k.r * k.r}}{3}\\pi`;
     if (Number.isInteger(halfBallCoef)) {
       vValue = `${total}\\pi`;
       vExpr += ` = ${total}\\pi`;
     } else {
       // résultat en fraction
       const num3 = cylCoef * 3 + 2 * k.r * k.r * k.r;
-      vValue = `\\dfrac{${num3}}{3}\\pi`;
-      vExpr += ` = \\dfrac{${num3}}{3}\\pi`;
+      vValue = `\\frac{${num3}}{3}\\pi`;
+      vExpr += ` = \\frac{${num3}}{3}\\pi`;
     }
     svgPic = `<svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:10px auto;max-width:160px;">
       <ellipse cx="80" cy="50" rx="40" ry="12" fill="#ddd6fe" stroke="#5b21b6" stroke-width="1.5"/>
@@ -3452,7 +3454,7 @@ function t11_volume_assemblage() {
     const vCyl = k.r * k.r * k.h; // π × r² × h
     const vBoule = (4 / 3) * k.r * k.r * k.r;
     const total3 = 3 * vCyl - 3 * 4 * k.r * k.r * k.r;
-    vExpr = `V_{\\text{boîte}} = \\pi \\times ${k.r}^2 \\times ${k.h} = ${vCyl}\\pi \\text{ cm}^3. V_{3\\text{ boules}} = 3 \\times \\dfrac{4}{3}\\pi \\times ${k.r}^3 = ${4 * k.r * k.r * k.r}\\pi \\text{ cm}^3. V_{\\text{restant}} = ${vCyl}\\pi - ${4 * k.r * k.r * k.r}\\pi`;
+    vExpr = `V_{\\text{boîte}} = \\pi \\times ${k.r}^2 \\times ${k.h} = ${vCyl}\\pi \\text{ cm}^3. V_{3\\text{ boules}} = 3 \\times \\frac{4}{3}\\pi \\times ${k.r}^3 = ${4 * k.r * k.r * k.r}\\pi \\text{ cm}^3. V_{\\text{restant}} = ${vCyl}\\pi - ${4 * k.r * k.r * k.r}\\pi`;
     vValue = `${vCyl - 4 * k.r * k.r * k.r}\\pi`;
     vExpr += ` = ${vCyl - 4 * k.r * k.r * k.r}\\pi`;
     svgPic = `<svg viewBox="0 0 140 240" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:10px auto;max-width:140px;">
@@ -3468,7 +3470,7 @@ function t11_volume_assemblage() {
     const vCube = k.a * k.a * k.a;
     const vPyr = (1 / 3) * k.a * k.a * k.h;
     const total = vCube + vPyr;
-    vExpr = `V_{\\text{cube}} = ${k.a}^3 = ${vCube} \\text{ cm}^3. V_{\\text{pyr}} = \\dfrac{1}{3} \\times ${k.a}^2 \\times ${k.h} = ${vPyr} \\text{ cm}^3. V_{\\text{total}} = ${vCube} + ${vPyr} = ${total}`;
+    vExpr = `V_{\\text{cube}} = ${k.a}^3 = ${vCube} \\text{ cm}^3. V_{\\text{pyr}} = \\frac{1}{3} \\times ${k.a}^2 \\times ${k.h} = ${vPyr} \\text{ cm}^3. V_{\\text{total}} = ${vCube} + ${vPyr} = ${total}`;
     vValue = `${total}`;
     svgPic = `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:10px auto;max-width:200px;">
       <polygon points="40,80 100,60 100,210 40,210 40,80" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
@@ -4145,7 +4147,7 @@ function t2_echelle_carte() {
    ------------------------------------------------------------------ */
 function t4_antecedent_algebrique() {
   const cases = [
-    { f: '-3x - 4', cible: 10, x: -14/3, sol: 'x = -\\dfrac{14}{3}' }, // Trop complexe ; simplifions
+    { f: '-3x - 4', cible: 10, x: -14/3, sol: 'x = -\\frac{14}{3}' }, // Trop complexe ; simplifions
   ].slice(0, 0); // vide, on préfère des valeurs entières
   const easy = [
     { f: '2x + 5',  cible: 11, x: 3 },
