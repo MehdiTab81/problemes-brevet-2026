@@ -93,47 +93,93 @@ const BREVET_SUJETS = [
         id: 'ex2',
         titre: 'Exercice 2 — Programme de calcul',
         points: 3,
-        competencesPrincipales: ['modeliser', 'calculer'],
+        competencesPrincipales: ['modeliser', 'calculer', 'communiquer'],
         contexte: "On donne un programme de calcul :<br><ol style='padding-left:22px;line-height:1.6;'><li>Choisir un nombre.</li><li>Le multiplier par 2.</li><li>Élever le résultat au carré.</li><li>Retrancher 9.</li><li>Afficher le résultat.</li></ol>",
         questions: [
           {
-            id: 'ex2-q1',
-            body: "Lorsque le nombre choisi est <b>4</b>, vérifier que le programme affiche <b>55</b> en précisant chacune des étapes de calcul.",
+            // Q1 décomposée en étapes intermédiaires pour valoriser chaque calcul
+            id: 'ex2-q1a',
+            body: "On choisit <b>4</b> comme nombre de départ.<br><b>Étape 2</b> (« le multiplier par 2 ») : combien obtient-on ?",
             type: 'input',
-            points: 1,
+            points: 0.25,
+            competence: 'calculer',
+            expected: ['8'],
+            correction: "4 × 2 = <b>8</b>."
+          },
+          {
+            id: 'ex2-q1b',
+            body: "<b>Étape 3</b> (« élever le résultat au carré ») : combien obtient-on ?",
+            type: 'input',
+            points: 0.25,
+            competence: 'calculer',
+            expected: ['64'],
+            correction: "8² = 8 × 8 = <b>64</b>.<br><em>Piège :</em> 8² n'est pas 8 × 2 = 16."
+          },
+          {
+            id: 'ex2-q1c',
+            body: "<b>Étape 4</b> (« retrancher 9 ») : quel est le résultat final ?",
+            type: 'input',
+            points: 0.25,
             competence: 'calculer',
             expected: ['55'],
-            correction: "Étape 1 : 4.<br>Étape 2 : 4 × 2 = 8.<br>Étape 3 : 8² = 64.<br>Étape 4 : 64 − 9 = <b>55</b>. ✓"
+            correction: "64 − 9 = <b>55</b>. ✓ Le programme affiche bien 55."
+          },
+          {
+            id: 'ex2-q1d',
+            body: "Comment <b>bien rédiger</b> cette vérification sur une copie de Brevet ? Choisir la meilleure présentation.",
+            type: 'qcm',
+            points: 0.25,
+            competence: 'communiquer',
+            choices: [
+              // Bonne rédaction : étapes claires, connecteur, conclusion
+              "« Étape 2 : 4 × 2 = 8. Étape 3 : 8² = 64. Étape 4 : 64 − 9 = 55. <b>Donc le programme affiche bien 55.</b> »",
+              // Juste le résultat
+              "« 55. »",
+              // Calculs en vrac sans étapes
+              "« 4 × 2 × 2 − 9 = 55. »",
+              // Erreur fréquente : oubli du carré
+              "« 4 × 2 = 8. 8 × 2 = 16. 16 − 9 = 7. » (donc ≠ 55)"
+            ],
+            correctIdx: 0,
+            correction: "Une bonne rédaction « précise chaque étape » : on <b>numérote</b> ou on <b>énumère</b> les étapes, on <b>écrit les calculs</b> et on <b>conclut</b> par une phrase.<br><em>Piège fréquent :</em> confondre « élever au carré » (8² = 64) avec « multiplier par 2 » (8 × 2 = 16)."
           },
           {
             id: 'ex2-q2',
-            body: "On appelle <b>x</b> le nombre choisi. Écrire, en fonction de <b>x</b>, le résultat obtenu par le programme.",
+            body: "On appelle <b>x</b> le nombre choisi. Parmi ces expressions, laquelle donne le résultat du programme <b>en fonction de x</b> ?",
             type: 'qcm',
             points: 1,
             competence: 'modeliser',
             choices: [
+              // Bonne réponse : (2x)² − 9
               '\\((2x)^2 - 9\\)',
+              // Erreur : oubli des parenthèses autour de 2x (on carré que x)
               '\\(2x^2 - 9\\)',
+              // Erreur : ordre des étapes inversé (retrancher 9 avant le carré)
               '\\((2x - 9)^2\\)',
+              // Erreur : carré seulement sur x, multiplier tout par 2 à la fin
               '\\(2(x^2 - 9)\\)'
             ],
             correctIdx: 0,
-            correction: "On multiplie par 2 → \\(2x\\). On élève au carré → \\((2x)^2\\). On retranche 9 → \\((2x)^2 - 9\\)."
+            correction: "On suit le programme dans l'ordre :<br>• Étape 2 : on multiplie x par 2 → <b>2x</b> (avec parenthèses : (2x))<br>• Étape 3 : on élève le résultat <b>entier</b> au carré → <b>(2x)²</b>, pas seulement x².<br>• Étape 4 : on retranche 9 → <b>(2x)² − 9</b>.<br><em>Remarque :</em> (2x)² = 4x², donc le résultat peut aussi s'écrire <b>4x² − 9</b>."
           },
           {
             id: 'ex2-q3',
-            body: "Parmi les quatre expressions suivantes, laquelle correspond au résultat obtenu par le programme ?",
+            body: "On a vu en Q2 que le résultat du programme est \\(4x^2 - 9\\).<br>Parmi les expressions suivantes, laquelle est <b>égale à</b> \\(4x^2 - 9\\) sous <b>forme factorisée</b> ?",
             type: 'qcm',
             points: 1,
             competence: 'raisonner',
             choices: [
-              '\\(A = 55\\)',
-              '\\(B = (2x + 3)^2\\)',
-              '\\(C = (2x - 3)(2x + 3)\\)',
-              '\\(D = (2x - 3)^2\\)'
+              // Erreur : identité remarquable du carré de la somme
+              '\\((2x + 3)^2\\)',
+              // Bonne réponse : différence de deux carrés
+              '\\((2x - 3)(2x + 3)\\)',
+              // Erreur : identité remarquable du carré de la différence
+              '\\((2x - 3)^2\\)',
+              // Valeur numérique (qui dépend de x)
+              '\\(55\\) (uniquement pour \\(x = 4\\))'
             ],
-            correctIdx: 2,
-            correction: "\\((2x)^2 - 9 = (2x)^2 - 3^2\\). C'est une <b>identité remarquable</b> : \\(a^2 - b^2 = (a-b)(a+b)\\). Donc \\((2x)^2 - 9 = (2x - 3)(2x + 3)\\). Réponse <b>C</b>."
+            correctIdx: 1,
+            correction: "On reconnaît une <b>différence de deux carrés</b> : \\(4x^2 - 9 = (2x)^2 - 3^2\\).<br>Identité remarquable : \\(a^2 - b^2 = (a - b)(a + b)\\), avec \\(a = 2x\\) et \\(b = 3\\).<br>Donc \\(4x^2 - 9 = (2x - 3)(2x + 3)\\).<br><em>Pièges à éviter :</em><br>• \\((2x + 3)^2 = 4x^2 + 12x + 9\\) (il y a un terme en x, ce n'est pas égal).<br>• \\((2x - 3)^2 = 4x^2 - 12x + 9\\) (pareil, il y a un terme en x)."
           }
         ]
       },
