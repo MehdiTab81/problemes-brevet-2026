@@ -4805,116 +4805,577 @@ function _repr_qcm({ title, body, goodHtml, distractors, solution, help }) {
   return { theme: 'representer', title, body, type: 'qcm', choices, correctIdx, solution, help };
 }
 
+/* ==========================================================================
+   REPRÉSENTER — Pool étendu (programme 3ème strict + rappels collège)
+   ========================================================================== */
+
+/* Helper local pour les exercices représenter : pool + figure optionnelle */
+function _repr_pool(cases, title, helpDefault) {
+  const k = pick(cases);
+  const opts = [{ html: k.good, correct: true }].concat((k.wrongs || []).map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  return {
+    theme: 'representer', title,
+    body: figHtml + k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
+    help: k.help || helpDefault
+  };
+}
+
 function repr_lecture_n1() {
-  // 🔴 Découverte — lire une image sur une droite simple d'une courbe donnée en tableau
+  // 🔴 Découverte — lecture simple (tableau de valeurs, diagramme barres/camembert, proportionnalité, image sur courbe évidente)
   const cases = [
-    { x: 2, fx: 5, context: 'La courbe de f passe par le point \\(A(2\\,;\\,5)\\).' },
-    { x: 3, fx: 7, context: 'On lit sur le graphique que la courbe passe par \\(B(3\\,;\\,7)\\).' },
-    { x: 1, fx: 4, context: 'La courbe de f passe par le point \\((1\\,;\\,4)\\).' }
+    // Tableau : image
+    {
+      body: `Le tableau de valeurs de la fonction \\(f\\) indique : \\(f(1)=3\\) ; \\(f(2)=5\\) ; \\(f(4)=9\\).<br>Quelle est la valeur de \\(f(2)\\) ?`,
+      good: '\\(5\\)',
+      wrongs: ['\\(2\\)', '\\(3\\)', '\\(9\\)'],
+      sol: "On lit directement dans le tableau : \\(f(2) = 5\\)."
+    },
+    {
+      body: `\\(g(0) = 4\\) ; \\(g(1) = 7\\) ; \\(g(3) = 13\\).<br>Donner \\(g(3)\\).`,
+      good: '\\(13\\)',
+      wrongs: ['\\(3\\)', '\\(7\\)', '\\(4\\)'],
+      sol: "D'après le tableau : \\(g(3) = 13\\)."
+    },
+    // Tableau : antécédent
+    {
+      body: `\\(h(0)=2\\) ; \\(h(2)=6\\) ; \\(h(5)=12\\).<br>Quel est l'antécédent de 6 par \\(h\\) ?`,
+      good: '\\(2\\)',
+      wrongs: ['\\(6\\)', '\\(0\\)', '\\(12\\)'],
+      sol: "On cherche \\(x\\) tel que \\(h(x)=6\\). D'après le tableau : \\(x=2\\)."
+    },
+    // Diagramme en barres
+    {
+      figure: svgBarChart(['Lundi', 'Mardi', 'Merc.', 'Jeudi', 'Vend.'], [12, 8, 15, 10, 6], { title: 'Nombre d\'élèves au club' }),
+      body: "D'après le diagramme, combien d'élèves étaient au club le <b>mercredi</b> ?",
+      good: '15',
+      wrongs: ['12', '10', '8'],
+      sol: "La hauteur de la barre du mercredi est 15 : il y avait 15 élèves."
+    },
+    {
+      figure: svgBarChart(['A', 'B', 'C', 'D'], [8, 14, 6, 10], { title: 'Effectifs par groupe' }),
+      body: "Quel groupe a le <b>plus d'élèves</b> ?",
+      good: 'B (14 élèves)',
+      wrongs: ['A (8 élèves)', 'C (6 élèves)', 'D (10 élèves)'],
+      sol: "La barre la plus haute est celle de B (14 élèves)."
+    },
+    // Diagramme circulaire
+    {
+      figure: svgPieChart(['Foot', 'Basket', 'Tennis', 'Natation'], [40, 25, 15, 20]),
+      body: "Sur 200 élèves, quel pourcentage pratique le <b>foot</b> ?",
+      good: '40 %',
+      wrongs: ['25 %', '20 %', '15 %'],
+      sol: "Le secteur du foot représente 40 % du total."
+    },
+    // Graphique droite — image
+    {
+      figure: svgGraph({ xMax: 5, yMax: 10, points: [[0,1],[1,3],[2,5],[3,7],[4,9],[5,11]], highlight: [[2,5]], xLabel: 'x', yLabel: 'f(x)' }),
+      body: "D'après le graphique, que vaut \\(f(2)\\) ?",
+      good: '\\(5\\)',
+      wrongs: ['\\(2\\)', '\\(3\\)', '\\(7\\)'],
+      sol: "Sur le graphique, le point d'abscisse 2 a pour ordonnée 5. Donc \\(f(2) = 5\\)."
+    },
+    // Graphique — antécédent
+    {
+      figure: svgGraph({ xMax: 5, yMax: 10, points: [[0,0],[1,2],[2,4],[3,6],[4,8]], highlight: [[3,6]], xLabel: 'x', yLabel: 'f(x)' }),
+      body: "Quel est l'antécédent de <b>6</b> par \\(f\\) ?",
+      good: '\\(3\\)',
+      wrongs: ['\\(6\\)', '\\(2\\)', '\\(4\\)'],
+      sol: "On cherche x tel que f(x)=6. Sur le graphique, le point d'ordonnée 6 a pour abscisse 3."
+    },
+    // Proportionnalité : droite passant par O
+    {
+      figure: svgRepereDroite({ a: 2, b: 0 }),
+      body: "La droite représente une fonction. Est-ce une situation de proportionnalité ?",
+      good: "Oui, car la droite passe par l'origine O",
+      wrongs: [
+        "Non, car elle n'est pas verticale",
+        "Non, car la pente est positive",
+        "On ne peut pas le dire"
+      ],
+      sol: "Une situation de proportionnalité se représente par une <b>droite passant par l'origine</b>."
+    },
+    {
+      figure: svgRepereDroite({ a: 1, b: 3 }),
+      body: "La droite représente une fonction affine. Est-ce une situation de proportionnalité ?",
+      good: "Non, car la droite ne passe pas par l'origine",
+      wrongs: [
+        "Oui, c'est toujours une proportionnalité pour une droite",
+        "Oui, car la pente est constante",
+        "Oui, car les coordonnées s'alignent"
+      ],
+      sol: "La droite passe par (0 ; 3) donc pas par O : ce n'est <b>pas</b> une situation de proportionnalité."
+    },
+    // Association tableau ↔ droite
+    {
+      body: "Quel tableau correspond à la fonction \\(f(x) = 2x\\) (fonction linéaire) ?",
+      good: '\\((0\\,;\\,0)\\), \\((1\\,;\\,2)\\), \\((3\\,;\\,6)\\)',
+      wrongs: [
+        '\\((0\\,;\\,1)\\), \\((1\\,;\\,3)\\), \\((3\\,;\\,7)\\)',
+        '\\((0\\,;\\,2)\\), \\((1\\,;\\,4)\\), \\((3\\,;\\,8)\\)',
+        '\\((1\\,;\\,2)\\), \\((2\\,;\\,1)\\), \\((3\\,;\\,0)\\)'
+      ],
+      sol: "f(x) = 2x donne f(0)=0, f(1)=2, f(3)=6. Tous les points sont alignés avec O."
+    },
+    // Signe sur graphique simple (positif/négatif visuel)
+    {
+      figure: svgRepereDroite({ a: 1, b: -2 }),
+      body: "Pour quelle valeur de \\(x\\) la droite coupe-t-elle l'axe des abscisses (y=0) ?",
+      good: '\\(x = 2\\)',
+      wrongs: ['\\(x = -2\\)', '\\(x = 0\\)', '\\(x = 1\\)'],
+      sol: "On résout 1×x − 2 = 0, soit x = 2. Le point d'intersection est (2 ; 0)."
+    }
   ];
   const k = pick(cases);
-  return _repr_qcm({
-    title: 'Niveau 🔴 — Lire une image',
-    body: `${k.context}<br>Quelle est la valeur de \\(f(${k.x})\\) ?`,
-    goodHtml: `\\(f(${k.x}) = ${k.fx}\\)`,
-    distractors: [
-      `\\(f(${k.x}) = ${k.x}\\)`,
-      `\\(f(${k.fx}) = ${k.x}\\)`,
-      `\\(f(${k.x}) = ${k.fx + 1}\\)`
-    ],
-    solution: `Lire l'image, c'est lire l'ordonnée du point dont l'abscisse est ${k.x} : \\(f(${k.x}) = ${k.fx}\\).`,
+  const opts = [{ html: k.good, correct: true }].concat(k.wrongs.map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  return {
+    theme: 'representer', title: 'Niveau 🔴 — Lecture simple',
+    body: figHtml + k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
     help: {
-      cours: "<b>Image</b> d'un nombre \\(a\\) : c'est l'ordonnée du point de la courbe d'abscisse \\(a\\), notée \\(f(a)\\).",
-      savoirFaire: "Trouver \\(a\\) sur l'axe des abscisses, monter jusqu'à la courbe, lire l'ordonnée.",
-      erreurs: ["Lire l'antécédent au lieu de l'image.", "Confondre axes x et y.", "Inverser les coordonnées."]
+      cours: "<b>Image</b> d'un nombre \\(a\\) par \\(f\\) : c'est \\(f(a)\\), lu en ordonnée du point d'abscisse \\(a\\). <b>Antécédent</b> de \\(b\\) : c'est la valeur de \\(x\\) telle que \\(f(x)=b\\).",
+      savoirFaire: "Tableau : on lit directement. Graphique : on suit la flèche (en abscisse pour l'image, en ordonnée pour l'antécédent). Diagramme : on lit la hauteur ou le secteur.",
+      erreurs: ["Confondre image et antécédent.", "Inverser les coordonnées (x ↔ y).", "Lire la mauvaise ligne du tableau."]
     }
-  });
+  };
 }
 
 function repr_lecture_n2() {
-  // 🟡 Apprentissage — antécédent simple
+  // 🟡 Apprentissage — images / antécédents sur fonctions affines et linéaires, lecture de a et b
   const cases = [
-    { y: 3, x: 1, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' },
-    { y: 5, x: 2, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' },
-    { y: 9, x: 4, context: 'La courbe de f passe par les points \\((1\\,;\\,3)\\), \\((2\\,;\\,5)\\), \\((4\\,;\\,9)\\).' }
+    // Image sur affine (lue graphiquement)
+    {
+      figure: svgRepereDroite({ a: 2, b: 1 }),
+      body: "La droite représente la fonction affine \\(f\\). Quelle est la valeur de \\(f(2)\\) ?",
+      good: '\\(5\\)',
+      wrongs: ['\\(2\\)', '\\(3\\)', '\\(4\\)'],
+      sol: "La droite a pour équation \\(y = 2x + 1\\). Donc \\(f(2) = 2×2+1 = 5\\)."
+    },
+    {
+      figure: svgRepereDroite({ a: -1, b: 4 }),
+      body: "Lire sur le graphique : que vaut \\(f(3)\\) ?",
+      good: '\\(1\\)',
+      wrongs: ['\\(4\\)', '\\(3\\)', '\\(-3\\)'],
+      sol: "La droite a pour équation \\(y = -x + 4\\). Donc \\(f(3) = -3+4 = 1\\)."
+    },
+    // Antécédent sur affine
+    {
+      figure: svgRepereDroite({ a: 2, b: -1 }),
+      body: "La fonction affine \\(f\\) est représentée. Quel est l'antécédent de 3 par \\(f\\) ?",
+      good: '\\(2\\)',
+      wrongs: ['\\(3\\)', '\\(1\\)', '\\(5\\)'],
+      sol: "On cherche \\(x\\) tel que \\(2x-1 = 3\\), donc \\(2x=4\\), \\(x=2\\)."
+    },
+    // Image / antécédent sur linéaire
+    {
+      figure: svgRepereDroite({ a: 3, b: 0 }),
+      body: "La droite représente la fonction linéaire \\(f(x) = 3x\\). Que vaut \\(f(2)\\) ?",
+      good: '\\(6\\)',
+      wrongs: ['\\(3\\)', '\\(2\\)', '\\(5\\)'],
+      sol: "\\(f(2) = 3 × 2 = 6\\). La droite passe par (2 ; 6)."
+    },
+    // Lire a (pente) — graphiquement
+    {
+      figure: svgRepereDroite({ a: 2, b: 1 }),
+      body: "D'après le graphique, que vaut le <b>coefficient directeur</b> \\(a\\) de la droite ?",
+      good: '\\(a = 2\\)',
+      wrongs: ['\\(a = 1\\)', '\\(a = -2\\)', '\\(a = 0\\)'],
+      sol: "Quand on avance de 1 en abscisse, on monte de 2 en ordonnée : \\(a = 2\\)."
+    },
+    {
+      figure: svgRepereDroite({ a: -1, b: 2 }),
+      body: "Quel est le coefficient directeur de la droite tracée ?",
+      good: '\\(a = -1\\)',
+      wrongs: ['\\(a = 1\\)', '\\(a = 2\\)', '\\(a = -2\\)'],
+      sol: "Quand on avance de 1 en abscisse, on descend de 1 : \\(a = -1\\) (pente négative → droite décroissante)."
+    },
+    // Lire b (ordonnée à l'origine)
+    {
+      figure: svgRepereDroite({ a: 1, b: 3 }),
+      body: "Quelle est l'<b>ordonnée à l'origine</b> de la droite (valeur \\(b\\)) ?",
+      good: '\\(b = 3\\)',
+      wrongs: ['\\(b = 1\\)', '\\(b = 0\\)', '\\(b = -3\\)'],
+      sol: "L'ordonnée à l'origine est la valeur de \\(y\\) pour \\(x=0\\). La droite coupe l'axe (Oy) en 3 : \\(b=3\\)."
+    },
+    {
+      figure: svgRepereDroite({ a: 2, b: -2 }),
+      body: "Ordonnée à l'origine de la droite ?",
+      good: '\\(b = -2\\)',
+      wrongs: ['\\(b = 2\\)', '\\(b = 0\\)', '\\(b = -1\\)'],
+      sol: "La droite coupe (Oy) en −2, donc \\(b = -2\\)."
+    },
+    // Énoncé en mots ↔ graphique
+    {
+      figure: svgRepereDroite({ a: 2, b: 1 }),
+      body: "Quelle phrase décrit le mieux cette droite ?",
+      good: "Elle est croissante et coupe (Oy) en 1",
+      wrongs: [
+        "Elle est décroissante et coupe (Oy) en 1",
+        "Elle est constante",
+        "Elle passe par l'origine"
+      ],
+      sol: "La pente \\(a = 2 > 0\\) → droite <b>croissante</b>. Et \\(b = 1\\) → coupe (Oy) en 1."
+    },
+    {
+      figure: svgRepereDroite({ a: -2, b: 4 }),
+      body: "Que peut-on dire de cette droite ?",
+      good: "Décroissante, passe par (0 ; 4)",
+      wrongs: [
+        "Croissante, passe par l'origine",
+        "Horizontale, y = 4",
+        "Décroissante, passe par l'origine"
+      ],
+      sol: "Pente −2 < 0 → <b>décroissante</b>. Ordonnée à l'origine \\(b=4\\) → passe par (0 ; 4)."
+    },
+    // Associer une formule à un graphique
+    {
+      figure: svgRepereDroite({ a: 1, b: 2 }),
+      body: "Quelle équation correspond à cette droite ?",
+      good: '\\(y = x + 2\\)',
+      wrongs: ['\\(y = 2x + 1\\)', '\\(y = -x + 2\\)', '\\(y = 2x\\)'],
+      sol: "Pente 1 (on monte de 1 par unité) et ordonnée à l'origine 2 → \\(y = x + 2\\)."
+    },
+    {
+      figure: svgRepereDroite({ a: 3, b: 0 }),
+      body: "Quelle équation correspond à cette droite ?",
+      good: '\\(y = 3x\\)',
+      wrongs: ['\\(y = 3x + 1\\)', '\\(y = x + 3\\)', '\\(y = 3\\)'],
+      sol: "Droite passant par l'origine (\\(b=0\\)) avec pente 3 → \\(y = 3x\\). C'est une <b>fonction linéaire</b>."
+    }
   ];
   const k = pick(cases);
-  return _repr_qcm({
-    title: 'Niveau 🟡 — Trouver un antécédent',
-    body: `${k.context}<br>Quel est l'antécédent de <b>${k.y}</b> par \\(f\\) ?`,
-    goodHtml: `\\(${k.x}\\)`,
-    distractors: [`\\(${k.y}\\)`, `\\(${k.y - 1}\\)`, `\\(${k.x + 1}\\)`],
-    solution: `On cherche \\(x\\) tel que \\(f(x) = ${k.y}\\). D'après le tableau : \\(x = ${k.x}\\).`,
+  const opts = [{ html: k.good, correct: true }].concat(k.wrongs.map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  return {
+    theme: 'representer', title: 'Niveau 🟡 — Fonctions affines : image, antécédent, a et b',
+    body: figHtml + k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
     help: {
-      cours: "<b>Antécédent</b> d'un nombre \\(b\\) par \\(f\\) : c'est un nombre \\(x\\) tel que \\(f(x) = b\\). Géométriquement, on part de \\(b\\) sur l'axe des ordonnées, on va jusqu'à la courbe, on redescend sur l'axe des abscisses.",
-      savoirFaire: "Lire en ordonnée, chercher la correspondance sur la courbe, descendre sur l'axe des x.",
-      erreurs: ["Lire l'image au lieu de l'antécédent.", "Oublier qu'un nombre peut avoir plusieurs antécédents.", "Confondre avec \\(f(b)\\)."]
+      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\) : graphiquement une <b>droite</b>. \\(a\\) = coefficient directeur (pente) : combien on monte (ou descend) quand on avance de 1. \\(b\\) = ordonnée à l'origine : la valeur de \\(y\\) pour \\(x=0\\).",
+      savoirFaire: "Pour lire \\(a\\) : comptez de combien on monte quand on avance de 1 unité. Pour lire \\(b\\) : regardez où la droite coupe l'axe (Oy).",
+      erreurs: ["Confondre \\(a\\) et \\(b\\).", "Oublier le signe négatif pour une droite décroissante.", "Confondre image et antécédent."]
     }
-  });
+  };
 }
 
 function repr_lecture_n3() {
-  // 🟢 Confirmé — droite : image / antécédent pour fonction affine
-  const a = pick([2, -1, 3, -2]);
-  const b = pick([1, 0, -2, 3]);
-  const x0 = pick([1, 2, 3, -1]);
-  const y0 = a * x0 + b;
-  return _repr_qcm({
-    title: 'Niveau 🟢 — Fonction affine et lecture',
-    body: `On considère la fonction affine \\(f(x) = ${a}x ${b >= 0 ? '+ ' + b : '- ' + (-b)}\\).<br>Quelle est la valeur de \\(f(${x0})\\) ?`,
-    goodHtml: `\\(${y0}\\)`,
-    distractors: [`\\(${y0 + 1}\\)`, `\\(${a + b}\\)`, `\\(${-y0}\\)`],
-    solution: `On remplace \\(x\\) par ${x0} : \\(f(${x0}) = ${a} \\times ${x0} ${b >= 0 ? '+ ' + b : '- ' + (-b)} = ${a*x0} ${b >= 0 ? '+ ' + b : '- ' + (-b)} = ${y0}\\).`,
-    help: {
-      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\) : \\(a\\) est le coefficient directeur, \\(b\\) l'ordonnée à l'origine.",
-      savoirFaire: "Substituer la valeur, attention aux signes et à la règle des signes.",
-      erreurs: ["Oublier d'ajouter \\(b\\).", "Se tromper de signe.", "Inverser \\(a\\) et \\(b\\)."]
+  // 🟢 Confirmé — calculs sur fonctions affines (image, antécédent, coefficient entre 2 points)
+  const cases = [
+    // Image calculée
+    {
+      body: "Soit \\(f(x) = 3x - 2\\). Calculer \\(f(4)\\).",
+      good: '\\(10\\)',
+      wrongs: ['\\(12\\)', '\\(6\\)', '\\(-2\\)'],
+      sol: "\\(f(4) = 3×4 - 2 = 12 - 2 = 10\\)."
+    },
+    {
+      body: "Soit \\(g(x) = -2x + 5\\). Calculer \\(g(3)\\).",
+      good: '\\(-1\\)',
+      wrongs: ['\\(-11\\)', '\\(1\\)', '\\(11\\)'],
+      sol: "\\(g(3) = -2×3 + 5 = -6 + 5 = -1\\)."
+    },
+    {
+      body: "Soit \\(h(x) = x + 4\\). Calculer \\(h(-2)\\).",
+      good: '\\(2\\)',
+      wrongs: ['\\(-6\\)', '\\(6\\)', '\\(-2\\)'],
+      sol: "\\(h(-2) = -2 + 4 = 2\\)."
+    },
+    // Antécédent par calcul
+    {
+      body: "Soit \\(f(x) = 2x + 1\\). Résoudre \\(f(x) = 7\\).",
+      good: '\\(x = 3\\)',
+      wrongs: ['\\(x = 15\\)', '\\(x = 7\\)', '\\(x = 4\\)'],
+      sol: "\\(2x+1=7 ⇔ 2x=6 ⇔ x=3\\). L'antécédent de 7 est 3."
+    },
+    {
+      body: "Soit \\(g(x) = 3x - 5\\). Quel est l'antécédent de 10 ?",
+      good: '\\(5\\)',
+      wrongs: ['\\(25\\)', '\\(3\\)', '\\(\\dfrac{10}{3}\\)'],
+      sol: "\\(3x-5=10 ⇔ 3x=15 ⇔ x=5\\)."
+    },
+    // Coefficient directeur entre 2 points
+    {
+      body: "Une droite passe par \\(A(1\\,;\\,3)\\) et \\(B(4\\,;\\,9)\\). Quel est son coefficient directeur \\(a\\) ?",
+      good: '\\(a = 2\\)',
+      wrongs: ['\\(a = 3\\)', '\\(a = 6\\)', '\\(a = \\dfrac{1}{2}\\)'],
+      sol: "\\(a = \\dfrac{y_B - y_A}{x_B - x_A} = \\dfrac{9-3}{4-1} = \\dfrac{6}{3} = 2\\)."
+    },
+    {
+      body: "Droite passant par \\(A(0\\,;\\,2)\\) et \\(B(2\\,;\\,-2)\\). Coefficient directeur ?",
+      good: '\\(a = -2\\)',
+      wrongs: ['\\(a = 2\\)', '\\(a = -4\\)', '\\(a = 0\\)'],
+      sol: "\\(a = \\dfrac{-2-2}{2-0} = \\dfrac{-4}{2} = -2\\)."
+    },
+    // Distinction affine vs linéaire
+    {
+      body: "Parmi ces fonctions, laquelle est <b>linéaire</b> (c'est-à-dire affine avec \\(b=0\\)) ?",
+      good: '\\(f(x) = 5x\\)',
+      wrongs: ['\\(g(x) = 2x + 3\\)', '\\(h(x) = x - 1\\)', '\\(k(x) = 7\\)'],
+      sol: "Une fonction linéaire s'écrit \\(f(x) = ax\\), sans terme constant. Seule \\(f(x) = 5x\\) convient."
+    },
+    {
+      body: "La fonction \\(f(x) = 3\\) est :",
+      good: "Constante (affine avec \\(a=0\\))",
+      wrongs: [
+        "Linéaire",
+        "Affine avec \\(b=0\\)",
+        "Une fonction qui n'existe pas"
+      ],
+      sol: "\\(f(x) = 3\\) pour tout \\(x\\) : c'est une fonction <b>constante</b>. Représentation : droite horizontale."
+    },
+    // Expression → tableau
+    {
+      body: "Soit \\(f(x) = -x + 5\\). Quel tableau est correct ?",
+      good: '\\(f(0)=5\\), \\(f(2)=3\\), \\(f(5)=0\\)',
+      wrongs: [
+        '\\(f(0)=0\\), \\(f(2)=2\\), \\(f(5)=5\\)',
+        '\\(f(0)=-5\\), \\(f(2)=-3\\), \\(f(5)=0\\)',
+        '\\(f(0)=5\\), \\(f(2)=7\\), \\(f(5)=10\\)'
+      ],
+      sol: "\\(f(0)=-0+5=5\\) ; \\(f(2)=-2+5=3\\) ; \\(f(5)=-5+5=0\\)."
+    },
+    // Équation droite à partir 2 points (appel pour préparer n4)
+    {
+      body: "Une droite passe par \\(A(0\\,;\\,4)\\) et \\(B(1\\,;\\,6)\\). Quelle est son équation ?",
+      good: '\\(y = 2x + 4\\)',
+      wrongs: ['\\(y = 4x + 2\\)', '\\(y = 2x + 6\\)', '\\(y = x + 4\\)'],
+      sol: "\\(a = \\dfrac{6-4}{1-0} = 2\\). L'ordonnée à l'origine est \\(y_A = 4\\) (car \\(x_A = 0\\)). Donc \\(y = 2x+4\\)."
     }
-  });
+  ];
+  const k = pick(cases);
+  const opts = [{ html: k.good, correct: true }].concat(k.wrongs.map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  return {
+    theme: 'representer', title: 'Niveau 🟢 — Calculs sur fonctions affines',
+    body: k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
+    help: {
+      cours: "<b>Fonction affine</b> \\(f(x) = ax + b\\). Image de \\(a\\) : calcul direct. Antécédent de \\(y\\) : résoudre \\(ax+b=y\\). Coefficient directeur entre 2 points : \\(a = \\dfrac{y_B - y_A}{x_B - x_A}\\).",
+      savoirFaire: "Pour une image : remplacer \\(x\\) et calculer. Pour un antécédent : poser l'équation \\(ax+b=y\\) et résoudre. Pour deux points : calculer la variation des \\(y\\) divisée par celle des \\(x\\).",
+      erreurs: ["Confondre image (\\(f(a)\\)) et antécédent (\\(x\\) tel que \\(f(x)=b\\)).", "Oublier le signe de \\(b\\) dans le calcul.", "Inverser numérateur/dénominateur dans le coefficient directeur."]
+    }
+  };
 }
 
 function repr_lecture_n4() {
-  // 💚 Maîtrise — lire le coefficient directeur
-  const pts = pick([
-    { p1: [0, 1], p2: [2, 5], a: 2, b: 1 },
-    { p1: [0, 3], p2: [4, 7], a: 1, b: 3 },
-    { p1: [0, 5], p2: [1, 2], a: -3, b: 5 },
-    { p1: [0, -1], p2: [3, 5], a: 2, b: -1 }
-  ]);
-  return _repr_qcm({
-    title: 'Niveau 💚 — Coefficient directeur',
-    body: `Une droite \\((d)\\) passe par les points \\(A(${pts.p1[0]}\\,;\\,${pts.p1[1]})\\) et \\(B(${pts.p2[0]}\\,;\\,${pts.p2[1]})\\).<br>Quel est le coefficient directeur de \\((d)\\) ?`,
-    goodHtml: `\\(${pts.a}\\)`,
-    distractors: [`\\(${pts.b}\\)`, `\\(${-pts.a}\\)`, `\\(\\dfrac{1}{${pts.a}}\\)`],
-    solution: `Formule : \\(a = \\dfrac{y_B - y_A}{x_B - x_A} = \\dfrac{${pts.p2[1]} - ${pts.p1[1]}}{${pts.p2[0]} - ${pts.p1[0]}} = ${pts.a}\\).`,
-    help: {
-      cours: "Coefficient directeur d'une droite passant par \\(A(x_A;y_A)\\) et \\(B(x_B;y_B)\\) : \\(a = \\dfrac{y_B - y_A}{x_B - x_A}\\).",
-      savoirFaire: "Calculer la différence des ordonnées / différence des abscisses.",
-      erreurs: ["Inverser numérateur et dénominateur.", "Oublier le signe.", "Confondre avec \\(b\\) (ordonnée à l'origine)."]
+  // 💚 Maîtrise — intersection de droites / comparaison, proportionnalité sur graphique
+  const cases = [
+    // Intersection de 2 droites (problème contextualisé)
+    {
+      figure: svgGraph({ xMax: 10, yMax: 30, points: [[0,5],[1,7],[5,15],[10,25]], highlight: [[5,15]], xLabel: 'x (mois)', yLabel: 'prix (€)' }),
+      body: "Deux offres d'abonnement : A coûte 5 € + 2 €/mois ; B coûte 5 €/mois. Leurs représentations se coupent au point lu : (5 ; 15). Que cela signifie-t-il ?",
+      good: "Après 5 mois, les deux offres coûtent la même chose : 15 €",
+      wrongs: [
+        "Après 5 mois, l'offre A coûte 15 € et l'offre B coûte 5 €",
+        "C'est toujours l'offre A la moins chère",
+        "On ne peut rien dire"
+      ],
+      sol: "L'intersection donne la valeur commune (5 mois, 15 €). Avant 5 mois : A plus chère ; après : A moins chère."
+    },
+    {
+      body: "Un taxi A facture 3 € + 2 € par km ; un taxi B facture 1 €/km. Pour quelle distance les prix sont-ils égaux ?",
+      good: "3 km (prix = 3 €)",
+      wrongs: ["1 km", "5 km", "Ils ne sont jamais égaux"],
+      sol: "On résout \\(3 + 2x = 3x\\), donc \\(x=3\\) km, prix 3 €."
+    },
+    {
+      body: "Deux fonctions affines : \\(f(x) = 2x + 1\\) et \\(g(x) = -x + 7\\). Pour quelle valeur de \\(x\\) a-t-on \\(f(x) = g(x)\\) ?",
+      good: '\\(x = 2\\)',
+      wrongs: ['\\(x = 3\\)', '\\(x = -2\\)', '\\(x = 6\\)'],
+      sol: "\\(2x+1 = -x+7 ⇔ 3x = 6 ⇔ x=2\\). Les deux droites se coupent en \\((2\\,;\\,5)\\)."
+    },
+    // Proportionnalité sur graphique
+    {
+      figure: svgRepereDroite({ a: 3, b: 0 }),
+      body: "Cette droite représente-t-elle une situation de proportionnalité ?",
+      good: "Oui, car c'est une droite passant par l'origine",
+      wrongs: [
+        "Non, la pente n'est pas 1",
+        "Non, ce n'est pas une droite",
+        "On ne peut pas le dire"
+      ],
+      sol: "Droite <b>passant par O</b> → proportionnalité. Le coefficient de proportionnalité est 3 (pente de la droite)."
+    },
+    {
+      figure: svgRepereDroite({ a: 1, b: 2 }),
+      body: "Est-ce une situation de proportionnalité ?",
+      good: "Non, car la droite coupe (Oy) en 2 et pas en 0",
+      wrongs: [
+        "Oui, c'est une droite",
+        "Oui, la pente est constante",
+        "Oui, car les points sont alignés"
+      ],
+      sol: "Critère : la droite doit passer par O. Ici elle coupe (Oy) en 2 → <b>pas</b> de proportionnalité."
+    },
+    // Diagramme barres double (comparaison deux séries)
+    {
+      body: "Un diagramme en barres compare les ventes de 2 boutiques sur 4 mois : boutique A vend toujours plus que B, sauf en mars où B double ses ventes. Que peut-on conclure ?",
+      good: "A est globalement plus performante, mais B progresse fortement en mars",
+      wrongs: [
+        "A est toujours meilleure",
+        "B est toujours meilleure",
+        "Les deux boutiques sont identiques"
+      ],
+      sol: "Un diagramme barres double met en évidence : <b>tendance globale</b> (A domine) et <b>exceptions</b> (mars pour B)."
+    },
+    // Lecture sens de variation sur courbe
+    {
+      figure: svgGraph({ xMax: 6, yMax: 10, points: [[0,1],[1,4],[2,7],[3,9],[4,7],[5,4],[6,1]], xLabel: 'x', yLabel: 'f(x)' }),
+      body: "D'après la courbe, la fonction \\(f\\) est :",
+      good: "Croissante sur [0 ; 3], puis décroissante sur [3 ; 6]",
+      wrongs: [
+        "Croissante sur tout l'intervalle",
+        "Décroissante sur tout l'intervalle",
+        "Constante"
+      ],
+      sol: "La courbe monte de 0 à 3 (max en 3), puis redescend. Donc croissante puis décroissante."
+    },
+    {
+      figure: svgGraph({ xMax: 6, yMax: 10, points: [[0,8],[1,6],[2,4],[3,2],[4,4],[5,6],[6,8]], xLabel: 'x', yLabel: 'g(x)' }),
+      body: "D'après la courbe, pour quelle valeur \\(g\\) atteint-elle son <b>minimum</b> ?",
+      good: '\\(x = 3\\)',
+      wrongs: ['\\(x = 0\\)', '\\(x = 6\\)', '\\(x = 4\\)'],
+      sol: "Le point le plus bas de la courbe est en (3 ; 2). Donc minimum en \\(x=3\\)."
+    },
+    // Situations mélangées (proportionnalité vs affine)
+    {
+      body: "Quelle fonction correspond à une situation de <b>proportionnalité</b> ?",
+      good: '\\(f(x) = 7x\\)',
+      wrongs: ['\\(f(x) = 7x + 2\\)', '\\(f(x) = 7\\)', '\\(f(x) = \\dfrac{1}{x}\\)'],
+      sol: "Proportionnalité = linéaire = \\(f(x) = ax\\). Seule \\(7x\\) convient."
     }
-  });
+  ];
+  const k = pick(cases);
+  const opts = [{ html: k.good, correct: true }].concat(k.wrongs.map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  return {
+    theme: 'representer', title: 'Niveau 💚 — Intersections, proportionnalité, variations',
+    body: figHtml + k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
+    help: {
+      cours: "<b>Intersection</b> de deux droites = valeur de \\(x\\) pour laquelle les deux fonctions donnent la même valeur (on résout \\(f(x) = g(x)\\)). <b>Proportionnalité</b> ↔ droite passant par O. <b>Sens de variation</b> : la courbe monte (croissante) ou descend (décroissante).",
+      savoirFaire: "Intersection : égaler les deux expressions et résoudre. Sens de variation : suivre la courbe de gauche à droite.",
+      erreurs: ["Oublier que deux droites peuvent être parallèles (pas d'intersection).", "Confondre proportionnalité (passe par O) et fonction affine générale.", "Lire le sens de variation à l'envers."]
+    }
+  };
 }
 
 function repr_lecture_n5() {
-  // ⚫ Expert — équation de droite à partir de deux points
-  const pts = pick([
-    { p1: [1, 4], p2: [3, 10], eq: 'y = 3x + 1', wrongs: ['y = 3x + 4', 'y = 2x + 2', 'y = x + 3'] },
-    { p1: [0, 2], p2: [4, -6], eq: 'y = -2x + 2', wrongs: ['y = 2x + 2', 'y = -2x - 2', 'y = -x + 2'] },
-    { p1: [0, 5], p2: [2, 5], eq: 'y = 5', wrongs: ['x = 5', 'y = x + 5', 'y = 2x + 5'] },
-    { p1: [1, 3], p2: [2, 5], eq: 'y = 2x + 1', wrongs: ['y = 2x + 3', 'y = x + 2', 'y = 3x + 2'] }
-  ]);
-  return _repr_qcm({
-    title: 'Niveau ⚫ — Équation d\'une droite',
-    body: `Une droite passe par les points \\(A(${pts.p1[0]}\\,;\\,${pts.p1[1]})\\) et \\(B(${pts.p2[0]}\\,;\\,${pts.p2[1]})\\).<br>Quelle est son équation ?`,
-    goodHtml: `\\(${pts.eq}\\)`,
-    distractors: pts.wrongs.map(w => `\\(${w}\\)`),
-    solution: `Calculer le coefficient directeur \\(a\\), puis l'ordonnée à l'origine \\(b\\) en utilisant l'un des points : \\(b = y_A - a \\times x_A\\).`,
-    help: {
-      cours: "Pour l'équation \\(y = ax + b\\) d'une droite : 1) calculer \\(a = \\dfrac{\\Delta y}{\\Delta x}\\) ; 2) utiliser un point pour trouver \\(b\\).",
-      savoirFaire: "Calculer \\(a\\), puis \\(b = y - ax\\) avec un point.",
-      erreurs: ["Inverser \\(a\\) et \\(b\\).", "Mauvais signe.", "Droite horizontale : \\(y = k\\), pas \\(x = k\\)."]
+  // ⚫ Expert — modélisation, graphique temps-distance, tarifs, fréquences cumulées
+  const cases = [
+    // Temps-distance
+    {
+      figure: svgGraph({ xMax: 6, yMax: 30, points: [[0,0],[1,10],[2,20],[3,20],[4,25],[5,30],[6,30]], xLabel: 't (h)', yLabel: 'd (km)' }),
+      body: "Ce graphique temps-distance représente le trajet d'un cycliste. Que se passe-t-il entre \\(t = 2\\,\\text{h}\\) et \\(t = 3\\,\\text{h}\\) ?",
+      good: "Le cycliste s'arrête (distance constante)",
+      wrongs: [
+        "Le cycliste accélère",
+        "Le cycliste fait demi-tour",
+        "Le cycliste roule à vitesse constante"
+      ],
+      sol: "Entre 2h et 3h, la distance reste à 20 km : le cycliste est à l'<b>arrêt</b> (segment horizontal)."
+    },
+    {
+      figure: svgGraph({ xMax: 5, yMax: 50, points: [[0,0],[1,15],[2,30],[3,45],[4,50],[5,50]], xLabel: 't (h)', yLabel: 'd (km)' }),
+      body: "Quelle est la vitesse moyenne entre 0 et 3h ?",
+      good: "15 km/h",
+      wrongs: ["10 km/h", "45 km/h", "30 km/h"],
+      sol: "Vitesse moyenne = distance/durée = 45 km / 3 h = <b>15 km/h</b>."
+    },
+    // Tarifs
+    {
+      figure: svgGraph({ xMax: 6, yMax: 50, points: [[0,10],[1,15],[2,20],[3,25],[4,30],[5,35],[6,40]], xLabel: 'h', yLabel: 'prix (€)' }),
+      body: "Un parking a pour tarif : 10 € d'entrée + 5 €/h. Que représente l'ordonnée à l'origine (10 €) ?",
+      good: "Le prix fixe d'entrée, indépendant de la durée",
+      wrongs: [
+        "Le prix pour 1 heure",
+        "Le tarif horaire",
+        "La durée minimale"
+      ],
+      sol: "À 0 heure, on paie déjà 10 € : c'est le <b>prix fixe</b> (forfait d'entrée)."
+    },
+    {
+      body: "Un forfait téléphone : 15 € par mois + 0,10 €/minute au-delà de 2h. Quelle fonction modélise le prix en fonction des minutes supplémentaires \\(x\\) ?",
+      good: '\\(P(x) = 0{,}10 x + 15\\)',
+      wrongs: [
+        '\\(P(x) = 15 x + 0{,}10\\)',
+        '\\(P(x) = 15 x\\)',
+        '\\(P(x) = 0{,}10 x\\)'
+      ],
+      sol: "Prix fixe 15 € + 0,10 € × nombre de minutes : \\(P(x) = 0{,}10 x + 15\\)."
+    },
+    // Phrase ↔ équation affine
+    {
+      body: "Un taxi coûte 4 € de prise en charge + 1,50 € par km. Quelle fonction donne le prix en fonction du nombre de kilomètres \\(x\\) ?",
+      good: '\\(f(x) = 1{,}5 x + 4\\)',
+      wrongs: [
+        '\\(f(x) = 4 x + 1{,}5\\)',
+        '\\(f(x) = 4 x\\)',
+        '\\(f(x) = 1{,}5 x\\)'
+      ],
+      sol: "Prise en charge (fixe) = 4 €. Par km = 1,50 €. Donc \\(f(x) = 1{,}5 x + 4\\)."
+    },
+    {
+      body: "On dit : « Pour chaque livre supplémentaire, le prix augmente de 12 €. Un livre coûte 15 € ». Quelle fonction affine modélise le prix total en fonction de \\(x\\) livres supplémentaires (après le 1er) ?",
+      good: '\\(P(x) = 12 x + 15\\)',
+      wrongs: [
+        '\\(P(x) = 15 x + 12\\)',
+        '\\(P(x) = 12 x\\)',
+        '\\(P(x) = 15 + x\\)'
+      ],
+      sol: "Prix initial (x=0 livre en plus) : 15 €. Augmentation par livre : 12 €. \\(P(x) = 12x + 15\\)."
+    },
+    // Fréquences cumulées croissantes (pour médiane)
+    {
+      body: "Dans une série statistique, la <b>fréquence cumulée croissante</b> correspondant à la valeur 12 vaut 50 %. Que peut-on en déduire ?",
+      good: "La médiane de la série est proche de 12",
+      wrongs: [
+        "12 est la moyenne",
+        "50 % des valeurs valent 12",
+        "12 est le minimum"
+      ],
+      sol: "La médiane partage la série en deux : <b>F.C.C. = 50 %</b> pointe la valeur médiane. Ici, la médiane ≈ 12."
+    },
+    {
+      body: "Sur un graphique de fréquences cumulées, à quelle ordonnée lit-on la <b>médiane</b> ?",
+      good: "50 %",
+      wrongs: ["25 %", "75 %", "100 %"],
+      sol: "La médiane correspond à la F.C.C. = 50 % (moitié de la population en dessous, moitié au-dessus)."
+    },
+    // Comparaison de 2 situations
+    {
+      body: "Un livreur propose : option A = 4 € par livraison ; option B = forfait 10 € + 1 € par livraison. À partir de combien de livraisons \\(n\\), l'option B devient-elle plus avantageuse ?",
+      good: '\\(n \\geq 4\\)',
+      wrongs: ['\\(n \\geq 2\\)', '\\(n \\geq 10\\)', 'Jamais'],
+      sol: "On résout \\(4n \\geq 10 + n\\), soit \\(3n \\geq 10\\), \\(n \\geq 10/3\\), donc \\(n \\geq 4\\) (entier)."
     }
-  });
+  ];
+  const k = pick(cases);
+  const opts = [{ html: k.good, correct: true }].concat(k.wrongs.map(w => ({ html: w, correct: false })));
+  const { choices, correctIdx } = makeQCM(opts);
+  const figHtml = k.figure ? `<div class="geo-figure">${k.figure}</div>` : '';
+  return {
+    theme: 'representer', title: 'Niveau ⚫ — Modélisation de situations',
+    body: figHtml + k.body,
+    type: 'qcm', choices, correctIdx,
+    solution: k.sol,
+    help: {
+      cours: "<b>Modéliser</b> = traduire une situation réelle par une fonction affine \\(f(x) = ax + b\\), où \\(a\\) = taux de variation (par unité) et \\(b\\) = valeur fixe de départ. <b>Graphique temps-distance</b> : pente = vitesse ; segment horizontal = arrêt. <b>F.C.C.</b> : la médiane correspond à 50 %.",
+      savoirFaire: "Repérer le coefficient \\(a\\) (évolution par unité) et la constante \\(b\\) (terme fixe). Pour comparer deux offres, résoudre une équation ou inéquation.",
+      erreurs: ["Inverser \\(a\\) et \\(b\\) dans la modélisation.", "Confondre pente et valeur finale dans un graphique.", "Oublier que la médiane = F.C.C. 50 % (pas 100 %)."]
+    }
+  };
 }
 
 /* ==========================================================================
