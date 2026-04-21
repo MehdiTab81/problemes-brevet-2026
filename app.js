@@ -1017,22 +1017,28 @@ function exportForTeacher() {
 }
 
 /* ---------- Démarrer l'évaluation ---------- */
-$('#btn-start').addEventListener('click', () => {
-  // Mode évaluation officiel : timer obligatoire et visible (même si l'option "masquer timer"
-  // est cochée dans l'accessibilité), tous thèmes mélangés, pas d'aide.
-  const duree = parseInt(document.querySelector('input[name=duree]:checked').value, 10) || 1200;
-  state.mode = 'eval';
-  state.duree = duree;
-  state.series = buildSeries([]); // [] = tous les thèmes mélangés
-  state.answers = state.series.map(() => ({ selectedIdx: null, inputAnswer: '', helped: false }));
-  state.current = 0;
-  state.startedAt = Date.now();
-  state.remaining = duree;
-  document.body.classList.add('evaluating'); // force l'affichage du chrono
-  startTimer();
-  showScreen('screen-test');
-  renderQuestion();
-});
+// Note : sur problemes-brevet2026, l'onglet "S'évaluer" n'existe pas (pas de #btn-start).
+// Ce bloc ne s'attache que si l'élément est présent, sinon on saute silencieusement
+// pour ne pas planter le reste du script (qui définirait plus bas SKILLS, renderSkillsTab…).
+const __btnStartEval = $('#btn-start');
+if (__btnStartEval) {
+  __btnStartEval.addEventListener('click', () => {
+    // Mode évaluation officiel : timer obligatoire et visible (même si l'option "masquer timer"
+    // est cochée dans l'accessibilité), tous thèmes mélangés, pas d'aide.
+    const duree = parseInt(document.querySelector('input[name=duree]:checked').value, 10) || 1200;
+    state.mode = 'eval';
+    state.duree = duree;
+    state.series = buildSeries([]); // [] = tous les thèmes mélangés
+    state.answers = state.series.map(() => ({ selectedIdx: null, inputAnswer: '', helped: false }));
+    state.current = 0;
+    state.startedAt = Date.now();
+    state.remaining = duree;
+    document.body.classList.add('evaluating'); // force l'affichage du chrono
+    startTimer();
+    showScreen('screen-test');
+    renderQuestion();
+  });
+}
 
 /* ---------- Démarrer un entraînement libre ---------- */
 const btnStartTrain = $('#btn-start-train');
