@@ -1404,16 +1404,22 @@ function finishTest() {
   // Bannière de célébration si on vient de finir un exercice Compétence
   let skillBanner = '';
   if (skillResult) {
-    const { corrects, total, justUnlockedNext, nextLevel, level } = skillResult;
+    const { corrects, total, justUnlockedNext, nextLevel, level, skillId, formatId } = skillResult;
     const r = corrects / total;
     let head = '', msg = '', emoji = '🎉';
-    if (r === 1)       { head = 'Parfait !';         emoji = '🏆'; msg = 'Sans faute, bravo !'; }
-    else if (r >= 0.8) { head = 'Excellent !';       emoji = '⭐'; msg = 'Tu maîtrises bien ce niveau.'; }
-    else if (r >= 0.6) { head = 'Très bien !';       emoji = '👏'; msg = 'Continue comme ça.'; }
-    else if (r >= 0.4) { head = 'Bon début !';       emoji = '💪'; msg = 'Essaye encore pour progresser.'; }
-    else               { head = 'Courage !';         emoji = '🌱'; msg = 'Relis la correction et retente.'; }
+    if (r === 1)       { head = 'Parfait !';   emoji = '🏆'; msg = 'Sans faute, bravo ! Tu maîtrises ce niveau.'; }
+    else if (r >= 0.8) { head = 'Excellent !'; emoji = '⭐'; msg = 'Tu maîtrises bien ce niveau.'; }
+    else if (r >= 0.6) { head = 'Très bien !'; emoji = '👏'; msg = 'Continue comme ça.'; }
+    else if (r >= 0.4) { head = 'Bon début !'; emoji = '💪'; msg = 'Essaie encore pour progresser.'; }
+    else               { head = 'Courage !';   emoji = '🌱'; msg = 'Relis la correction et retente.'; }
+    // Bandeau de déblocage explicite si on vient de débloquer le niveau N+1
     const unlockMsg = justUnlockedNext && level < 5
-      ? `<div class="skill-unlock">🔓 Bravo ! Tu viens de débloquer le niveau <strong>${nextLevel}</strong> !</div>`
+      ? `<div class="skill-unlock">🔓 Bravo ! Tu viens de débloquer le <strong>niveau ${nextLevel}</strong> !</div>`
+      : '';
+    // Bouton "Passer au niveau suivant" si on a fait un 5/5 et que le niveau suivant existe
+    const canAdvance = (r === 1) && level < 5 && skillId && formatId;
+    const advanceBtn = canAdvance
+      ? `<button class="skill-advance-btn" data-next-skill="${skillId}" data-next-format="${formatId}" data-next-level="${level + 1}" style="margin-top:10px;padding:10px 18px;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.95rem;">🚀 Passer au niveau ${level + 1} →</button>`
       : '';
     skillBanner = `
       <div class="skill-celebration ${r >= 0.6 ? 'ok' : 'meh'}">
@@ -1422,6 +1428,7 @@ function finishTest() {
           <div class="celeb-head">${head}</div>
           <div class="celeb-sub">${msg} (${corrects} / ${total} justes)</div>
           ${unlockMsg}
+          ${advanceBtn}
         </div>
       </div>`;
   }
@@ -3353,16 +3360,22 @@ function getSkillStats(skillId, formatId, level) {
 function recordSkillAttempt(skillId, formatId, level, isCorrect) {
   const p = loadSkillProgress();
   const key = `${skillId}.${formatId}.${level}`;
-  if (!p[key]) p[key] = { attempts: 0, correct: 0 };
+  if (!p[key]) p[key] = { attempts: 0, correct: 0, streak: 0, bestStreak: 0 };
   p[key].attempts++;
-  if (isCorrect) p[key].correct++;
+  if (isCorrect) {
+    p[key].correct++;
+    p[key].streak = (p[key].streak || 0) + 1;
+    if (p[key].streak > (p[key].bestStreak || 0)) p[key].bestStreak = p[key].streak;
+  } else {
+    p[key].streak = 0;
+  }
   saveSkillProgress(p);
 }
 function isLevelUnlocked(skillId, formatId, level) {
   if (level <= 2) return true;  // Rouge et Jaune toujours déverrouillés
-  // Niveau N+1 débloqué si au moins 3 bonnes réponses au niveau N
+  // Niveau N+1 débloqué si : soit 3 bonnes réponses au niveau N, soit une série de 5 bonnes réponses
   const prev = getSkillStats(skillId, formatId, level - 1);
-  return prev.correct >= 3;
+  return prev.correct >= 3 || (prev.bestStreak || 0) >= 5;
 }
 
 function renderSkillsTab() {
@@ -6003,16 +6016,55 @@ function startSkillExercise(skillId, formatId, level) {
     alert('Niveau verrouillé. Réussis 3 exercices au niveau précédent pour le débloquer.');
     return;
   }
-  // Génère 5 questions du même format/niveau
-  const series = [];
-  const seen = new Set();
-  for (let i = 0; i < 5; i++) {
-    let q;
-    let tries = 0;
-    do { q = gen(); tries++; } while (seen.has(q.body) && tries < 20);
-    seen.add(q.body);
-    series.push(q);
+  /* Génération anti-répétition : on sonde le pool via ~40 tirages, puis on construit
+     une série de 5 questions en minimisant les répétitions.
+     - pool ≥ 5 → 5 questions 100% distinctes (0 répétition) ;
+     - pool < 5 → répétitions minimales forcées (plafond ceil(5/N) par case).
+     Cible pédagogique : pool ≥ 8 partout → jamais de répétition (objectif à atteindre).
+     Fingerprint stable : pour les questions 'order' on prend les étapes triées ;
+     pour les autres on prend le titre + les 80 premiers caractères de la solution (plus stable
+     que le body qui contient des éléments shufflés comme les ordres mélangés ou les choix). */
+  const fingerprint = (q) => {
+    if (q.type === 'order' && Array.isArray(q.expected)) {
+      return 'ORDER|' + (q.solution || '').slice(0, 80);
+    }
+    return (q.title || '') + '|' + (q.solution || '').slice(0, 80);
+  };
+  const sample = [];
+  for (let i = 0; i < 40; i++) sample.push(gen());
+  // Map fingerprint → indices dans sample
+  const byBody = {};
+  for (let i = 0; i < sample.length; i++) {
+    const b = fingerprint(sample[i]);
+    if (!byBody[b]) byBody[b] = [];
+    byBody[b].push(i);
   }
+  const uniqueBodies = Object.keys(byBody);
+  const N = uniqueBodies.length;
+  const maxOcc = Math.max(1, Math.ceil(5 / N));
+  // 1ère passe : un représentant de chaque case (sans remise), dans l'ordre aléatoire
+  const bodies = shuffle(uniqueBodies.slice());
+  const series = [];
+  const count = {};
+  for (const b of bodies) {
+    if (series.length >= 5) break;
+    series.push(sample[byBody[b][0]]);
+    count[b] = 1;
+  }
+  // 2e passe : si pool < 5, répéter les cases (mais instances différentes si dispo)
+  let i = 0;
+  while (series.length < 5 && i < 100) {
+    const b = bodies[i % N];
+    if ((count[b] || 0) < maxOcc) {
+      // Prendre une autre instance du même case si dispo, sinon la même
+      const indices = byBody[b];
+      const idx = indices[count[b] % indices.length];
+      series.push(sample[idx]);
+      count[b]++;
+    }
+    i++;
+  }
+  shuffle(series);
   state.mode = 'train';
   state.duree = 0;
   state.series = series;
@@ -6044,6 +6096,15 @@ function initSkillsTab() {
       e.preventDefault();
       e.stopPropagation();
       openRedaction(redBtn.dataset.redaction);
+    }
+    // Bouton "🚀 Passer au niveau suivant" apparaissant après un 5/5
+    const advanceBtn = e.target.closest('.skill-advance-btn');
+    if (advanceBtn) {
+      e.preventDefault();
+      const { nextSkill, nextFormat, nextLevel } = advanceBtn.dataset;
+      if (nextSkill && nextFormat && nextLevel) {
+        startSkillExercise(nextSkill, nextFormat, parseInt(nextLevel));
+      }
     }
   });
   // Quand on clique l'onglet, rafraîchir
