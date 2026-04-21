@@ -331,41 +331,73 @@ const BREVET_SUJETS = [
             correction: "Un polygone est <b>régulier</b> si <b>tous ses côtés ET tous ses angles</b> sont égaux. Ici, les 4 côtés droits (parallèles au carré) mesurent 3 cm et les 4 côtés obliques (hypoténuses des petits triangles rectangles de côtés 3) mesurent \\(3\\sqrt{2} \\approx 4{,}24\\) cm. Donc <b>non régulier</b>.<br><em>Piège :</em> « avoir 8 côtés » fait un octogone, mais pas forcément régulier."
           },
           {
-            id: 'ex4-q2',
-            body: "Justifier que l'aire du polygone IJKLMNOP est égale à <b>63 cm²</b>.",
+            // Q2a : aire du carré (calcul mental rapide)
+            id: 'ex4-q2a',
+            body: "Pour justifier que l'aire de l'octogone IJKLMNOP est <b>63 cm²</b>, on décompose le calcul.<br><br>Quelle est l'aire du <b>carré ABCD</b> (en cm²) ?",
             type: 'input',
-            points: 1,
+            points: 0.25,
             competence: 'calculer',
-            expected: ['63'],
-            correction: "Aire du carré : 9² = 81 cm². On retire 4 triangles rectangles isocèles de côtés 3 cm : aire = 4 × (3×3/2) = 18 cm².<br>Aire du polygone = 81 − 18 = <b>63 cm²</b>. ✓"
+            expected: ['81'],
+            correction: "Aire d'un carré de côté 9 : \\(9 \\times 9 = 9^2 = \\)<b>81 cm²</b>."
+          },
+          {
+            // Q2b : aire d'un triangle retiré
+            id: 'ex4-q2b',
+            body: "Aux 4 coins du carré, on retire 4 <b>triangles rectangles isocèles</b> identiques. Leurs côtés de l'angle droit mesurent 3 cm.<br><br>Quelle est l'aire <b>d'un seul</b> de ces triangles (en cm²) ?",
+            type: 'input',
+            points: 0.25,
+            competence: 'calculer',
+            expected: ['4,5', '4.5', '9/2'],
+            correction: "Aire d'un triangle rectangle = (base × hauteur) / 2 = (3 × 3) / 2 = <b>4,5 cm²</b>."
+          },
+          {
+            // Q2c : conclusion (démarche de justification — Raisonner)
+            id: 'ex4-q2c',
+            body: "En déduire la <b>démarche correcte</b> pour justifier que l'aire de l'octogone est bien 63 cm².",
+            type: 'qcm',
+            points: 0.5,
+            competence: 'raisonner',
+            choices: [
+              // Bonne démarche
+              "Aire octogone = Aire carré − Aire des 4 triangles = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>.",
+              // Erreur : oublier de multiplier par 4
+              "Aire octogone = 81 − 4,5 = 76,5 cm².",
+              // Erreur : ajouter au lieu de retrancher
+              "Aire octogone = 81 + 4 × 4,5 = 99 cm².",
+              // Erreur : confondre avec l'aire d'un triangle
+              "Aire octogone = 4 × 4,5 = 18 cm²."
+            ],
+            correctIdx: 0,
+            correction: "<b>Principe :</b> l'octogone = le carré auquel on a <b>retiré 4 triangles</b> identiques.<br>Donc : Aire octogone = Aire carré − (4 × Aire d'un triangle) = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>. ✓<br><em>Piège :</em> il y a <b>4</b> triangles à retirer (un à chaque coin)."
           },
           {
             id: 'ex4-q3',
-            body: "Les diagonales du carré ABCD se coupent en S. On trace le cercle de centre S et de diamètre 9 cm.<br>Quelle est l'aire du disque ? (Résultat arrondi à 0,1 près, en cm².)",
+            figure: svgCarreOctogoneDisque({ cote: 9, avecDisque: true, grise: true }),
+            body: "Les diagonales du carré ABCD se coupent en S. On trace le cercle de centre S et de <b>diamètre 9 cm</b>.<br><br>Quelle est l'aire du disque, arrondie au <b>dixième</b> (en cm²) ?",
             type: 'input',
             points: 0.5,
             competence: 'calculer',
             expected: ['63,6', '63.6', '63,62', '63.62'],
-            correction: "Rayon = 9/2 = 4,5 cm. Aire = \\(\\pi r^2 = \\pi \\times 4{,}5^2 = 20{,}25 \\pi \\approx \\)<b>63,6 cm²</b>."
+            correction: "Rayon = diamètre / 2 = 9/2 = <b>4,5 cm</b>.<br>Aire du disque = \\(\\pi \\times r^2 = \\pi \\times 4{,}5^2 = 20{,}25\\pi \\approx\\) <b>63,6 cm²</b>."
           },
           {
             id: 'ex4-q4',
-            body: "Montrer que la <b>différence</b> entre l'aire du polygone (63 cm²) et l'aire du disque (≈ 63,6 cm²) représente <b>moins de 1 %</b> de l'aire du disque.<br>Quelle est la <b>démarche complète et correcte</b> ?",
+            body: "On veut montrer que la <b>différence d'aires</b> entre l'octogone (63 cm²) et le disque (63,6 cm²) représente <b>moins de 1 %</b> de l'aire du disque.<br><br>Quelle est la <b>démarche correcte</b> ?",
             type: 'qcm',
             points: 1,
             competence: 'communiquer',
             choices: [
-              // Bonne démarche (rapportée au disque)
-              "Différence = 63,6 − 63 = <b>0,6 cm²</b>. Pourcentage par rapport au disque : 0,6 / 63,6 ≈ <b>0,94 %</b>. Comme 0,94 % < 1 %, <b>c'est vérifié</b>.",
-              // Erreur fréquente : rapporter au polygone (mauvais dénominateur)
-              "Différence = 0,6 cm². Pourcentage par rapport au polygone : 0,6 / 63 ≈ 0,95 %. C'est inférieur à 1 %.",
-              // Erreur : prendre 63 − 63,6 = −0,6 sans valeur absolue puis conclure faux
-              "Différence = 63 − 63,6 = −0,6 cm². Négatif, donc l'affirmation est fausse.",
-              // Erreur : oubli de faire un pourcentage
-              "Différence = 0,6 cm². 0,6 < 1, donc c'est bien moins de 1 % du disque."
+              // Bonne démarche — aérée
+              "Différence : 63,6 − 63 = <b>0,6 cm²</b>.<br>Pourcentage par rapport au disque : 0,6 ÷ 63,6 ≈ <b>0,94 %</b>.<br>Comme 0,94 % &lt; 1 %, <b>c'est vérifié</b>.",
+              // Erreur : rapporter au polygone
+              "Différence : 0,6 cm².<br>Pourcentage par rapport à l'octogone : 0,6 ÷ 63 ≈ 0,95 %.",
+              // Erreur : oublier de diviser par l'aire
+              "Différence : 0,6 cm².<br>0,6 &lt; 1, donc c'est moins de 1 %.",
+              // Erreur : prendre 63 − 63,6 sans valeur absolue
+              "Différence : 63 − 63,6 = −0,6 cm².<br>Négatif, donc l'affirmation est fausse."
             ],
             correctIdx: 0,
-            correction: "<b>3 étapes</b> :<br>1) Calculer la différence (en valeur absolue) : |63,6 − 63| = <b>0,6 cm²</b>.<br>2) La <b>rapporter à l'aire du disque</b> (c'est le « de l'aire du disque » de la question) : 0,6 / 63,6.<br>3) Convertir en % : ≈ <b>0,94 %</b>. Comme 0,94 % < 1 %, <b>l'affirmation est vérifiée</b>.<br><em>Piège :</em> il faut rapporter au <b>disque</b> (dénominateur 63,6), pas au polygone."
+            correction: "<b>3 étapes :</b><br>1️⃣ Différence (positive) : 63,6 − 63 = <b>0,6 cm²</b>.<br>2️⃣ La rapporter à l'aire <b>du disque</b> : 0,6 ÷ 63,6.<br>3️⃣ Convertir en % : ≈ <b>0,94 %</b>. Comme 0,94 % &lt; 1 %, <b>c'est vérifié</b>. ✓<br><br><em>Piège principal :</em> c'est bien <b>l'aire du disque</b> qui sert de référence (dénominateur = 63,6), pas celle de l'octogone."
           }
         ]
       },
