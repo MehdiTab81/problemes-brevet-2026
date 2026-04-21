@@ -28,22 +28,39 @@ const BREVET_SUJETS = [
         id: 'ex1',
         titre: 'Exercice 1 — Enquêtes au collège',
         points: 3,
-        competencesPrincipales: ['calculer', 'representer'],
+        competencesPrincipales: ['calculer', 'representer', 'communiquer'],
         contexte: "Dans le cadre d'un projet de labellisation « Éducation au développement durable », un collège réalise deux enquêtes.",
         questions: [
           {
-            id: 'ex1-q1',
-            body: "Pendant 7 semaines, on a relevé la masse d'aliments jetés à la cantine (en kg) :<br><table style='margin:10px 0;border-collapse:collapse;'><tr><th style='border:1px solid #888;padding:4px 10px;'>Semaine</th><th style='border:1px solid #888;padding:4px 10px;'>1</th><th style='border:1px solid #888;padding:4px 10px;'>2</th><th style='border:1px solid #888;padding:4px 10px;'>3</th><th style='border:1px solid #888;padding:4px 10px;'>4</th><th style='border:1px solid #888;padding:4px 10px;'>5</th><th style='border:1px solid #888;padding:4px 10px;'>6</th><th style='border:1px solid #888;padding:4px 10px;'>7</th></tr><tr><th style='border:1px solid #888;padding:4px 10px;'>Masse (kg)</th><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>62</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>59</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>74</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>68</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>55</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>61</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>71</td></tr></table>L'objectif est que la moyenne hebdomadaire ne dépasse pas <b>65 kg</b>. Cet objectif est-il atteint ?<br><em>Calcule la moyenne et réponds « Oui » ou « Non ».</em>",
+            // Q1a : calcul de la moyenne (1 pt — compétence Calculer)
+            id: 'ex1-q1a',
+            body: "Pendant 7 semaines, on a relevé la masse d'aliments jetés à la cantine (en kg) :<br><table style='margin:10px 0;border-collapse:collapse;'><tr><th style='border:1px solid #888;padding:4px 10px;'>Semaine</th><th style='border:1px solid #888;padding:4px 10px;'>1</th><th style='border:1px solid #888;padding:4px 10px;'>2</th><th style='border:1px solid #888;padding:4px 10px;'>3</th><th style='border:1px solid #888;padding:4px 10px;'>4</th><th style='border:1px solid #888;padding:4px 10px;'>5</th><th style='border:1px solid #888;padding:4px 10px;'>6</th><th style='border:1px solid #888;padding:4px 10px;'>7</th></tr><tr><th style='border:1px solid #888;padding:4px 10px;'>Masse (kg)</th><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>62</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>59</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>74</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>68</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>55</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>61</td><td style='border:1px solid #888;padding:4px 10px;text-align:center;'>71</td></tr></table>Calculer la <b>moyenne</b> de la masse hebdomadaire d'aliments jetés, arrondie au dixième de kg.",
             type: 'input',
-            points: 1.5,
+            points: 1,
             competence: 'calculer',
-            expected: ['oui', 'Oui', 'OUI'],
-            reponse: 'Oui',
-            correction: "<b>Moyenne</b> = (62 + 59 + 74 + 68 + 55 + 61 + 71) / 7 = 450 / 7 ≈ <b>64,3 kg</b>.<br>64,3 < 65, donc <b>oui, l'objectif est atteint</b>."
+            expected: ['64,3', '64.3', '450/7'],
+            correction: "Somme des masses : 62 + 59 + 74 + 68 + 55 + 61 + 71 = <b>450 kg</b>.<br>Moyenne : 450 / 7 ≈ <b>64,3 kg</b>."
           },
           {
+            // Q1b : justification/argumentation (0,5 pt — compétence Communiquer)
+            id: 'ex1-q1b',
+            body: "Le collège s'est fixé pour objectif que la moyenne hebdomadaire ne dépasse pas <b>65 kg</b>.<br>Parmi ces justifications, laquelle est la <b>mieux rédigée</b> et répond complètement à la question « l'objectif est-il atteint ? » ?",
+            type: 'qcm',
+            points: 0.5,
+            competence: 'communiquer',
+            choices: [
+              "« La moyenne est d'environ 64,3 kg. Comme 64,3 < 65, <b>l'objectif est atteint</b>. »",
+              "« Oui. »",
+              "« 450/7 = 64,3. »",
+              "« La moyenne est inférieure à 65, donc c'est bon. » (sans donner la valeur)"
+            ],
+            correctIdx: 0,
+            correction: "Bonne rédaction = <b>1) annoncer le résultat</b> (la moyenne ≈ 64,3 kg), <b>2) comparer</b> avec l'objectif (64,3 < 65), <b>3) conclure clairement</b> (« l'objectif est atteint »). Les autres réponses sont incomplètes ou ne comparent pas explicitement."
+          },
+          {
+            // Q2 : effectif total du diagramme
             id: 'ex1-q2',
-            body: "Le diagramme en barres des distances parcourues à vélo donne les effectifs suivants : 0 km : 33 ; 1 km : 32 ; 2 km : 42 ; 3 km : 31 ; 4 km : 35 ; 5 km : 27 ; 6 km : 23 ; 7 km : 21 ; 8 km : 13.<br>Quel est l'<b>effectif total</b> d'élèves du collège ?",
+            body: "Le diagramme en barres des distances parcourues à vélo donne les effectifs suivants :<br>0 km : <b>33</b> ; 1 km : <b>32</b> ; 2 km : <b>42</b> ; 3 km : <b>31</b> ; 4 km : <b>35</b> ; 5 km : <b>27</b> ; 6 km : <b>23</b> ; 7 km : <b>21</b> ; 8 km : <b>13</b>.<br>Quel est l'<b>effectif total</b> d'élèves du collège ?",
             type: 'input',
             points: 0.5,
             competence: 'representer',
@@ -51,21 +68,24 @@ const BREVET_SUJETS = [
             correction: "On additionne tous les effectifs : 33 + 32 + 42 + 31 + 35 + 27 + 23 + 21 + 13 = <b>257 élèves</b>."
           },
           {
+            // Q3 : pourcentage ≥ 5 km (QCM avec erreurs fréquentes)
             id: 'ex1-q3',
-            body: "Est-il vrai que <b>plus de 30 %</b> des élèves ont parcouru au moins 5 km à vélo ?<br><em>Justifie par un calcul.</em>",
+            body: "Est-il vrai que <b>plus de 30 %</b> des élèves ont parcouru <b>au moins 5 km</b> à vélo ?<br>Quelle est la bonne démarche et la bonne conclusion ?",
             type: 'qcm',
             points: 1,
             competence: 'raisonner',
             choices: [
-              'Oui, c\'est vrai (environ 32,7 %)',
-              'Non, c\'est faux (environ 24,5 %)',
-              'Oui, c\'est vrai (environ 40 %)',
-              'Non, on ne peut pas le savoir'
+              // Bonne réponse
+              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = <b>84</b>. Pourcentage : 84/257 ≈ <b>32,7 %</b>. Comme 32,7 % > 30 %, <b>l'affirmation est vraie</b>.",
+              // Erreur fréquente : confondre « au moins 5 km » avec « moins de 5 km »
+              "Élèves ≥ 5 km : 33 + 32 + 42 + 31 + 35 = <b>173</b>. Pourcentage : 173/257 ≈ <b>67,3 %</b>. Donc oui, c'est vrai.",
+              // Erreur fréquente : mauvais dénominateur (on divise par 100 ou par les 5 km seulement)
+              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = 84. Pourcentage : 84/100 = <b>84 %</b>. Donc oui.",
+              // Erreur fréquente : confusion > 30 vs exactement 30 et conclusion erronée
+              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = 84. Pourcentage : 84/257 ≈ 32,7 %. Comme 32,7 % > 30 %, <b>l'affirmation est fausse</b>."
             ],
-            correctIdx: 1,
-            correction: "Élèves à ≥ 5 km : 27 + 23 + 21 + 13 = 84.<br>Pourcentage : 84 / 257 ≈ 0,327 = <b>32,7 %</b>.<br><em>Correction : en fait 32,7 % > 30 %, donc l'affirmation est VRAIE.</em> (La bonne réponse attendue est la 1ʳᵉ option.)"
-            // NOTE pédagogique : dans le vrai sujet 0A, la bonne réponse est oui car 84/257 = 32,7 % > 30 %.
-            // Je corrige la réponse attendue :
+            correctIdx: 0,
+            correction: "<b>Démarche correcte</b> : 1) compter les élèves à <b>5 km ou plus</b> (donc 5 + 6 + 7 + 8 km) : 27 + 23 + 21 + 13 = 84. 2) diviser par l'<b>effectif total</b> (257) : 84/257 ≈ 0,327 = <b>32,7 %</b>. 3) comparer à 30 % : 32,7 > 30, donc <b>oui, l'affirmation est vraie</b>.<br><br><em>Pièges à éviter :</em><br>• <b>« Au moins 5 »</b> signifie <b>≥ 5</b>, pas « 5 ou moins ».<br>• Le dénominateur est <b>l'effectif total</b> (257), pas 100 ni 84.<br>• 32,7 % > 30 %, donc « plus de 30 % » est vrai (pas faux)."
           }
         ]
       },
@@ -154,18 +174,22 @@ const BREVET_SUJETS = [
           },
           {
             id: 'ex3-q4',
-            body: "Les droites représentatives des fonctions passent par l'intersection au point \\((1{,}5 \\,;\\, 9)\\). Les deux droites se coupent-elles <b>en ce point</b> ?<br><em>Vérifie par calcul.</em>",
+            body: "Les deux droites représentatives des fonctions \\(f\\) et \\(g\\) se coupent-elles au point \\((1{,}5 \\,;\\, 9)\\) ?<br>Quelle est la <b>démarche correcte</b> avec la bonne conclusion ?",
             type: 'qcm',
             points: 1,
             competence: 'raisonner',
             choices: [
-              "Oui : \\(f(1{,}5) = g(1{,}5) = 9\\)",
-              "Non : \\(f(1{,}5) \\ne g(1{,}5)\\)",
-              "On ne peut pas le savoir",
-              "Oui, mais en \\((2 \\,;\\, 11)\\)"
+              // Bonne démarche
+              "\\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 9\\) et \\(g(1{,}5) = 6 \\times 1{,}5 = 9\\). Les deux valent 9, donc <b>oui</b>, les droites se coupent en \\((1{,}5 \\,;\\, 9)\\).",
+              // Erreur : oubli du +3 dans f
+              "\\(f(1{,}5) = 4 \\times 1{,}5 = 6\\) et \\(g(1{,}5) = 9\\). Les deux sont différents, donc non.",
+              // Erreur : inverser coefficient et ordonnée à l'origine dans f
+              "\\(f(1{,}5) = 3 \\times 1{,}5 + 4 = 8{,}5\\). 8,5 ≠ 9, donc non.",
+              // Erreur : confondre image et antécédent
+              "On résout \\(f(x) = 9\\) : \\(4x + 3 = 9\\), donc \\(x = 1{,}5\\). Donc oui, mais seulement pour \\(f\\), pas pour \\(g\\)."
             ],
             correctIdx: 0,
-            correction: "\\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 6 + 3 = 9\\). \\(g(1{,}5) = 6 \\times 1{,}5 = 9\\). Les deux valent 9 → les droites se coupent bien en \\((1{,}5 \\,;\\, 9)\\)."
+            correction: "Il faut calculer \\(f(1{,}5)\\) <b>et</b> \\(g(1{,}5)\\) et comparer.<br>\\(f(1{,}5) = 4 \\times 1{,}5 + 3 = 6 + 3 = 9\\). <b>Ne pas oublier le +3.</b><br>\\(g(1{,}5) = 6 \\times 1{,}5 = 9\\).<br>Les deux sont égaux à 9 → les droites se coupent bien en \\((1{,}5 \\,;\\, 9)\\)."
           }
         ]
       },
@@ -178,18 +202,22 @@ const BREVET_SUJETS = [
         questions: [
           {
             id: 'ex4-q1',
-            body: "Le polygone IJKLMNOP a-t-il tous ses côtés de même longueur (polygone <b>régulier</b>) ?",
+            body: "Le polygone IJKLMNOP a-t-il tous ses côtés de même longueur (polygone <b>régulier</b>) ?<br>Quelle <b>justification</b> est correcte ?",
             type: 'qcm',
             points: 0.5,
             competence: 'raisonner',
             choices: [
-              "Oui, tous ses côtés sont égaux",
-              "Non, il a 4 côtés longs et 4 côtés courts (il n'est pas régulier)",
-              "Il n'y a pas assez d'informations",
-              "Oui, c'est un octogone régulier"
+              // Bonne réponse (distinction côtés droits vs côtés obliques)
+              "<b>Non</b> : les côtés droits (parallèles aux bords) mesurent 3 cm, mais les côtés obliques mesurent \\(3\\sqrt{2} \\approx 4{,}24\\) cm. Ils ne sont pas tous égaux.",
+              // Erreur : se fier à l'apparence visuelle
+              "Oui, car un octogone inscrit dans un carré est toujours régulier.",
+              // Erreur : confondre régulier avec « a 8 côtés »
+              "Oui, car il a 8 côtés.",
+              // Erreur : bon résultat mais mauvaise justification
+              "Non, car ses côtés ne sont pas parallèles deux à deux."
             ],
-            correctIdx: 1,
-            correction: "Les côtés parallèles aux bords du carré mesurent 3 cm, mais les côtés obliques (diagonales de petits triangles) mesurent \\(3\\sqrt{2} \\approx 4{,}24\\) cm. Ils ne sont <b>pas tous égaux</b>, donc pas régulier."
+            correctIdx: 0,
+            correction: "Un polygone est <b>régulier</b> si <b>tous ses côtés ET tous ses angles</b> sont égaux. Ici, les 4 côtés droits (parallèles au carré) mesurent 3 cm et les 4 côtés obliques (hypoténuses des petits triangles rectangles de côtés 3) mesurent \\(3\\sqrt{2} \\approx 4{,}24\\) cm. Donc <b>non régulier</b>.<br><em>Piège :</em> « avoir 8 côtés » fait un octogone, mais pas forcément régulier."
           },
           {
             id: 'ex4-q2',
@@ -211,18 +239,22 @@ const BREVET_SUJETS = [
           },
           {
             id: 'ex4-q4',
-            body: "Montrer que la <b>différence</b> entre l'aire du polygone (63 cm²) et l'aire du disque (≈ 63,6 cm²) représente <b>moins de 1 %</b> de l'aire du disque.",
+            body: "Montrer que la <b>différence</b> entre l'aire du polygone (63 cm²) et l'aire du disque (≈ 63,6 cm²) représente <b>moins de 1 %</b> de l'aire du disque.<br>Quelle est la <b>démarche complète et correcte</b> ?",
             type: 'qcm',
             points: 1,
             competence: 'communiquer',
             choices: [
-              "Différence ≈ 0,6 cm² ; 0,6 / 63,6 ≈ 0,94 % < 1 % → oui",
-              "Différence ≈ 0,6 cm² ; 0,6 / 63 ≈ 0,95 % → oui",
-              "Différence ≈ 6 cm² → c'est plus de 1 %",
-              "On ne peut pas comparer"
+              // Bonne démarche (rapportée au disque)
+              "Différence = 63,6 − 63 = <b>0,6 cm²</b>. Pourcentage par rapport au disque : 0,6 / 63,6 ≈ <b>0,94 %</b>. Comme 0,94 % < 1 %, <b>c'est vérifié</b>.",
+              // Erreur fréquente : rapporter au polygone (mauvais dénominateur)
+              "Différence = 0,6 cm². Pourcentage par rapport au polygone : 0,6 / 63 ≈ 0,95 %. C'est inférieur à 1 %.",
+              // Erreur : prendre 63 − 63,6 = −0,6 sans valeur absolue puis conclure faux
+              "Différence = 63 − 63,6 = −0,6 cm². Négatif, donc l'affirmation est fausse.",
+              // Erreur : oubli de faire un pourcentage
+              "Différence = 0,6 cm². 0,6 < 1, donc c'est bien moins de 1 % du disque."
             ],
             correctIdx: 0,
-            correction: "Différence = |63,6 − 63| = 0,6 cm². Pourcentage par rapport au disque : 0,6 / 63,6 ≈ 0,0094 = <b>0,94 %</b>, soit <b>moins de 1 %</b>. ✓"
+            correction: "<b>3 étapes</b> :<br>1) Calculer la différence (en valeur absolue) : |63,6 − 63| = <b>0,6 cm²</b>.<br>2) La <b>rapporter à l'aire du disque</b> (c'est le « de l'aire du disque » de la question) : 0,6 / 63,6.<br>3) Convertir en % : ≈ <b>0,94 %</b>. Comme 0,94 % < 1 %, <b>l'affirmation est vérifiée</b>.<br><em>Piège :</em> il faut rapporter au <b>disque</b> (dénominateur 63,6), pas au polygone."
           }
         ]
       },
