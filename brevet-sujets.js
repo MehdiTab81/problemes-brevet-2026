@@ -339,9 +339,9 @@ const BREVET_SUJETS = [
             correction: "Un polygone est <b>régulier</b> si <b>tous ses côtés ET tous ses angles</b> sont égaux. Ici, les 4 côtés droits (parallèles au carré) mesurent 3 cm et les 4 côtés obliques (hypoténuses des petits triangles rectangles de côtés 3) mesurent \\(3\\sqrt{2} \\approx 4{,}24\\) cm. Donc <b>non régulier</b>.<br><em>Piège :</em> « avoir 8 côtés » fait un octogone, mais pas forcément régulier."
           },
           {
-            // Q2a : aire du carré (calcul mental rapide)
+            // Q2a : aire du carré (calcul direct, pas d'indice)
             id: 'ex4-q2a',
-            body: "Pour justifier que l'aire de l'octogone IJKLMNOP est <b>63 cm²</b>, on décompose le calcul.<br><br>Quelle est l'aire du <b>carré ABCD</b> (en cm²) ?",
+            body: "Pour trouver l'aire de l'octogone IJKLMNOP, on va partir de l'aire du carré et retrancher les 4 coins.<br><br>Quelle est l'aire du <b>carré ABCD</b> (en cm²) ?",
             type: 'input',
             points: 0.25,
             competence: 'calculer',
@@ -359,24 +359,34 @@ const BREVET_SUJETS = [
             correction: "Aire d'un triangle rectangle = (base × hauteur) / 2 = (3 × 3) / 2 = <b>4,5 cm²</b>."
           },
           {
-            // Q2c : conclusion (démarche de justification — Communiquer)
+            // Q2c : calcul de l'aire finale (Calculer, pas juste QCM)
             id: 'ex4-q2c',
-            body: "En déduire la <b>démarche correcte</b> pour justifier que l'aire de l'octogone est bien 63 cm².",
+            body: "Déduire l'<b>aire de l'octogone</b> IJKLMNOP (en cm²).<br><em>Astuce : aire octogone = aire carré − aire des 4 triangles.</em>",
+            type: 'input',
+            points: 0.25,
+            competence: 'calculer',
+            expected: ['63'],
+            correction: "Aire octogone = Aire carré − (4 × Aire d'un triangle) = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>.<br><em>Piège :</em> il y a <b>4</b> triangles à retirer, un à chaque coin."
+          },
+          {
+            // Q2d : qualité de la rédaction (Communiquer)
+            id: 'ex4-q2d',
+            body: "Quelle est la <b>meilleure rédaction</b> pour justifier ce calcul sur une copie de Brevet ?",
             type: 'qcm',
-            points: 0.5,
+            points: 0.25,
             competence: 'communiquer',
             choices: [
-              // Bonne démarche
-              "Aire octogone = Aire carré − Aire des 4 triangles = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>.",
-              // Erreur : oublier de multiplier par 4
-              "Aire octogone = 81 − 4,5 = 76,5 cm².",
-              // Erreur : ajouter au lieu de retrancher
-              "Aire octogone = 81 + 4 × 4,5 = 99 cm².",
-              // Erreur : confondre avec l'aire d'un triangle
-              "Aire octogone = 4 × 4,5 = 18 cm²."
+              // Bonne rédaction
+              "« Aire du carré : 9² = 81 cm². Aire d'un triangle : (3×3)/2 = 4,5 cm². Aire de l'octogone : 81 − 4×4,5 = 81 − 18 = <b>63 cm²</b>. »",
+              // Trop court, pas d'explication
+              "« 63 cm². »",
+              // Résultat sans détail du calcul des triangles
+              "« 81 − 18 = 63 cm². »",
+              // Formule non appliquée
+              "« L'octogone est le carré moins les coins. Donc 63 cm². »"
             ],
             correctIdx: 0,
-            correction: "<b>Principe :</b> l'octogone = le carré auquel on a <b>retiré 4 triangles</b> identiques.<br>Donc : Aire octogone = Aire carré − (4 × Aire d'un triangle) = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>. ✓<br><em>Piège :</em> il y a <b>4</b> triangles à retirer (un à chaque coin)."
+            correction: "Une bonne rédaction <b>montre chaque étape du calcul</b> avec ses unités : aire du carré, aire d'un triangle, puis soustraction. L'élève doit pouvoir relire et vérifier chaque étape."
           },
           {
             id: 'ex4-q3',
