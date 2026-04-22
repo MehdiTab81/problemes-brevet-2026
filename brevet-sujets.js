@@ -68,24 +68,30 @@ const BREVET_SUJETS = [
             correction: "On additionne tous les effectifs : 33 + 32 + 42 + 31 + 35 + 27 + 23 + 21 + 13 = <b>257 élèves</b>."
           },
           {
-            // Q3 : pourcentage ≥ 5 km (QCM avec erreurs fréquentes)
-            id: 'ex1-q3',
-            body: "Est-il vrai que <b>plus de 30 %</b> des élèves ont parcouru <b>au moins 5 km</b> à vélo ?<br>Quelle est la bonne démarche et la bonne conclusion ?",
+            // Q3a : effectif des élèves à ≥ 5 km (Calculer simple)
+            id: 'ex1-q3a',
+            body: "On veut savoir si <b>plus de 30 %</b> des élèves ont parcouru <b>au moins 5 km</b> à vélo.<br><br>Combien d'élèves ont parcouru <b>au moins 5 km</b> ?",
+            type: 'input',
+            points: 0.5,
+            competence: 'calculer',
+            expected: ['84'],
+            correction: "« Au moins 5 km » = 5, 6, 7 ou 8 km.<br>Effectifs : 27 + 23 + 21 + 13 = <b>84 élèves</b>.<br><em>Piège :</em> « au moins 5 » signifie <b>≥ 5</b>, pas « moins de 5 »."
+          },
+          {
+            // Q3b : conclusion avec le bon dénominateur (Raisonner, choix courts)
+            id: 'ex1-q3b',
+            body: "Quelle est la <b>bonne conclusion</b> ?",
             type: 'qcm',
-            points: 1,
+            points: 0.5,
             competence: 'raisonner',
             choices: [
-              // Bonne réponse
-              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = <b>84</b>. Pourcentage : 84/257 ≈ <b>32,7 %</b>. Comme 32,7 % > 30 %, <b>l'affirmation est vraie</b>.",
-              // Erreur fréquente : confondre « au moins 5 km » avec « moins de 5 km »
-              "Élèves ≥ 5 km : 33 + 32 + 42 + 31 + 35 = <b>173</b>. Pourcentage : 173/257 ≈ <b>67,3 %</b>. Donc oui, c'est vrai.",
-              // Erreur fréquente : mauvais dénominateur (on divise par 100 ou par les 5 km seulement)
-              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = 84. Pourcentage : 84/100 = <b>84 %</b>. Donc oui.",
-              // Erreur fréquente : confusion > 30 vs exactement 30 et conclusion erronée
-              "Élèves ≥ 5 km : 27 + 23 + 21 + 13 = 84. Pourcentage : 84/257 ≈ 32,7 %. Comme 32,7 % > 30 %, <b>l'affirmation est fausse</b>."
+              "84/257 ≈ <b>32,7 %</b> > 30 % → <b>vrai</b>",
+              "84/257 ≈ 32,7 % < 30 % → faux",
+              "84/100 = <b>84 %</b> → vrai",
+              "173/257 ≈ <b>67,3 %</b> → vrai"
             ],
             correctIdx: 0,
-            correction: "<b>Démarche correcte</b> : 1) compter les élèves à <b>5 km ou plus</b> (donc 5 + 6 + 7 + 8 km) : 27 + 23 + 21 + 13 = 84. 2) diviser par l'<b>effectif total</b> (257) : 84/257 ≈ 0,327 = <b>32,7 %</b>. 3) comparer à 30 % : 32,7 > 30, donc <b>oui, l'affirmation est vraie</b>.<br><br><em>Pièges à éviter :</em><br>• <b>« Au moins 5 »</b> signifie <b>≥ 5</b>, pas « 5 ou moins ».<br>• Le dénominateur est <b>l'effectif total</b> (257), pas 100 ni 84.<br>• 32,7 % > 30 %, donc « plus de 30 % » est vrai (pas faux)."
+            correction: "Pourcentage = <b>effectif à ≥ 5 km</b> / <b>effectif total</b> = 84 / 257 ≈ <b>32,7 %</b>.<br>32,7 % > 30 % → l'affirmation est <b>vraie</b>.<br><br><em>Pièges à éviter :</em><br>• Le dénominateur est <b>257</b> (total), pas 100.<br>• Lire correctement : 32,7 % est bien <b>supérieur</b> à 30 %."
           }
         ]
       },
@@ -167,7 +173,7 @@ const BREVET_SUJETS = [
             body: "On a vu en Q2 que le résultat du programme est \\(4x^2 - 9\\).<br>Parmi les expressions suivantes, laquelle est <b>égale à</b> \\(4x^2 - 9\\) sous <b>forme factorisée</b> ?",
             type: 'qcm',
             points: 1,
-            competence: 'raisonner',
+            competence: 'calculer',
             choices: [
               // Erreur : identité remarquable du carré de la somme
               '\\((2x + 3)^2\\)',
@@ -271,7 +277,7 @@ const BREVET_SUJETS = [
             body: "Les courbes représentatives \\((d_1)\\) et \\((d_2)\\) des fonctions \\(f\\) et \\(g\\) sont tracées dans le repère ci-dessus.<br><br><b>a)</b> Associer à chaque droite la fonction qu'elle représente. Quelle est l'association <b>justifiée</b> ?",
             type: 'qcm',
             points: 0.75,
-            competence: 'raisonner',
+            competence: 'representer',
             choices: [
               // Bonne réponse avec justification
               "\\((d_1)\\) = \\(f\\) et \\((d_2)\\) = \\(g\\), car \\((d_1)\\) coupe l'axe (Oy) en 3 (donc \\(b = 3\\)) et \\((d_2)\\) passe par l'origine (donc \\(b = 0\\)).",
@@ -351,12 +357,12 @@ const BREVET_SUJETS = [
             correction: "Aire d'un triangle rectangle = (base × hauteur) / 2 = (3 × 3) / 2 = <b>4,5 cm²</b>."
           },
           {
-            // Q2c : conclusion (démarche de justification — Raisonner)
+            // Q2c : conclusion (démarche de justification — Communiquer)
             id: 'ex4-q2c',
             body: "En déduire la <b>démarche correcte</b> pour justifier que l'aire de l'octogone est bien 63 cm².",
             type: 'qcm',
             points: 0.5,
-            competence: 'raisonner',
+            competence: 'communiquer',
             choices: [
               // Bonne démarche
               "Aire octogone = Aire carré − Aire des 4 triangles = 81 − 4 × 4,5 = 81 − 18 = <b>63 cm²</b>.",
