@@ -197,12 +197,12 @@ const BREVET_SUJETS = [
         contexte: "On considère les fonctions :<br>\\(f : x \\mapsto 4x + 3\\) &nbsp; et &nbsp; \\(g : x \\mapsto 6x\\).",
         questions: [
           {
-            // Q1a : résultat direct (Calculer)
+            // Q1a : reconnaissance (Représenter — on identifie une structure linéaire)
             id: 'ex3-q1a',
             body: "Parmi \\(f\\) et \\(g\\), <b>laquelle représente une situation de proportionnalité</b> ?",
             type: 'qcm',
             points: 0.25,
-            competence: 'calculer',
+            competence: 'representer',
             choices: [
               'La fonction \\(g\\)',
               'La fonction \\(f\\)',
@@ -273,23 +273,25 @@ const BREVET_SUJETS = [
           },
           {
             id: 'ex3-q4',
-            figure: svgRepere2Droites({ a1: 4, b1: 3, a2: 6, b2: 0, xMin: -1, xMax: 3, yMin: -2, yMax: 20, inter: [1.5, 9] }),
-            body: "Les courbes représentatives \\((d_1)\\) et \\((d_2)\\) des fonctions \\(f\\) et \\(g\\) sont tracées dans le repère ci-dessus.<br><br><b>a)</b> Associer à chaque droite la fonction qu'elle représente. Quelle est l'association <b>justifiée</b> ?",
+            figure: svgRepere2Droites({ a1: 4, b1: 3, a2: 6, b2: 0, xMin: -1, xMax: 3, yMin: -2, yMax: 20, inter: [1.5, 9], yStep: 2 }),
+            body: "Dans le repère ci-dessus, les droites \\((d_1)\\) et \\((d_2)\\) représentent les fonctions \\(f\\) et \\(g\\).<br><br><b>Association correcte :</b> \\((d_1) \\Leftrightarrow f\\) et \\((d_2) \\Leftrightarrow g\\).<br><br>Parmi les justifications suivantes, laquelle est <b>correcte</b> (il y a plusieurs façons valables de justifier) ?",
             type: 'qcm',
             points: 0.75,
             competence: 'representer',
             choices: [
-              // Bonne réponse avec justification
-              "\\((d_1)\\) = \\(f\\) et \\((d_2)\\) = \\(g\\), car \\((d_1)\\) coupe l'axe (Oy) en 3 (donc \\(b = 3\\)) et \\((d_2)\\) passe par l'origine (donc \\(b = 0\\)).",
-              // Erreur : inversion
-              "\\((d_1)\\) = \\(g\\) et \\((d_2)\\) = \\(f\\), car \\(g\\) a une pente plus grande.",
-              // Erreur : se baser uniquement sur la pente
-              "\\((d_1)\\) = \\(g\\) et \\((d_2)\\) = \\(f\\), car la droite la plus raide est la fonction linéaire.",
-              // Erreur : on ne peut pas conclure
-              "On ne peut pas associer les droites sans plus d'informations."
+              // Bonne justification 1 : ordonnée à l'origine
+              "\\((d_1)\\) coupe (Oy) en 3, or \\(f(0) = 3\\) → \\((d_1) = f\\). \\((d_2)\\) passe par O, or \\(g(0) = 0\\) → \\((d_2) = g\\).",
+              // Bonne justification 2 : proportionnalité
+              "\\((d_2)\\) passe par l'origine O : c'est une fonction linéaire → \\(g\\). \\((d_1)\\) ne passe pas par O : c'est l'affine \\(f\\).",
+              // Bonne justification 3 : coefficient directeur
+              "La pente de \\((d_2)\\) (6) est plus grande que celle de \\((d_1)\\) (4), or \\(g\\) a pour coefficient directeur 6 → \\((d_2) = g\\).",
+              // Erreur : inversion basée sur apparence sans justification
+              "\\((d_1) = g\\) et \\((d_2) = f\\), car la droite la plus raide est affine."
             ],
+            // Plusieurs bonnes réponses possibles : on accepte les 3 premières
+            correctIndices: [0, 1, 2],
             correctIdx: 0,
-            correction: "<b>Critère sûr : l'ordonnée à l'origine.</b><br>• \\(f(x) = 4x + 3\\) : la droite de \\(f\\) coupe l'axe (Oy) au point \\((0 \\,;\\, 3)\\).<br>• \\(g(x) = 6x\\) : la droite de \\(g\\) passe par l'origine \\((0 \\,;\\, 0)\\).<br>Sur la figure, \\((d_1)\\) passe par \\((0 \\,;\\, 3)\\) → c'est \\(f\\). \\((d_2)\\) passe par \\((0 \\,;\\, 0)\\) → c'est \\(g\\)."
+            correction: "<b>3 justifications valables</b> (toutes correctes) :<br><br>🎯 <b>Ordonnée à l'origine</b> : \\(f(0) = 3\\) et \\(g(0) = 0\\). Sur la figure, \\((d_1)\\) coupe (Oy) en 3, \\((d_2)\\) passe par O.<br><br>🎯 <b>Proportionnalité</b> : \\(g\\) est linéaire (passe par O), \\(f\\) est affine (ne passe pas par O).<br><br>🎯 <b>Coefficient directeur (pente)</b> : \\(g\\) a une pente 6, \\(f\\) une pente 4. \\((d_2)\\) est plus raide que \\((d_1)\\).<br><br>Le dernier choix est faux : on ne peut pas justifier par « la plus raide est affine » (c'est faux dans ce cas)."
           },
           {
             id: 'ex3-q5',

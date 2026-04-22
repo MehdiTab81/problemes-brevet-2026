@@ -4532,50 +4532,57 @@ function svgRectangle({ L = 8, l = 5, labelL = '', labelLarg = '' } = {}) {
 
 /* Repère orthonormé avec 2 droites affines tracées + point d'intersection.
    Utilisé pour les exercices de fonctions avec lecture graphique. */
-function svgRepere2Droites({ a1, b1, a2, b2, xMin = -1, xMax = 5, yMin = -2, yMax = 20, inter = null } = {}) {
-  const W = 360, H = 280;
-  const padL = 44, padR = 20, padT = 18, padB = 32;
+function svgRepere2Droites({ a1, b1, a2, b2, xMin = -1, xMax = 5, yMin = -2, yMax = 20, inter = null, yStep = null } = {}) {
+  const W = 400, H = 320;
+  const padL = 46, padR = 22, padT = 22, padB = 36;
   const gw = W - padL - padR, gh = H - padT - padB;
   const toX = x => padL + (x - xMin) / (xMax - xMin) * gw;
   const toY = y => padT + (yMax - y) / (yMax - yMin) * gh;
-  // Grille + graduations
+  const autoStep = yStep || Math.max(1, Math.ceil((yMax - yMin) / 10));
   let grid = '';
   for (let x = Math.ceil(xMin); x <= xMax; x++) {
     const gx = toX(x);
     grid += `<line x1="${gx.toFixed(1)}" y1="${padT}" x2="${gx.toFixed(1)}" y2="${H - padB}" stroke="#eef0f6"/>`;
-    if (x !== 0) grid += `<text x="${gx.toFixed(1)}" y="${(toY(0) + 14).toFixed(1)}" font-size="10" text-anchor="middle" fill="#555">${x}</text>`;
+    if (x !== 0) {
+      grid += `<line x1="${gx.toFixed(1)}" y1="${(toY(0) - 3).toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(toY(0) + 3).toFixed(1)}" stroke="#333" stroke-width="1"/>`;
+      grid += `<text x="${gx.toFixed(1)}" y="${(toY(0) + 16).toFixed(1)}" font-size="11" text-anchor="middle" fill="#333">${x}</text>`;
+    }
   }
-  for (let y = Math.ceil(yMin); y <= yMax; y += Math.max(1, Math.floor((yMax - yMin) / 10))) {
+  for (let y = Math.ceil(yMin); y <= yMax; y += autoStep) {
     const gy = toY(y);
     grid += `<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${W - padR}" y2="${gy.toFixed(1)}" stroke="#eef0f6"/>`;
-    if (y !== 0) grid += `<text x="${(toX(0) - 6).toFixed(1)}" y="${(gy + 3).toFixed(1)}" font-size="10" text-anchor="end" fill="#555">${y}</text>`;
+    if (y !== 0) {
+      grid += `<line x1="${(toX(0) - 3).toFixed(1)}" y1="${gy.toFixed(1)}" x2="${(toX(0) + 3).toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#333" stroke-width="1"/>`;
+      grid += `<text x="${(toX(0) - 7).toFixed(1)}" y="${(gy + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#333">${y}</text>`;
+    }
   }
-  // Axes
   const axes = `
-    <line x1="${toX(xMin).toFixed(1)}" y1="${toY(0).toFixed(1)}" x2="${toX(xMax).toFixed(1)}" y2="${toY(0).toFixed(1)}" stroke="#333" stroke-width="1.4" marker-end="url(#arrX)"/>
-    <line x1="${toX(0).toFixed(1)}" y1="${toY(yMin).toFixed(1)}" x2="${toX(0).toFixed(1)}" y2="${toY(yMax).toFixed(1)}" stroke="#333" stroke-width="1.4" marker-end="url(#arrY)"/>
-    <text x="${(toX(xMax) - 8).toFixed(1)}" y="${(toY(0) - 6).toFixed(1)}" font-size="11" fill="#333" text-anchor="end">x</text>
-    <text x="${(toX(0) + 10).toFixed(1)}" y="${(toY(yMax) + 12).toFixed(1)}" font-size="11" fill="#333">y</text>`;
-  // Droite 1 (d1) en rouge, droite 2 (d2) en bleu
+    <line x1="${toX(xMin).toFixed(1)}" y1="${toY(0).toFixed(1)}" x2="${toX(xMax).toFixed(1)}" y2="${toY(0).toFixed(1)}" stroke="#333" stroke-width="1.5" marker-end="url(#arrX)"/>
+    <line x1="${toX(0).toFixed(1)}" y1="${toY(yMin).toFixed(1)}" x2="${toX(0).toFixed(1)}" y2="${toY(yMax).toFixed(1)}" stroke="#333" stroke-width="1.5" marker-end="url(#arrY)"/>
+    <text x="${(toX(xMax) - 4).toFixed(1)}" y="${(toY(0) - 6).toFixed(1)}" font-size="12" fill="#333" text-anchor="end" font-style="italic">x</text>
+    <text x="${(toX(0) + 10).toFixed(1)}" y="${(toY(yMax) + 12).toFixed(1)}" font-size="12" fill="#333" font-style="italic">y</text>`;
+  // Origine O clairement labellisée
+  const origine = `
+    <circle cx="${toX(0).toFixed(1)}" cy="${toY(0).toFixed(1)}" r="3" fill="#333"/>
+    <text x="${(toX(0) - 8).toFixed(1)}" y="${(toY(0) + 16).toFixed(1)}" font-size="12" fill="#333" text-anchor="end" font-weight="700">O</text>`;
   const line = (a, b, color, label, labelPos) => {
     const y1 = a * xMin + b, y2 = a * xMax + b;
     return `<line x1="${toX(xMin).toFixed(1)}" y1="${toY(y1).toFixed(1)}" x2="${toX(xMax).toFixed(1)}" y2="${toY(y2).toFixed(1)}" stroke="${color}" stroke-width="2.4"/>
-      <text x="${toX(labelPos.x).toFixed(1)}" y="${toY(labelPos.y).toFixed(1)}" font-size="13" fill="${color}" font-weight="700">${label}</text>`;
+      <text x="${toX(labelPos.x).toFixed(1)}" y="${toY(labelPos.y).toFixed(1)}" font-size="14" fill="${color}" font-weight="700">${label}</text>`;
   };
-  const d1 = line(a1, b1, '#dc2626', '(d₁)', { x: xMax * 0.6, y: a1 * xMax * 0.6 + b1 + 1 });
-  const d2 = line(a2, b2, '#2563eb', '(d₂)', { x: xMax * 0.85, y: a2 * xMax * 0.85 + b2 - 2 });
-  // Point d'intersection
+  const d1 = line(a1, b1, '#dc2626', '(d₁)', { x: xMax * 0.55, y: a1 * xMax * 0.55 + b1 + (yMax - yMin) * 0.04 });
+  const d2 = line(a2, b2, '#2563eb', '(d₂)', { x: xMax * 0.8, y: a2 * xMax * 0.8 + b2 - (yMax - yMin) * 0.05 });
   let interSvg = '';
   if (inter) {
     const [ix, iy] = inter;
-    interSvg = `<circle cx="${toX(ix).toFixed(1)}" cy="${toY(iy).toFixed(1)}" r="4" fill="#10b981" stroke="#333" stroke-width="1"/>
-      <text x="${(toX(ix) + 8).toFixed(1)}" y="${(toY(iy) - 8).toFixed(1)}" font-size="11" fill="#10b981" font-weight="700">(${String(ix).replace('.', ',')} ; ${iy})</text>`;
+    interSvg = `<circle cx="${toX(ix).toFixed(1)}" cy="${toY(iy).toFixed(1)}" r="4.5" fill="#10b981" stroke="#333" stroke-width="1.2"/>
+      <text x="${(toX(ix) + 10).toFixed(1)}" y="${(toY(iy) - 8).toFixed(1)}" font-size="12" fill="#10b981" font-weight="700">(${String(ix).replace('.', ',')} ; ${iy})</text>`;
   }
   const defs = `<defs>
     <marker id="arrX" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#333"/></marker>
     <marker id="arrY" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#333"/></marker>
   </defs>`;
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">${defs}${grid}${axes}${d1}${d2}${interSvg}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfcfc;border:1px solid #ddd;border-radius:8px;">${defs}${grid}${axes}${origine}${d1}${d2}${interSvg}</svg>`;
 }
 
 /* Figure dédiée : carré ABCD avec octogone IJKLMNOP inscrit (sommets codés) + disque inscrit optionnel.

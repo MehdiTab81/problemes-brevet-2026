@@ -8,7 +8,7 @@
    Incrémente CACHE_VERSION quand on déploie une nouvelle version.
 */
 
-const CACHE_VERSION = 'v24-2026-04-22-brevet-s1-reequilibre';
+const CACHE_VERSION = 'v25-2026-04-22-brevet-ex3-ameliorations';
 const SHELL_CACHE = `autopb3-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `autopb3-runtime-${CACHE_VERSION}`;
 

@@ -6522,7 +6522,11 @@ function isBrevetAnswerCorrect(q, rep) {
     const expected = Array.isArray(q.expected) ? q.expected : [q.expected];
     return expected.some(e => normalizeAnswer(String(e)) === v);
   }
-  if (q.type === 'qcm') return rep.value === q.correctIdx;
+  if (q.type === 'qcm') {
+    // Plusieurs bonnes réponses possibles (via correctIndices), sinon une seule (correctIdx)
+    if (Array.isArray(q.correctIndices)) return q.correctIndices.includes(rep.value);
+    return rep.value === q.correctIdx;
+  }
   return false;
 }
 
