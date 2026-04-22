@@ -274,7 +274,7 @@ const BREVET_SUJETS = [
           {
             id: 'ex3-q4',
             figure: svgRepere2Droites({ a1: 4, b1: 3, a2: 6, b2: 0, xMin: -1, xMax: 3, yMin: -2, yMax: 20, inter: [1.5, 9], yStep: 2 }),
-            body: "Dans le repère ci-dessus, les droites \\((d_1)\\) et \\((d_2)\\) représentent les fonctions \\(f\\) et \\(g\\).<br><br><b>Association correcte :</b> \\((d_1) \\Leftrightarrow f\\) et \\((d_2) \\Leftrightarrow g\\).<br><br>Parmi les justifications suivantes, laquelle est <b>correcte</b> (il y a plusieurs façons valables de justifier) ?",
+            body: "Dans le repère ci-dessus, les droites \\((d_1)\\) (en rouge) et \\((d_2)\\) (en bleu) représentent les fonctions \\(f\\) et \\(g\\), dans un ordre à déterminer.<br><br><b>Associe chaque droite à sa fonction</b> et choisis la <b>justification correcte</b> (plusieurs justifications valables sont possibles).",
             type: 'qcm',
             points: 0.75,
             competence: 'representer',
